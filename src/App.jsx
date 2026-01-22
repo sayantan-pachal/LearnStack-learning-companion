@@ -1,13 +1,7 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
-
-function App() {
+export default function App() {
   return (
-    <div>
-      {/* You can add Navbar here later */}
-      <Outlet />
-    </div>
-  );
+    <h1 className="text-3xl font-bold underline bg-blue-200 justify-center flex items-center h-screen">
+      Hello world!
+    </h1>
+  )
 }
-
-export default App;
