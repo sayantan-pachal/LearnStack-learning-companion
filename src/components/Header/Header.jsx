@@ -28,7 +28,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="shadow rounded-full fixed top-5 left-10 right-10 z-50 transition-all duration-300 bg-white/40 backdrop-blur-sm dark:bg-gray-900/60'">
+    <header className={"shadow rounded-full fixed top-5 left-10 right-10 z-50 transition-all duration-300  bg-white/40 lg:backdrop-blur-sm dark:bg-gray-900/60"}>
       <nav className="px-4 lg:px-6 py-2.5">
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
           <Link to="/" className="flex items-center">
@@ -49,7 +49,7 @@ export default function Header() {
             <ThemeToggle />
             <Link
               to="/get-started"
-              className="hidden lg:flex px-5 py-2 rounded-lg font-medium transition-all duration-200 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/50 dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/50"
+              className="hidden lg:flex px-5 py-2 rounded-full font-medium transition-all duration-200 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/50 dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/50"
             >
               Get Started
             </Link>
@@ -76,17 +76,15 @@ export default function Header() {
                     key={link.to}
                     to={link.to}
                     onClick={() => setIsOpen(false)}
-                    className={({ isActive }) =>
-                      `font-semibold transition-colors duration-200 ${isActive ? "text-orange-700 dark:text-orange-500" : "text-gray-700 dark:text-gray-300"} lg:hover:bg-transparent hover:text-orange-700 dark:hover:text-orange-500 lg:p-0`
-                    }
-                  >{link.icon && <link.icon className="w-5 h-5" />} {link.label} </NavLink>
+                    className={({ isActive }) =>`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 hover:text-gray-900 hover:bg-white/60 dark:hover:text-white dark:hover:bg-gray-800 ${isActive ? "text-orange-700 bg-white/70 dark:text-orange-500 dark:bg-gray-800" : "text-gray-700 dark:text-gray-300" }`}
+                  >{link.icon && <link.icon className="w-5 h-5 m-2" />}{link.label} </NavLink>
                 ))}
-                <Link
+                <NavLink
                   to="/get-started"
-                  className="font-medium transition-all duration-200 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/50 dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/50"
+                  className="px-10 py-4 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/50 dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/50"
                 >
                   Get Started
-                </Link>
+                </NavLink>
               </div>
             </div>
           )}
@@ -97,8 +95,8 @@ export default function Header() {
                 <li key={link.to}>
                   <NavLink
                     to={link.to}
-                    className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 text-gray-700 hover:text-gray-900 hover:bg-white/60 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
-                  >{link.icon && <link.icon className="w-5 h-5" />} {link.label} </NavLink>
+                    className={({ isActive }) =>`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 hover:text-gray-900 hover:bg-white/60 dark:hover:text-white dark:hover:bg-gray-800 ${isActive ? "text-orange-700 dark:text-orange-500 bg-white/70 dark:bg-gray-800" : "text-gray-700 dark:text-gray-300"}`}
+                  >{link.icon && <link.icon className="w-5 h-5 mr-2" />} {link.label} </NavLink>
                 </li>
               ))}
             </ul>
