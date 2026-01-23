@@ -8,6 +8,7 @@ import Resources from './components/Resources/Resources.jsx'
 import LearningPaths from './components/Learning Paths/LearningPaths.jsx'
 import Achievements from './components/Achievements/Achievements.jsx'
 import Community from './components/Community/Community.jsx'
+import GetStarted from './components/Get Started/GetStarted.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -17,6 +18,8 @@ const router = createBrowserRouter(
       <Route path='learningpaths' element={<LearningPaths />} />
       <Route path='achievements' element={<Achievements />} />
       <Route path='community' element={<Community />} />
+      <Route path='get-started' element={<GetStarted />} />
+      <Route path='*' element={<div>Not Found</div>} />
     </Route>
   )
 )
