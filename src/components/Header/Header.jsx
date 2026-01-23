@@ -106,7 +106,7 @@ export default function Header() {
                 <li key={link.to}>
                   <NavLink
                     to={link.to}
-                    className={({ isActive }) => `px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 hover:text-gray-900 hover:bg-white/60 dark:hover:text-white dark:hover:bg-gray-800 ${isActive ? "text-orange-700 dark:text-orange-500 bg-white/70 dark:bg-gray-800" : "text-gray-700 dark:text-gray-300"}`}
+                    className={({ isActive }) => `px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 hover:text-gray-900 hover:bg-white/60 dark:hover:text-white dark:hover:bg-gray-800 hover:bg-slate-100 ${isActive ? "text-orange-700 dark:text-orange-500 bg-slate-100 dark:bg-gray-800" : "text-gray-700 dark:text-gray-300"}`}
                   >{link.icon && <link.icon className="w-5 h-5 mr-2" />} {link.label} </NavLink>
                 </li>
               ))}
