@@ -34,13 +34,7 @@ export default function Header() {
           <Link to="/" className="flex items-center">
             {/* <Logo /> */}
             <div className="flex items-center space-x-2">
-              {/* <div className="w-10 h-10 rounded-lg flex items-center justify-center
-                                  bg-gradient-to-br from-blue-500 to-indigo-600
-                                  dark:from-purple-500 dark:to-pink-500">
-                <BookOpen className="w-6 h-6 text-white" />
-              </div> */}
               <img src="/logo1.png" alt="LearnStack Logo" className="w-10 h-10" />
-
               <span className="text-xl font-bold text-gray-900 dark:text-white">
                 LearnStack
               </span>

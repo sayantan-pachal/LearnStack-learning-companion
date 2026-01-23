@@ -11,9 +11,14 @@ function Footer() {
 
           {/* Brand */}
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              LearnStack
-            </h2>
+            <span className="flex flex-col items-start font-bold text-gray-900 dark:text-white leading-tight">
+              <span className="text-xl">
+                LearnStack
+              </span>
+              <span className="text-[11px] max-[900px]:text-[8px] text-gray-600 dark:text-gray-300 -mt-1">
+                v.0.9.0
+              </span>
+            </span>
             <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
               LearnStack helps students master coding skills and access
               college-level learning resources in one place.
