@@ -1,11 +1,11 @@
 import React from 'react'
 
-function Home() {
+function Community() {
   return (
     <div className="pt-24 px-4 pb-20 dark:bg-black">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white">
-            Welcome to LearnStack Home
+            Welcome to LearnStack Community
           </h1>
           <p className="text-xl md:text-2xl mb-8 dark:text-gray-300 text-gray-700">
             Your student-friendly learning companion
@@ -20,10 +20,10 @@ function Home() {
             ↓ Scroll down to see the header blur effect ↓
           </p>
         </div>
-        
+
         <div className="mt-96 h-screen"></div>
     </div>
   )
 }
 
-export default Home
+export default Community
