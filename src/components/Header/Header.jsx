@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Moon, Sun, Menu, X, BookOpen, Compass, Trophy, Users, Home } from 'lucide-react';
 import { Link, NavLink } from "react-router-dom";
-// import Logo from "../Logo/Logo";
+// import Logo from "../../../public/lo";
 import ThemeToggle from "./ThemeToggle"
 
 export default function Header() {
@@ -34,11 +34,12 @@ export default function Header() {
           <Link to="/" className="flex items-center">
             {/* <Logo /> */}
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center
+              {/* <div className="w-10 h-10 rounded-lg flex items-center justify-center
                                   bg-gradient-to-br from-blue-500 to-indigo-600
                                   dark:from-purple-500 dark:to-pink-500">
                 <BookOpen className="w-6 h-6 text-white" />
-              </div>
+              </div> */}
+              <img src="/logo1.png" alt="LearnStack Logo" className="w-10 h-10" />
 
               <span className="text-xl font-bold text-gray-900 dark:text-white">
                 LearnStack
@@ -76,7 +77,7 @@ export default function Header() {
                     key={link.to}
                     to={link.to}
                     onClick={() => setIsOpen(false)}
-                    className={({ isActive }) =>`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 hover:text-gray-900 hover:bg-white/60 dark:hover:text-white dark:hover:bg-gray-800 ${isActive ? "text-orange-700 bg-white/70 dark:text-orange-500 dark:bg-gray-800" : "text-gray-700 dark:text-gray-300" }`}
+                    className={({ isActive }) => `px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 hover:text-gray-900 hover:bg-white/60 dark:hover:text-white dark:hover:bg-gray-800 ${isActive ? "text-orange-700 bg-white/70 dark:text-orange-500 dark:bg-gray-800" : "text-gray-700 dark:text-gray-300"}`}
                   >{link.icon && <link.icon className="w-5 h-5 m-2" />}{link.label} </NavLink>
                 ))}
                 <NavLink
@@ -85,6 +86,17 @@ export default function Header() {
                 >
                   Get Started
                 </NavLink>
+                <div className="flex items-center space-x-2">
+                  <img src="/logo1.png" alt="LearnStack Logo" className="w-10 h-10" />
+                  <span className="flex flex-col items-center font-bold text-gray-900 dark:text-white leading-tight">
+                    <span className="text-xl">
+                      LearnStack
+                    </span>
+                    <span className="text-[11px] max-[900px]:text-[8px] text-gray-600 dark:text-gray-300 -mt-1">
+                      v.0.9.0
+                    </span>
+                  </span>
+                </div>
               </div>
             </div>
           )}
@@ -95,7 +107,7 @@ export default function Header() {
                 <li key={link.to}>
                   <NavLink
                     to={link.to}
-                    className={({ isActive }) =>`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 hover:text-gray-900 hover:bg-white/60 dark:hover:text-white dark:hover:bg-gray-800 ${isActive ? "text-orange-700 dark:text-orange-500 bg-white/70 dark:bg-gray-800" : "text-gray-700 dark:text-gray-300"}`}
+                    className={({ isActive }) => `px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 hover:text-gray-900 hover:bg-white/60 dark:hover:text-white dark:hover:bg-gray-800 ${isActive ? "text-orange-700 dark:text-orange-500 bg-white/70 dark:bg-gray-800" : "text-gray-700 dark:text-gray-300"}`}
                   >{link.icon && <link.icon className="w-5 h-5 mr-2" />} {link.label} </NavLink>
                 </li>
               ))}
