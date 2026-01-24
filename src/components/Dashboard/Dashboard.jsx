@@ -1,49 +1,58 @@
-import React from "react";
-import { BookOpen, Compass, Trophy, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import React, { useMemo } from "react";
+import { BookOpen, Compass, Trophy, Users, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 function Dashboard() {
+  const navigate = useNavigate();
+
+  const session = useMemo(
+    () => JSON.parse(localStorage.getItem("learnstack_user")),
+    []
+  );
+
+  const users = useMemo(
+    () => JSON.parse(localStorage.getItem("learnstack_users")) || [],
+    []
+  );
+
+  const currentUser = users.find(
+    (u) => u.email === session?.email
+  );
+
+  const handleLogout = () => {
+    localStorage.removeItem("learnstack_user");
+    navigate("/login", { replace: true });
+  };
+
   const cards = [
-    {
-      title: "Resources",
-      desc: "Access notes, tutorials, and study materials",
-      icon: BookOpen,
-      link: "/resources",
-      color: "from-blue-500 to-indigo-600",
-    },
-    {
-      title: "Learning Paths",
-      desc: "Follow structured roadmaps step-by-step",
-      icon: Compass,
-      link: "/learningpaths",
-      color: "from-green-500 to-emerald-600",
-    },
-    {
-      title: "Achievements",
-      desc: "Track milestones and celebrate progress",
-      icon: Trophy,
-      link: "/achievements",
-      color: "from-yellow-500 to-orange-600",
-    },
-    {
-      title: "Community",
-      desc: "Ask questions and learn with peers",
-      icon: Users,
-      link: "/community",
-      color: "from-pink-500 to-rose-600",
-    },
+    { title: "Resources", desc: "Access notes & tutorials", icon: BookOpen, link: "/resources", color: "from-blue-500 to-indigo-600" },
+    { title: "Learning Paths", desc: "Step-by-step roadmaps", icon: Compass, link: "/learningpaths", color: "from-green-500 to-emerald-600" },
+    { title: "Achievements", desc: "Track milestones", icon: Trophy, link: "/achievements", color: "from-yellow-500 to-orange-600" },
+    { title: "Community", desc: "Learn with peers", icon: Users, link: "/community", color: "from-pink-500 to-rose-600" },
   ];
 
   return (
     <div className="pt-28 px-4 pb-24 dark:bg-black">
-      {/* Welcome */}
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
-          Welcome back 👋
-        </h1>
-        <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
-          Let’s continue building your skills today.
-        </p>
+      {/* Header */}
+      <div className="max-w-6xl mx-auto flex justify-between items-start gap-4">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+            Welcome back{currentUser?.name ? `, ${currentUser.name}` : ""} 👋
+          </h1>
+          <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
+            Logged in as{" "}
+            <span className="font-medium">{session.email}</span>
+          </p>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg
+                     bg-red-500 text-white hover:bg-red-600 transition"
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </button>
       </div>
 
       {/* Progress */}
@@ -59,13 +68,14 @@ function Dashboard() {
         </p>
       </div>
 
-      {/* Dashboard Cards */}
+      {/* Cards */}
       <div className="mt-16 max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {cards.map((card, index) => (
+        {cards.map((card) => (
           <Link
-            key={index}
+            key={card.title}
             to={card.link}
-            className="p-6 rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow hover:scale-[1.03] transition"
+            className="p-6 rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow
+                       hover:scale-[1.03] transition"
           >
             <div
               className={`w-12 h-12 rounded-lg flex items-center justify-center bg-gradient-to-r ${card.color}`}

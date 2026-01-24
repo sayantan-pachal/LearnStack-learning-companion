@@ -1,8 +1,62 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, ArrowRight } from "lucide-react";
 
 function Signup() {
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const session = JSON.parse(localStorage.getItem("learnstack_user"));
+    if (session?.isLoggedIn) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
+
+  const handleSignup = (e) => {
+    e.preventDefault();
+
+    if (!name || !email || !password) {
+      alert("All fields are required");
+      return;
+    }
+
+    const users =
+      JSON.parse(localStorage.getItem("learnstack_users")) || [];
+
+    const userExists = users.some((u) => u.email === email);
+
+    if (userExists) {
+      alert("User already exists. Please login.");
+      return;
+    }
+
+    const newUser = {
+      name,
+      email,
+      password,
+      createdAt: new Date().toISOString(),
+    };
+
+    users.push(newUser);
+    localStorage.setItem("learnstack_users", JSON.stringify(users));
+
+    // auto-login after signup
+    localStorage.setItem(
+      "learnstack_user",
+      JSON.stringify({
+        isLoggedIn: true,
+        email,
+        loginTime: new Date().toISOString(),
+      })
+    );
+
+    navigate("/dashboard");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 dark:bg-black">
       <div className="w-full max-w-md p-8 rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow">
@@ -13,7 +67,8 @@ function Signup() {
           Start your learning journey today
         </p>
 
-        <form className="mt-8 space-y-5">
+        <form className="mt-8 space-y-5" onSubmit={handleSignup}>
+          {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Name
@@ -23,11 +78,14 @@ function Signup() {
               <input
                 type="text"
                 placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email
@@ -37,11 +95,14 @@ function Signup() {
               <input
                 type="email"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
+          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Password
@@ -51,6 +112,8 @@ function Signup() {
               <input
                 type="password"
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -71,7 +134,10 @@ function Signup() {
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 dark:text-purple-400 font-medium hover:underline">
+          <Link
+            to="/login"
+            className="text-blue-600 dark:text-purple-400 font-medium hover:underline"
+          >
             Login
           </Link>
         </p>

@@ -1,10 +1,9 @@
-import React from "react";
 import { Navigate } from "react-router-dom";
 
 function ProtectedRoute({ children }) {
-  const user = JSON.parse(localStorage.getItem("learnstack_user"));
+  const session = JSON.parse(localStorage.getItem("learnstack_user"));
 
-  if (!user || !user.isLoggedIn) {
+  if (!session?.isLoggedIn) {
     return <Navigate to="/login" replace />;
   }
 

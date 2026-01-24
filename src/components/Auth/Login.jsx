@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
-import useLocalStorage from "../../hooks/useLocalStorage";
 
 function Login() {
   const navigate = useNavigate();
@@ -9,24 +8,31 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // eslint-disable-next-line no-unused-vars
-  const [user, setUser] = useLocalStorage("learnstack_user", null);
 
   const handleLogin = (e) => {
     e.preventDefault();
 
     if (!email || !password) return;
 
-    // Save login state
-    setUser({
-      isLoggedIn: true,
-      email,
-      loginTime: new Date().toISOString(),
-    });
+    localStorage.setItem(
+      "learnstack_user",
+      JSON.stringify({
+        isLoggedIn: true,
+        email,
+        loginTime: new Date().toISOString(),
+      })
+    );
 
-    // Redirect after login
-    navigate("/dashboard");
+    navigate("/dashboard", { replace: true });
   };
+
+  useEffect(() => {
+    const session = JSON.parse(localStorage.getItem("learnstack_user"));
+    if (session?.isLoggedIn) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
+
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 dark:bg-black">
