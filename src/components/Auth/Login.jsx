@@ -8,17 +8,34 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-
   const handleLogin = (e) => {
     e.preventDefault();
 
     if (!email || !password) return;
 
+    const users =
+      JSON.parse(localStorage.getItem("learnstack_users")) || [];
+
+    // 🔍 check if user exists
+    const foundUser = users.find((u) => u.email === email);
+
+    if (!foundUser) {
+      alert("User not found. Please sign up.");
+      return;
+    }
+
+    // 🔐 check password
+    if (foundUser.password !== password) {
+      alert("Incorrect password");
+      return;
+    }
+
+    // ✅ create session
     localStorage.setItem(
       "learnstack_user",
       JSON.stringify({
         isLoggedIn: true,
-        email,
+        email: foundUser.email,
         loginTime: new Date().toISOString(),
       })
     );
@@ -26,13 +43,13 @@ function Login() {
     navigate("/dashboard", { replace: true });
   };
 
+  // 🔁 auto redirect if already logged in
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("learnstack_user"));
     if (session?.isLoggedIn) {
       navigate("/dashboard", { replace: true });
     }
   }, [navigate]);
-
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 dark:bg-black">
