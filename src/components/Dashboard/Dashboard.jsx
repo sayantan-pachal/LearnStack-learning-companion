@@ -92,8 +92,6 @@ function Dashboard() {
           Even 30 minutes a day can change your future.
         </p>
       </div>
-
-      <div className="mt-96 h-screen" />
     </div>
   );
 }
