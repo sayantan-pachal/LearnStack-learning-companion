@@ -12,6 +12,7 @@ import GetStarted from './components/Get Started/GetStarted.jsx'
 import Dashboard from './components/Dashboard/Dashboard.jsx'
 import Login from './components/Auth/Login.jsx'
 import Signup from './components/Auth/Signup.jsx'
+import Edgecase from './components/ZEdgecase/Edgecase.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -25,7 +26,7 @@ const router = createBrowserRouter(
       <Route path='dashboard' element={<Dashboard />} />
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
-      <Route path='*' element={<div>Not Found</div>} />
+      <Route path='*' element={<Edgecase />} />
     </Route>
   )
 )

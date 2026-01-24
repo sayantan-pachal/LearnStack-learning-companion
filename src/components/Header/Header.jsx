@@ -48,11 +48,11 @@ export default function Header() {
             >
               Get Started
             </Link>
-            {/* <Link
+            <Link
               to="/profile"
               className="hidden lg:flex ml-4 p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
               <User className="w-6 h-6" />
-            </Link> */}
+            </Link>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center lg:p-2 mr-0 p-0 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
