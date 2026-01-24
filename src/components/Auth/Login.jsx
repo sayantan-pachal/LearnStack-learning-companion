@@ -1,19 +1,46 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
 function Login() {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // eslint-disable-next-line no-unused-vars
+  const [user, setUser] = useLocalStorage("learnstack_user", null);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    if (!email || !password) return;
+
+    // Save login state
+    setUser({
+      isLoggedIn: true,
+      email,
+      loginTime: new Date().toISOString(),
+    });
+
+    // Redirect after login
+    navigate("/dashboard");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 dark:bg-black">
       <div className="w-full max-w-md p-8 rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
           Welcome Back 👋
         </h1>
+
         <p className="mt-2 text-center text-gray-600 dark:text-gray-400">
           Login to continue learning
         </p>
 
-        <form className="mt-8 space-y-5">
+        <form onSubmit={handleLogin} className="mt-8 space-y-5">
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email
@@ -23,11 +50,14 @@ function Login() {
               <input
                 type="email"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
+          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Password
@@ -37,11 +67,14 @@ function Login() {
               <input
                 type="password"
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
+          {/* Login Button */}
           <button
             type="submit"
             className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium
@@ -57,7 +90,10 @@ function Login() {
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Don’t have an account?{" "}
-          <Link to="/signup" className="text-blue-600 dark:text-purple-400 font-medium hover:underline">
+          <Link
+            to="/signup"
+            className="text-blue-600 dark:text-purple-400 font-medium hover:underline"
+          >
             Sign up
           </Link>
         </p>
