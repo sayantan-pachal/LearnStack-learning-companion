@@ -1,0 +1,69 @@
+import React from "react";
+import { Link } from "react-router-dom";
+import { Mail, Lock, ArrowRight } from "lucide-react";
+
+function Login() {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 dark:bg-black">
+      <div className="w-full max-w-md p-8 rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
+          Welcome Back 👋
+        </h1>
+        <p className="mt-2 text-center text-gray-600 dark:text-gray-400">
+          Login to continue learning
+        </p>
+
+        <form className="mt-8 space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Email
+            </label>
+            <div className="relative mt-1">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="email"
+                placeholder="you@example.com"
+                className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Password
+            </label>
+            <div className="relative mt-1">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium
+                       bg-gradient-to-r from-blue-500 to-indigo-600 text-white
+                       hover:shadow-lg hover:shadow-blue-500/40
+                       dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/40
+                       transition"
+          >
+            Login
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-blue-600 dark:text-purple-400 font-medium hover:underline">
+            Sign up
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default Login;

@@ -9,6 +9,9 @@ import LearningPaths from './components/Learning Paths/LearningPaths.jsx'
 import Achievements from './components/Achievements/Achievements.jsx'
 import Community from './components/Community/Community.jsx'
 import GetStarted from './components/Get Started/GetStarted.jsx'
+import Dashboard from './components/Dashboard/Dashboard.jsx'
+import Login from './components/Auth/Login.jsx'
+import Signup from './components/Auth/Signup.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -19,6 +22,9 @@ const router = createBrowserRouter(
       <Route path='achievements' element={<Achievements />} />
       <Route path='community' element={<Community />} />
       <Route path='get-started' element={<GetStarted />} />
+      <Route path='dashboard' element={<Dashboard />} />
+      <Route path="login" element={<Login />} />
+      <Route path="signup" element={<Signup />} />
       <Route path='*' element={<div>Not Found</div>} />
     </Route>
   )
