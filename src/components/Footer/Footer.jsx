@@ -1,5 +1,6 @@
 import React from 'react'
 import { Github, Linkedin, Twitter, Mail } from "lucide-react"
+import Logo2 from "../../../public/Logo2";
 
 function Footer() {
   return (
@@ -11,14 +12,7 @@ function Footer() {
 
           {/* Brand */}
           <div>
-            <span className="flex flex-col items-start font-bold text-gray-900 dark:text-white leading-tight">
-              <span className="text-xl">
-                LearnStack
-              </span>
-              <span className="text-[11px] max-[900px]:text-[8px] text-gray-600 dark:text-gray-300 -mt-1">
-                v.0.9.0
-              </span>
-            </span>
+            <Logo2 />
             <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
               LearnStack helps students master coding skills and access
               college-level learning resources in one place.
