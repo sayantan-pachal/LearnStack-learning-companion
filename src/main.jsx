@@ -13,19 +13,23 @@ import Dashboard from './components/Dashboard/Dashboard.jsx'
 import Login from './components/Auth/Login.jsx'
 import Signup from './components/Auth/Signup.jsx'
 import Edgecase from './components/ZEdgecase/Edgecase.jsx'
+import ProtectedRoute from './ProtectedRoute.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<Layout />}>
+      {/* Public Routes */}
       <Route path='' element={<Home />} />
-      <Route path='resources' element={<Resources />} />
-      <Route path='learningpaths' element={<LearningPaths />} />
-      <Route path='achievements' element={<Achievements />} />
       <Route path='community' element={<Community />} />
       <Route path='get-started' element={<GetStarted />} />
-      <Route path='dashboard' element={<Dashboard />} />
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
+      {/* Protected Routes */}
+      <Route path='resources' element={<ProtectedRoute><Resources /></ProtectedRoute>} />
+      <Route path='learningpaths' element={<ProtectedRoute><LearningPaths /></ProtectedRoute>} />
+      <Route path='achievements' element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+      <Route path='dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      {/* 404 */}
       <Route path='*' element={<Edgecase />} />
     </Route>
   )
