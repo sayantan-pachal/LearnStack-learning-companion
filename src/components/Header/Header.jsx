@@ -29,7 +29,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className={"shadow rounded-full fixed top-5 left-10 right-10 z-50 transition-all duration-300 bg-white/40 lg:backdrop-blur-sm dark:bg-gray-900/60"}>
+    <header className="shadow rounded-full fixed top-5 left-10 right-10 z-50 transition-all duration-300 bg-white/40 lg:backdrop-blur-sm dark:bg-gray-900/60">
       <nav className="px-4 lg:px-6 py-2.5">
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
           <Link to="/" className="flex items-center">
