@@ -14,6 +14,7 @@ import Login from './components/Auth/Login.jsx'
 import Signup from './components/Auth/Signup.jsx'
 import Edgecase from './components/ZEdgecase/Edgecase.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
+import ResetPassword from './components/Auth/ResetPassword.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -25,10 +26,11 @@ const router = createBrowserRouter(
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
       {/* Protected Routes */}
+      <Route path='dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path='resources' element={<ProtectedRoute><Resources /></ProtectedRoute>} />
       <Route path='learningpaths' element={<ProtectedRoute><LearningPaths /></ProtectedRoute>} />
       <Route path='achievements' element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
-      <Route path='dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path='reset-password' element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
       {/* 404 */}
       <Route path='*' element={<Edgecase />} />
     </Route>

@@ -34,25 +34,33 @@ function Dashboard() {
   return (
     <div className="pt-28 px-4 pb-24 dark:bg-black">
       {/* Header */}
-      <div className="max-w-6xl mx-auto flex justify-between items-start gap-4">
+      <div className="max-w-6xl mx-auto flex justify-between items-start gap-0">
         <div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl md:text-5xl font-bold text-gray-900 dark:text-white">
             Welcome back{currentUser?.name ? `, ${currentUser.name}` : ""} 👋
           </h1>
-          <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
+          <p className="mt-3 text-sm md:text-lg text-gray-600 dark:text-gray-400">
             Logged in as{" "}
             <span className="font-medium">{session.email}</span>
           </p>
         </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate("/reset-password")}
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm md:text-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+          >
+            Reset Password
+          </button>
 
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm md:text-lg
                      bg-red-500 text-white hover:bg-red-600 transition"
-        >
-          <LogOut className="w-4 h-4" />
-          Logout
-        </button>
+          >
+            <LogOut className="w-4 h-4 lg:flex hidden" />
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Progress */}
