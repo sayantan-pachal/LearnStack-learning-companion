@@ -45,7 +45,7 @@ export default function Header() {
             </Link>
             <Link
               to="/dashboard"
-              className="ml-4 p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+              className="ml-2 p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
               <User className="w-6 h-6" />
             </Link>
             <button

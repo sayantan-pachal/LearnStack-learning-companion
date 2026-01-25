@@ -32,7 +32,7 @@ function Dashboard() {
   ];
 
   return (
-    <div className="pt-28 px-4 pb-24 dark:bg-black">
+    <div className="pt-28 px-4 pb-24 dark:bg-black h-min-screen">
       {/* Header */}
       <div className="max-w-6xl mx-auto flex justify-between items-start gap-0">
         <div>
