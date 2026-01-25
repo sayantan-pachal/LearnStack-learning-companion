@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { hashPassword } from "../../utils/hash";
 import { Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 
-async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    return Array.from(new Uint8Array(hashBuffer))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-}
 
 function ResetPassword() {
     const navigate = useNavigate();
