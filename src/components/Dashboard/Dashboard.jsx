@@ -44,10 +44,10 @@ function Dashboard() {
             <span className="font-medium">{session.email}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-col lg:flex-row">
           <button
             onClick={() => navigate("/reset-password")}
-            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm md:text-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm md:text-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white transition-all duration-300"
           >
             Reset Password
           </button>
@@ -57,7 +57,7 @@ function Dashboard() {
             className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm md:text-lg
                      bg-red-500 text-white hover:bg-red-600 transition"
           >
-            <LogOut className="w-4 h-4 lg:flex hidden" />
+            <LogOut className="w-4 h-4" />
             Logout
           </button>
         </div>
