@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
+import { hashPassword } from "../../utils/hash";
 
 function Login() {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!email || !password) return;
@@ -24,8 +25,10 @@ function Login() {
       return;
     }
 
-    // 🔐 check password
-    if (foundUser.password !== password) {
+    // 🔐 HASH & CHECK PASSWORD
+    const hashedPassword = await hashPassword(password);
+
+    if (foundUser.password !== hashedPassword) {
       alert("Incorrect password");
       return;
     }
@@ -43,7 +46,6 @@ function Login() {
     navigate("/dashboard", { replace: true });
   };
 
-  // 🔁 auto redirect if already logged in
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("learnstack_user"));
     if (session?.isLoggedIn) {

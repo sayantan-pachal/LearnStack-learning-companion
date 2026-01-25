@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, ArrowRight } from "lucide-react";
+import { hashPassword } from "../../utils/hash";
 
 function Signup() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ function Signup() {
     }
   }, [navigate]);
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
 
     if (!name || !email || !password) {
@@ -34,10 +35,13 @@ function Signup() {
       return;
     }
 
+    // 🔐 HASH PASSWORD
+    const hashedPassword = await hashPassword(password);
+
     const newUser = {
       name,
       email,
-      password,
+      password: hashedPassword,
       createdAt: new Date().toISOString(),
     };
 
