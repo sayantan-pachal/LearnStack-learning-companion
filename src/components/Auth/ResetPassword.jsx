@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { hashPassword } from "../../utils/hash";
 import { Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { hashPassword } from "./utils/hash";
 
 
 function ResetPassword() {
