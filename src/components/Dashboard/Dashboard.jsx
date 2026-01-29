@@ -31,13 +31,16 @@ function Dashboard() {
     { title: "Community", desc: "Learn with peers", icon: Users, link: "/community", color: "from-pink-500 to-rose-600" },
   ];
 
+  const formatName = (name = "") => name.toLowerCase().split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+
+
   return (
     <div className="pt-28 px-4 pb-24 dark:bg-black h-min-screen">
       {/* Header */}
       <div className="max-w-6xl mx-auto flex justify-between items-start gap-0">
         <div>
           <h1 className="text-2xl md:text-5xl font-bold text-gray-900 dark:text-white text-wrap">
-            Welcome back{currentUser?.name ? `, ${currentUser.name}` : ""} 👋
+            Welcome back{currentUser?.name ? `, ${formatName(currentUser.name)}` : ""} 👋
           </h1>
           <p className="mt-3 text-sm md:text-lg text-gray-600 dark:text-gray-400">
             Logged in as{" "}
