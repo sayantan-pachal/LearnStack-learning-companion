@@ -76,7 +76,7 @@ export default function Header() {
                 ))}
                 <NavLink
                   to="/get-started"
-                  className="px-10 py-4 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/50 dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/50"
+                  className="px-6 py-4 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/50 dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/50"
                 >
                   Get Started
                 </NavLink>
