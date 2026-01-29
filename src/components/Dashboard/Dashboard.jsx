@@ -36,7 +36,7 @@ function Dashboard() {
       {/* Header */}
       <div className="max-w-6xl mx-auto flex justify-between items-start gap-0">
         <div>
-          <h1 className="text-2xl md:text-5xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl md:text-5xl font-bold text-gray-900 dark:text-white text-wrap">
             Welcome back{currentUser?.name ? `, ${currentUser.name}` : ""} 👋
           </h1>
           <p className="mt-3 text-sm md:text-lg text-gray-600 dark:text-gray-400">
@@ -44,7 +44,7 @@ function Dashboard() {
             <span className="font-medium">{session.email}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-col lg:flex-row">
+        <div className="flex items-center gap-2 flex-col lg:flex-row w-[25%] z-10">
           <button
             onClick={() => navigate("/reset-password")}
             className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm md:text-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white transition-all duration-300"
