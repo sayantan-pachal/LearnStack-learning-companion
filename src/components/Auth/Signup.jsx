@@ -27,8 +27,7 @@ function Signup() {
       return;
     }
 
-    const users =
-      JSON.parse(localStorage.getItem("learnstack_users")) || [];
+    const users = JSON.parse(localStorage.getItem("learnstack_users")) || [];
 
     const userExists = users.some((u) => u.email === email);
 
@@ -57,7 +56,7 @@ function Signup() {
         isLoggedIn: true,
         email,
         loginTime: new Date().toISOString(),
-      })
+      }),
     );
 
     navigate("/dashboard");
@@ -133,18 +132,18 @@ function Signup() {
                 onClick={() => setShowpassword(!showpassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
-                {showpassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showpassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium
-                       bg-gradient-to-r from-blue-500 to-indigo-600 text-white
-                       hover:shadow-lg hover:shadow-blue-500/40
-                       dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/40
-                       transition"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-indigo-600 text-white dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/40 transition"
           >
             Sign Up
             <ArrowRight className="w-5 h-5" />
