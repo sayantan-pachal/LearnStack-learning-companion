@@ -10,7 +10,9 @@ function Layout() {
         <div>
             <Header />
             {/* <ScrollToTop /> */}
-            <Outlet />
+            <main className="flex-grow">
+                <Outlet />
+            </main>
             <Footer />
         </div>
     )

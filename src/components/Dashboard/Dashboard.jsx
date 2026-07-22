@@ -1,27 +1,53 @@
-import React, { useMemo } from "react";
-import { BookOpen, Compass, Trophy, Users, LogOut } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { BookOpen, Compass, Trophy, Users, LogOut, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { account, databases, PROGRESS_COLLECTION_ID, DATABASE_ID } from "../../appwrite/config"; // Ensure correct path
 
 function Dashboard() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
-  const session = useMemo(
-    () => JSON.parse(localStorage.getItem("learnstack_user")),
-    []
-  );
+  // Authenticate and Load Data
+  useEffect(() => {
+    const initDashboard = async () => {
+      try {
+        // 1. Get active user session
+        const currentUser = await account.get();
+        setUser(currentUser);
 
-  const users = useMemo(
-    () => JSON.parse(localStorage.getItem("learnstack_users")) || [],
-    []
-  );
+        // 2. Fetch user's progress from Google Sheets
+        // This hits the doGet function we just added to Apps Script
+        const progressData = await databases.listDocuments(DATABASE_ID, PROGRESS_COLLECTION_ID);
+        
+        // Calculate progress if data exists (Mock calculation based on documents)
+        if (progressData.documents && progressData.documents.length > 0) {
+            // Example: If you have a 'completionPercentage' column in your UserProgress sheet
+            const latestProgress = progressData.documents[0].completionPercentage || 0;
+            setProgress(latestProgress);
+        } else {
+            setProgress(0); // Default for new users
+        }
 
-  const currentUser = users.find(
-    (u) => u.email === session?.email
-  );
+      } catch (error) {
+        console.error("Dashboard initialization failed:", error);
+        navigate("/login", { replace: true });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleLogout = () => {
-    localStorage.removeItem("learnstack_user");
-    navigate("/login", { replace: true });
+    initDashboard();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    try {
+      await account.deleteSession();
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const cards = [
@@ -31,34 +57,41 @@ function Dashboard() {
     { title: "Community", desc: "Learn with peers", icon: Users, link: "/community", color: "from-pink-500 to-rose-600" },
   ];
 
-  const formatName = (name = "") => name.toLowerCase().split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  const formatName = (name = "") => 
+    name.toLowerCase().split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center dark:bg-black">
+        <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+      </div>
+    );
+  }
 
   return (
-    <div className="pt-28 px-4 pb-24 dark:bg-black h-min-screen">
+    <div className="pt-28 px-4 pb-24 dark:bg-black min-h-screen">
       {/* Header */}
-      <div className="max-w-6xl mx-auto flex justify-between items-start gap-0">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-2xl md:text-5xl font-bold text-gray-900 dark:text-white text-wrap">
-            Welcome back{currentUser?.name ? `, ${formatName(currentUser.name)}` : ""} 👋
+            Welcome back{user?.name ? `, ${formatName(user.name)}` : ""} 👋
           </h1>
           <p className="mt-3 text-sm md:text-lg text-gray-600 dark:text-gray-400">
-            Logged in as{" "}
-            <span className="font-medium">{session.email}</span>
+            Logged in as <span className="font-medium">{user?.email}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-col lg:flex-row w-[25%] z-10">
+        
+        <div className="flex items-center gap-3 w-full md:w-auto z-10">
           <button
             onClick={() => navigate("/reset-password")}
-            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm md:text-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white transition-all duration-300"
+            className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-all duration-300"
           >
-            Reset Password
+            Settings
           </button>
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm md:text-lg
-                     bg-red-500 text-white hover:bg-red-600 transition"
+            className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-500 transition-all duration-300"
           >
             <LogOut className="w-4 h-4" />
             Logout
@@ -67,37 +100,37 @@ function Dashboard() {
       </div>
 
       {/* Progress */}
-      <div className="mt-10 max-w-6xl mx-auto p-6 rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="mt-10 max-w-6xl mx-auto p-6 rounded-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow border border-gray-100 dark:border-gray-800">
+        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
           Your Progress
         </p>
-        <div className="mt-3 w-full h-3 rounded-full bg-gray-200 dark:bg-gray-700">
-          <div className="h-full w-[35%] rounded-full bg-gradient-to-r from-blue-500 to-indigo-600" />
+        <div className="mt-4 w-full h-3 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+          <div 
+            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000 ease-out" 
+            style={{ width: `${progress}%` }}
+          />
         </div>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          35% completed — keep going 💪
+        <p className="mt-3 text-sm font-medium text-gray-500 dark:text-gray-400">
+          {progress}% completed — keep going 💪
         </p>
       </div>
 
       {/* Cards */}
-      <div className="mt-16 max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="mt-12 max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card) => (
           <Link
             key={card.title}
             to={card.link}
-            className="p-6 rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow
-                       hover:scale-[1.03] transition"
+            className="group p-6 rounded-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow border border-gray-100 dark:border-gray-800 hover:border-indigo-100 dark:hover:border-indigo-500/30 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
           >
-            <div
-              className={`w-12 h-12 rounded-lg flex items-center justify-center bg-gradient-to-r ${card.color}`}
-            >
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${card.color} shadow-inner group-hover:scale-110 transition-transform duration-300`}>
               <card.icon className="w-6 h-6 text-white" />
             </div>
 
-            <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-white">
               {card.title}
             </h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
               {card.desc}
             </p>
           </Link>
@@ -105,8 +138,8 @@ function Dashboard() {
       </div>
 
       {/* Motivation */}
-      <div className="mt-24 max-w-4xl mx-auto text-center">
-        <p className="text-xl font-medium text-gray-800 dark:text-gray-200">
+      <div className="mt-20 max-w-4xl mx-auto text-center px-4">
+        <p className="text-xl font-bold text-gray-900 dark:text-white">
           Consistency beats intensity 🔥
         </p>
         <p className="mt-3 text-gray-600 dark:text-gray-400">

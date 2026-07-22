@@ -1,167 +1,205 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-empty */
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { hashPassword } from "./utils/hash";
+import { User, Mail, Lock, Phone, ArrowRight, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import { account } from "../../appwrite/config"; // Ensure this points to your new API wrapper
+import { useToast } from "../Other/ToastContext";
 
 function Signup() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const showToast = useToast();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+    // Form States
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState(""); 
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-  const [showpassword, setShowpassword] = useState(false);
+    // OTP Verification States
+    const [isOtpStep, setIsOtpStep] = useState(false);
+    const [userOtp, setUserOtp] = useState("");
 
-  useEffect(() => {
-    const session = JSON.parse(localStorage.getItem("learnstack_user"));
-    if (session?.isLoggedIn) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [navigate]);
+    // Check if user is already logged in
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                await account.get();
+                navigate("/dashboard", { replace: true });
+            } catch {}
+        };
+        checkSession();
+    }, [navigate]);
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-
-    if (!name || !email || !password) {
-      alert("All fields are required");
-      return;
-    }
-
-    const users = JSON.parse(localStorage.getItem("learnstack_users")) || [];
-
-    const userExists = users.some((u) => u.email === email);
-
-    if (userExists) {
-      alert("User already exists. Please login.");
-      return;
-    }
-
-    // 🔐 HASH PASSWORD
-    const hashedPassword = await hashPassword(password);
-
-    const newUser = {
-      name,
-      email,
-      password: hashedPassword,
-      createdAt: new Date().toISOString(),
+    // Step 1: Validate and Request OTP via Google Apps Script API
+    const handleRequestSignup = async (e) => {
+        e.preventDefault();
+        
+        // 1️⃣ Validation Checks
+        if (!name || !email || !phone || !password) {
+            showToast("All fields are required ⚠️", "error");
+            return;
+        }
+        
+        if (password.length < 8) {
+            showToast("Password must be at least 8 characters long ⚠️", "error");
+            return;
+        }
+        
+        setLoading(true);
+        try {
+            // 2️⃣ Call API Wrapper (The Google Script handles duplicates securely)
+            await account.sendVerificationOTP(email, name, phone, password);
+            
+            showToast("Verification code sent to your email! 📩", "success");
+            setIsOtpStep(true); // Switch to OTP Screen
+            
+        } catch (error) {
+            console.error("Signup Request Error:", error);
+            showToast(error.message || "Failed to verify credentials. Please try again.", "error");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    users.push(newUser);
-    localStorage.setItem("learnstack_users", JSON.stringify(users));
+    // Step 2: Verify OTP & Login
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        
+        if (!userOtp || userOtp.length !== 6) {
+            showToast("Please enter a valid 6-digit code. ⚠️", "error");
+            return;
+        }
 
-    // auto-login after signup
-    localStorage.setItem(
-      "learnstack_user",
-      JSON.stringify({
-        isLoggedIn: true,
-        email,
-        loginTime: new Date().toISOString(),
-      }),
-    );
+        setLoading(true);
+        try {
+            // 1️⃣ Verify OTP and create the user in Google Sheets
+            await account.verifyAndCreateAccount(email, userOtp);
+            
+            // 2️⃣ Automatically log the user in to create the local session
+            await account.createEmailPasswordSession(email, password);
+            
+            showToast(`Account verified! Welcome to LearnStack, ${name}! 🚀`, "success");
+            navigate("/dashboard", { replace: true });
+        } catch (error) {
+            showToast(error.message || "Incorrect verification code. Try again. ❌", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    navigate("/dashboard");
-  };
+    const inputBase = "w-full pl-12 pr-4 py-4 rounded-2xl bg-white/50 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-smart-green-500 focus:border-transparent outline-none transition-all text-sm font-medium placeholder:text-gray-400 dark:text-white";
 
-  return (
-    <div className="min-h-screen flex items-center justify-center px-4 dark:bg-black">
-      <div className="w-full max-w-md p-8 rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
-          Create Account ✨
-        </h1>
-        <p className="mt-2 text-center text-gray-600 dark:text-gray-400">
-          Start your learning journey today
-        </p>
+    return (
+        <div className="min-h-screen flex items-center justify-center px-4 relative bg-auth-bg1 dark:bg-auth-bg2 bg-cover bg-center bg-no-repeat font-dm text-[#111] dark:text-gray-100 py-12">
+            <div className="absolute inset-0 bg-white/20 dark:bg-black/40 backdrop-blur-sm pointer-events-none" />
+            
+            <div className="relative z-10 w-full max-w-md p-8 md:p-10 rounded-[2.5rem] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl shadow-2xl border border-black/10 dark:border-white/10 animate-in fade-in zoom-in duration-500">
+                <h1 className="font-fraunces font-black text-4xl text-center mb-2 tracking-tight flex items-center justify-center gap-2">
+                    Join LearnStack
+                </h1>
 
-        <form className="mt-8 space-y-5" onSubmit={handleSignup}>
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Name
-            </label>
-            <div className="relative mt-1">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                required
-                name="name"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+                {!isOtpStep ? (
+                    <>
+                        {/* ─── INITIAL SIGNUP FORM ─── */}
+                        <p className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 mb-8">
+                            Create your account to start your learning journey
+                        </p>
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Email
-            </label>
-            <div className="relative mt-1">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="email"
-                required
-                name="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+                        <form className="space-y-4" onSubmit={handleRequestSignup}>
+                            <div>
+                                <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-widest">Full Name</label>
+                                <div className="relative">
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <input type="text" required placeholder="Student Name" value={name} onChange={(e) => setName(e.target.value)} className={inputBase} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-widest">Email Address</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <input type="email" required placeholder="student@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={inputBase} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-widest">Phone Number</label>
+                                <div className="relative">
+                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <input type="tel" required placeholder="+91 9876543210" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputBase} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-widest">Password</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <input type={showPassword ? "text" : "password"} required placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className={inputBase} />
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1.5 ml-2 font-medium">Must be at least 8 characters long.</p>
+                            </div>
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Password
-            </label>
-            <div className="relative mt-1">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type={showpassword ? "text" : "password"}
-                required
-                name="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="button"
-                onClick={() => setShowpassword(!showpassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              >
-                {showpassword ? (
-                  <EyeOff className="w-5 h-5" />
+                            <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-4 mt-6 rounded-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl shadow-smart-green-900/20 active:scale-95 transition-all disabled:opacity-70 text-base">
+                                {loading ? <Loader2 className="animate-spin" /> : <>Send Verification Code <ArrowRight size={20} /></>}
+                            </button>
+                        </form>
+
+                        <p className="mt-8 text-center text-sm font-bold text-gray-500 dark:text-gray-400">
+                            Already registered?{" "}
+                            <Link to="/login" className="text-smart-green-600 hover:text-smart-green-500 transition-colors">
+                                Login
+                            </Link>
+                        </p>
+                    </>
                 ) : (
-                  <Eye className="w-5 h-5" />
+                    <>
+                        {/* ─── OTP VERIFICATION SCREEN ─── */}
+                        <div className="text-center mb-8 animate-in slide-in-from-right-4 duration-300">
+                            <div className="w-16 h-16 bg-smart-green-50 dark:bg-smart-green-900/20 text-smart-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Mail size={32} />
+                            </div>
+                            <h2 className="font-bold text-xl mb-2">Check your email</h2>
+                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                We sent a 6-digit code to <br/><span className="text-gray-900 dark:text-white font-bold">{email}</span>
+                            </p>
+                        </div>
+
+                        <form className="space-y-4 animate-in slide-in-from-right-4 duration-300" onSubmit={handleVerifyOtp}>
+                            <div>
+                                <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-widest text-center">Enter 6-Digit Code</label>
+                                <div className="relative max-w-[200px] mx-auto">
+                                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <input 
+                                        type="text" 
+                                        maxLength="6" 
+                                        required 
+                                        placeholder="123456" 
+                                        value={userOtp} 
+                                        onChange={(e) => setUserOtp(e.target.value.replace(/\D/g, ''))} // only allows numbers
+                                        className={`${inputBase} text-center font-bold tracking-widest text-lg`} 
+                                    />
+                                </div>
+                            </div>
+
+                            <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-4 mt-6 rounded-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl shadow-smart-green-900/20 active:scale-95 transition-all disabled:opacity-70 text-base">
+                                {loading ? <Loader2 className="animate-spin" /> : <>Verify & Create Account <ArrowRight size={20} /></>}
+                            </button>
+                        </form>
+
+                        <p className="mt-8 text-center text-sm font-bold text-gray-500 dark:text-gray-400">
+                            Wrong email?{" "}
+                            <button type="button" onClick={() => setIsOtpStep(false)} className="text-smart-green-600 hover:text-smart-green-500 transition-colors">
+                                Go back
+                            </button>
+                        </p>
+                    </>
                 )}
-              </button>
             </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-indigo-600 text-white dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/40 transition"
-          >
-            Sign Up
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-blue-600 dark:text-purple-400 font-medium hover:underline"
-          >
-            Login
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
+        </div>
+    );
 }
 
 export default Signup;

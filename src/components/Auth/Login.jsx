@@ -1,153 +1,133 @@
+/* eslint-disable no-empty */
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { hashPassword } from "./utils/hash";
+import { Mail, Lock, ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import { account } from "../../appwrite/config"; // Update path if needed
+import { useToast } from "../Other/ToastContext"; // Update path if needed
 
 function Login() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const showToast = useToast();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+    // Form States
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-  const [showpassword, setShowpassword] = useState(false);
+    // Redirect if already logged in
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                await account.get();
+                navigate("/dashboard", { replace: true });
+            } catch {}
+        };
+        checkSession();
+    }, [navigate]);
 
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        
+        if (!email || !password) {
+            showToast("Please enter both email and password ⚠️", "error");
+            return;
+        }
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+        setLoading(true);
+        try {
+            // Uses the createEmailPasswordSession defined in your Google Sheets API wrapper
+            await account.createEmailPasswordSession(email, password);
+            
+            showToast("Welcome back to LearnStack! 🚀", "success");
+            navigate("/dashboard", { replace: true });
+        } catch (error) {
+            console.error("Login Error:", error);
+            showToast(error.message || "Invalid email or password. ❌", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    if (!email || !password) return;
+    const inputBase = "w-full pl-12 pr-4 py-4 rounded-2xl bg-white/50 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-smart-green-500 focus:border-transparent outline-none transition-all text-sm font-medium placeholder:text-gray-400 dark:text-white";
 
-    const users =
-      JSON.parse(localStorage.getItem("learnstack_users")) || [];
+    return (
+        <div className="min-h-screen flex items-center justify-center px-4 relative bg-auth-bg1 dark:bg-auth-bg2 bg-cover bg-center bg-no-repeat font-dm text-[#111] dark:text-gray-100 py-12">
+            <div className="absolute inset-0 bg-white/20 dark:bg-black/40 backdrop-blur-sm pointer-events-none" />
+            
+            <div className="relative z-10 w-full max-w-md p-8 md:p-10 rounded-[2.5rem] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl shadow-2xl border border-black/10 dark:border-white/10 animate-in fade-in zoom-in duration-500">
+                <h1 className="font-fraunces font-black text-4xl text-center mb-2 tracking-tight">
+                    Welcome Back 👋
+                </h1>
+                <p className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 mb-8">
+                    Sign in to continue your learning journey
+                </p>
 
-    // 🔍 check if user exists
-    const foundUser = users.find((u) => u.email === email);
+                <form className="space-y-4" onSubmit={handleLogin}>
+                    <div>
+                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-widest">
+                            Email Address
+                        </label>
+                        <div className="relative">
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input 
+                                type="email" 
+                                required 
+                                placeholder="student@example.com" 
+                                value={email} 
+                                onChange={(e) => setEmail(e.target.value)} 
+                                className={inputBase} 
+                            />
+                        </div>
+                    </div>
 
-    if (!foundUser) {
-      alert("User not found. Please sign up.");
-      return;
-    }
+                    <div>
+                        <div className="flex items-center justify-between mb-2">
+                            <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                                Password
+                            </label>
+                            <Link to="/forgot-password" className="text-[11px] font-bold text-smart-green-600 hover:text-smart-green-500 transition-colors">
+                                Forgot password?
+                            </Link>
+                        </div>
+                        <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input 
+                                type={showPassword ? "text" : "password"} 
+                                required 
+                                placeholder="••••••••" 
+                                value={password} 
+                                onChange={(e) => setPassword(e.target.value)} 
+                                className={inputBase} 
+                            />
+                            <button 
+                                type="button" 
+                                onClick={() => setShowPassword(!showPassword)} 
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
+                    </div>
 
-    // 🔐 HASH & CHECK PASSWORD
-    const hashedPassword = await hashPassword(password);
+                    <button 
+                        type="submit" 
+                        disabled={loading} 
+                        className="w-full flex items-center justify-center gap-2 py-4 mt-6 rounded-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl shadow-smart-green-900/20 active:scale-95 transition-all disabled:opacity-70 text-base"
+                    >
+                        {loading ? <Loader2 className="animate-spin" /> : <>Sign In <ArrowRight size={20} /></>}
+                    </button>
+                </form>
 
-    if (foundUser.password !== hashedPassword) {
-      alert("Incorrect password");
-      return;
-    }
-
-    // ✅ create session
-    localStorage.setItem(
-      "learnstack_user",
-      JSON.stringify({
-        isLoggedIn: true,
-        email: foundUser.email,
-        loginTime: new Date().toISOString(),
-      })
+                <p className="mt-8 text-center text-sm font-bold text-gray-500 dark:text-gray-400">
+                    Don't have an account?{" "}
+                    <Link to="/signup" className="text-smart-green-600 hover:text-smart-green-500 transition-colors">
+                        Sign up
+                    </Link>
+                </p>
+            </div>
+        </div>
     );
-
-    navigate("/dashboard", { replace: true });
-  };
-
-  useEffect(() => {
-    const session = JSON.parse(localStorage.getItem("learnstack_user"));
-    if (session?.isLoggedIn) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [navigate]);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center px-4 dark:bg-black">
-      <div className="w-full max-w-md p-8 rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm shadow">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
-          Welcome Back 👋
-        </h1>
-
-        <p className="mt-2 text-center text-gray-600 dark:text-gray-400">
-          Login to continue learning
-        </p>
-
-        <form onSubmit={handleLogin} className="mt-8 space-y-5">
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Email
-            </label>
-            <div className="relative mt-1">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="email"
-                required
-                name="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Password
-            </label>
-            <div className="relative mt-1">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type={showpassword ? "text" : "password"}
-                required
-                name="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="button"
-                onClick={() => setShowpassword(!showpassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              >
-                {showpassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Login Button */}
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium
-                       bg-gradient-to-r from-blue-500 to-indigo-600 text-white
-                       hover:shadow-lg hover:shadow-blue-500/40
-                       dark:from-purple-500 dark:to-pink-500 dark:hover:shadow-purple-500/40
-                       transition"
-          >
-            Login
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </form>
-
-        <p className="mt-1 text-sm text-right">
-          <Link
-            to="/forgot-password"
-            className="block text-sm text-right text-blue-600 dark:text-purple-400 font-medium hover:underline"
-          >
-            Forgot Password?
-          </Link>
-        </p>
-
-        <p className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
-          Don’t have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-blue-600 dark:text-purple-400 font-medium hover:underline"
-          >
-            Sign up
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
 }
 
 export default Login;
