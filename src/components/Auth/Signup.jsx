@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-empty */
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";

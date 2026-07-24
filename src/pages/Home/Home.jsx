@@ -28,7 +28,7 @@ function Home() {
         {/* CTA Buttons */}
         <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
           <Link
-            to="/get-started"
+            to="/getstarted"
             className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium text-white
                        bg-gradient-to-r from-blue-500 to-indigo-600
                        hover:shadow-lg hover:shadow-blue-500/40

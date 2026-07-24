@@ -29,22 +29,9 @@ export default {
         fraunces: ['"Fraunces"', 'serif'],
       },
       backgroundImage: {
-  'auth-bg1': `
-    linear-gradient(135deg,
-      #F8FAFC 0%,
-      #DBEAFE 35%,
-      #EDE9FE 70%,
-      #ECFEFF 100%)
-  `,
-
-  'auth-bg2': `
-    linear-gradient(135deg,
-      #020617 0%,
-      #0F172A 30%,
-      #1E1B4B 65%,
-      #111827 100%)
-  `,
-},
+        'auth-bg1': ` linear-gradient(135deg, #F8FAFC 0%, #DBEAFE 35%, #EDE9FE 70%,  #ECFEFF 100%) `,
+        'auth-bg2': ` linear-gradient(135deg, #020617 0%, #0F172A 30%, #1E1B4B 65%,  #111827 100%) `,
+      },
       keyframes: {
         toastDrop: {
           '0%': { transform: 'translate(-50%, -50px)', opacity: '0' },
@@ -58,6 +45,6 @@ export default {
   },
   plugins: [
     // Required for the "animate-in slide-in-from-right" classes used in the OTP form
-    require("tailwindcss-animate"), 
+    require("tailwindcss-animate"),
   ],
 }

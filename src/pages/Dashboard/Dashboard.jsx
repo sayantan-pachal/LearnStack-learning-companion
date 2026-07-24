@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { BookOpen, Compass, Trophy, Users, LogOut, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { account, databases, PROGRESS_COLLECTION_ID, DATABASE_ID } from "../../appwrite/config"; // Ensure correct path
+import { account, databases, PROGRESS_COLLECTION_ID, DATABASE_ID } from "../../appwrite/config";
+import Loader from "../../components/Other/Loader";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -41,15 +42,6 @@ function Dashboard() {
     initDashboard();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    try {
-      await account.deleteSession();
-      navigate("/login", { replace: true });
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
   const cards = [
     { title: "Resources", desc: "Access notes & tutorials", icon: BookOpen, link: "/resources", color: "from-blue-500 to-indigo-600" },
     { title: "Learning Paths", desc: "Step-by-step roadmaps", icon: Compass, link: "/learningpaths", color: "from-green-500 to-emerald-600" },
@@ -63,7 +55,7 @@ function Dashboard() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center dark:bg-black">
-        <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+        <Loader />
       </div>
     );
   }
@@ -79,23 +71,6 @@ function Dashboard() {
           <p className="mt-3 text-sm md:text-lg text-gray-600 dark:text-gray-400">
             Logged in as <span className="font-medium">{user?.email}</span>
           </p>
-        </div>
-        
-        <div className="flex items-center gap-3 w-full md:w-auto z-10">
-          <button
-            onClick={() => navigate("/reset-password")}
-            className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-all duration-300"
-          >
-            Settings
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-500 transition-all duration-300"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
         </div>
       </div>
 

@@ -184,7 +184,38 @@ export const account = {
         });
 
         return true;
-    }
+    },
+
+    updateProfile: async (email, newName, newPhone, newCollege, newYear, newDepartment) => {
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+                action: "updateProfile",
+                email: email,
+                name: newName,
+                phone: newPhone,
+                college: newCollege,
+                year: newYear,
+                department: newDepartment
+            })
+        });
+
+        const data = await res.json();
+        if (data.status === "error") throw new Error(data.message);
+
+        const currentUser = JSON.parse(localStorage.getItem("learnstack_user"));
+        const updatedUser = { 
+            ...currentUser, 
+            name: newName, 
+            phone: newPhone,
+            college: newCollege,
+            year: newYear,
+            department: newDepartment 
+        };
+        localStorage.setItem("learnstack_user", JSON.stringify(updatedUser));
+        return data;
+    },
 };
 
 // Replicating Appwrite's Database interface for LearnStack

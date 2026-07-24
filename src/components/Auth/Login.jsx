@@ -86,7 +86,7 @@ function Login() {
                             <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                                 Password
                             </label>
-                            <Link to="/forgot-password" className="text-[11px] font-bold text-smart-green-600 hover:text-smart-green-500 transition-colors">
+                            <Link to="/forgotpassword" className="text-[11px] font-bold text-smart-green-600 hover:text-smart-green-500 transition-colors">
                                 Forgot password?
                             </Link>
                         </div>
