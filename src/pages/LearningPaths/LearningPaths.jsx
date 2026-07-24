@@ -4,6 +4,7 @@ import { Compass, Book, Target, CheckCircle2, Filter } from "lucide-react";
 import { account, databases, DATABASE_ID, ROADMAPS_COLLECTION_ID } from "../../appwrite/config";
 import CustomDropdown from "../../components/Other/CustomDropdown";
 import Loader from "../../components/Other/Loader";
+import { departmentOptions, semesterOptions } from "../../data/learningpaths";
 
 export default function LearningPaths() {
     const [selectedDept, setSelectedDept] = useState("Computer Science");
@@ -63,42 +64,7 @@ export default function LearningPaths() {
         fetchRoadmaps();
     }, []);
 
-    // Configuration arrays for CustomDropdown
-    const departmentOptions = [
-        {
-            label: "Computer Science & Engineering",
-            value: "Computer Science",
-        },
-        {
-            label: "Information Technology",
-            value: "Information Technology",
-        },
-        {
-            label: "Electronics & Communication Engineering",
-            value: "Electronics",
-        },
-        {
-            label: "Electrical Engineering",
-            value: "EE",
-        },
-        {
-            label: "Mechanical Engineering",
-            value: "ME",
-        },
-        {
-            label: "Civil Engineering",
-            value: "CIVIL",
-        },
-    ];
-
-    const semesterOptions = [
-        { label: "1st Year, 1st Semester", value: "Semester 1" },
-        { label: "1st Year, 2nd Semester", value: "Semester 2" },
-        { label: "2nd Year, 3rd Semester", value: "Semester 3" },
-        { label: "2nd Year, 4th Semester", value: "Semester 4" },
-        { label: "3rd Year, 5th Semester", value: "Semester 5" },
-        { label: "3rd Year, 6th Semester", value: "Semester 6" }
-    ];
+    
 
     // If data is loading, show your awesome custom full-page loader!
     if (loading) {
@@ -128,13 +94,13 @@ export default function LearningPaths() {
                     <h1 className="text-5xl md:text-6xl font-black mb-6 tracking-tight">
                         Learning <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-purple-500 dark:to-pink-500">Paths</span>
                     </h1>
-                    <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                         Master your semester with a structured 6-month roadmap-3 months for academics and 3 months for building in-demand industry skills.
                     </p>
                 </div>
 
                 {/* Filters Box */}
-                <div className="relative z-40 bg-white/60 dark:bg-gray-900/60 border border-black/10 dark:border-white/10 rounded-3xl p-6 mb-12 shadow-lg backdrop-blur-sm flex flex-col md:flex-row items-center gap-4">
+                <div className="relative z-40 bg-white/60 dark:bg-gray-900/60 border border-black/10 dark:border-white/10 rounded-3xl p-4 mb-12 shadow-lg backdrop-blur-sm flex flex-col md:flex-row items-center gap-4">
                     <div className="flex items-center gap-3 text-gray-500 w-full md:w-auto md:min-w-max pb-2 md:pb-0">
                         <Filter size={20} />
                         <span className="font-bold">Customize Path:</span>
