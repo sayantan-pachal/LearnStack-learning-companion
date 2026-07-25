@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { ArrowRight, BookOpen, Compass, Trophy, ChevronRight, Sparkles, LayoutDashboard, Menu, X, Github, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
-import Logo from "../../../public/Logo1"
+import Logo1 from "../../../public/Logo1"
+import Logo2 from "../../../public/Logo2"
 import ThemeToggle from "../../components/Header/ThemeToggle";
 
 // --- HEADER COMPONENT ---
@@ -25,7 +26,7 @@ const Header = () => {
       aria-label="Main Navigation"
     >
       <div className="max-w-7xl mx-auto px-6 md:px-10 flex justify-between items-center">
-        <Logo />
+        <Logo1 />
         
         {/* Navigation Cluster: Toggle is always visible, links hide on mobile */}
         <div className="flex items-center gap-4 md:gap-8 text-sm font-semibold">
@@ -40,11 +41,11 @@ const Header = () => {
           <a href="#features" className="hidden md:flex text-gray-500 hover:text-blue-600 dark:hover:text-purple-400 transition-colors">
             Features
           </a>
-          <Link to="/getstarted" className="hidden md:flex text-gray-900 dark:text-white hover:text-blue-600 hover:opacity-70 transition-opacity">
+          <Link to="/login" className="hidden md:flex text-gray-900 dark:text-white hover:text-blue-600 hover:opacity-70 transition-opacity">
             Sign In
           </Link>
           
-          <Link to="/getstarted" className="hidden md:flex group relative px-6 py-2.5 hover:dark:text-white bg-gray-900 dark:bg-white text-white dark:text-black rounded-full overflow-hidden shadow-lg hover:shadow-xl transition-all">
+          <Link to="/signup" className="hidden md:flex group relative px-6 py-2.5 hover:dark:text-white bg-gray-900 dark:bg-white text-white dark:text-black rounded-full overflow-hidden shadow-lg hover:shadow-xl transition-all">
             <div className="absolute inset-0 w-full h-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
             <span className="relative z-10 flex items-center gap-2">
               Get Started <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
@@ -88,7 +89,7 @@ const Footer = () => {
     <footer className="max-w-7xl md:ml-10 px-6 pb-12 pt-20 border-t border-gray-200 dark:border-gray-800">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
 
-        <Logo />
+        <Logo2 />
 
         {/* Links */}
         <div className="flex flex-wrap justify-center gap-8 text-sm font-bold text-gray-500 dark:text-gray-400">
@@ -152,8 +153,20 @@ function Home() {
 
           <h1 className="text-5xl md:text-7xl font-black mb-6 text-gray-900 dark:text-white tracking-tight leading-[1.1]">
             Learn smarter with <br className="hidden md:block" />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-purple-400 dark:to-pink-500">
+            <span className="relative inline-block mt-2">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-500 dark:from-blue-700 dark:to-pink-500">
               LearnStack
+            </span><div
+  className="-bottom-2 left-0 w-full h-3 -z-10 -rotate-1
+             bg-gradient-to-r
+             from-blue-500/15
+             via-blue-500/45
+             to-blue-500/15
+             dark:from-blue-500/20
+             dark:via-blue-500/60
+             dark:to-blue-500/20"
+  aria-hidden="true"
+/>
             </span>
           </h1>
 
