@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { ArrowRight, BookOpen, Compass, Trophy, ChevronRight, Sparkles, LayoutDashboard, Menu, X, Github, Linkedin, Twitter } from "lucide-react";
+import { ArrowRight, BookOpen, Compass, Trophy, ChevronRight, Sparkles, LayoutDashboard, Menu, X, Github, 
+  Linkedin, Twitter, UserPlus, LogIn, Star, Quote, CheckCircle2, Zap, Target } from "lucide-react";
+
 import { Link } from "react-router-dom";
 import Logo1 from "../../../public/Logo1"
 import Logo2 from "../../../public/Logo2"
@@ -8,7 +10,6 @@ import ThemeToggle from "../../components/Header/ThemeToggle";
 // --- HEADER COMPONENT ---
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -17,20 +18,19 @@ const Header = () => {
   }, []);
 
   return (
-    <nav 
-      className={`fixed top-0 w-full z-[100] transition-all duration-500 ${
-        isScrolled 
-          ? "bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/50 py-4 shadow-sm" 
+    <nav
+      className={`fixed top-0 w-full z-[100] transition-all duration-500 ${isScrolled
+          ? "bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/50 py-4 shadow-sm"
           : "bg-transparent py-6"
-      }`} 
+        }`}
       aria-label="Main Navigation"
     >
       <div className="max-w-7xl mx-auto px-6 md:px-10 flex justify-between items-center">
         <Logo1 />
-        
+
         {/* Navigation Cluster: Toggle is always visible, links hide on mobile */}
         <div className="flex items-center gap-4 md:gap-8 text-sm font-semibold">
-          
+
           {/* Always Visible Theme Toggle */}
           <ThemeToggle />
 
@@ -44,41 +44,15 @@ const Header = () => {
           <Link to="/login" className="hidden md:flex text-gray-900 dark:text-white hover:text-blue-600 hover:opacity-70 transition-opacity">
             Sign In
           </Link>
-          
+
           <Link to="/signup" className="hidden md:flex group relative px-6 py-2.5 hover:dark:text-white bg-gray-900 dark:bg-white text-white dark:text-black rounded-full overflow-hidden shadow-lg hover:shadow-xl transition-all">
             <div className="absolute inset-0 w-full h-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
             <span className="relative z-10 flex items-center gap-2">
               Get Started <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
             </span>
           </Link>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden flex items-center p-2 text-gray-900 dark:text-white"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile Navigation Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800 shadow-lg py-6 px-6 flex flex-col gap-6">
-          <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-semibold text-gray-900 dark:text-white">
-            About
-          </a>
-          <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-semibold text-gray-900 dark:text-white">
-            Features
-          </a>
-          <Link to="/getstarted" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-semibold text-gray-900 dark:text-white">
-            Sign In
-          </Link>
-          <Link to="/getstarted" onClick={() => setIsMobileMenuOpen(false)} className="inline-flex justify-center items-center gap-2 w-full py-3 bg-blue-600 text-white rounded-xl font-bold">
-            Get Started <ChevronRight className="w-5 h-5" />
-          </Link>
-        </div>
-      )}
     </nav>
   );
 };
@@ -129,6 +103,46 @@ const Footer = () => {
 
 // --- MAIN HOME COMPONENT ---
 function Home() {
+
+  const advantages = [
+    {
+      icon: BookOpen,
+      title: "Centralize Your Semester",
+      desc: "Stop hunting for lost PDFs and bookmarked YouTube tutorials. Keep all your department notes and coding resources in one organized hub."
+    },
+    {
+      icon: Target,
+      title: "Structured Learning Paths",
+      desc: "Don't know what to learn next? Follow our curated, step-by-step roadmaps designed specifically for engineering and tech students."
+    },
+    {
+      icon: Zap,
+      title: "Track Your Consistency",
+      desc: "Build unbreakable study habits. Log your activity, track your course progress, and maintain your weekly learning streaks."
+    }
+  ];
+
+  const reviews = [
+    {
+      name: "Rahul S.",
+      role: "CSE Student",
+      text: "LearnStack completely changed how I prepare for exams. Having all my Data Structures videos and PDF notes in one dashboard is a lifesaver.",
+      rating: 5
+    },
+    {
+      name: "Priya M.",
+      role: "Self-taught Developer",
+      text: "The learning paths are incredible. It cuts out the noise of YouTube algorithms and just gives me exactly what I need to practice next.",
+      rating: 5
+    },
+    {
+      name: "Aman K.",
+      role: "Tech Enthusiast",
+      text: "The UI is gorgeous and the dark mode is perfect for late-night coding sessions. Built by a student who actually understands the struggle!",
+      rating: 5
+    }
+  ];
+
   return (
     <div className="min-h-screen flex flex-col font-dm bg-[#FAFAFA] dark:bg-[#050505] text-gray-900 dark:text-gray-100 overflow-hidden selection:bg-blue-500 selection:text-white">
       <Header />
@@ -154,10 +168,10 @@ function Home() {
           <h1 className="text-5xl md:text-7xl font-black mb-6 text-gray-900 dark:text-white tracking-tight leading-[1.1]">
             Learn smarter with <br className="hidden md:block" />
             <span className="relative inline-block mt-2">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-500 dark:from-blue-700 dark:to-pink-500">
-              LearnStack
-            </span><div
-  className="-bottom-2 left-0 w-full h-3 -z-10 -rotate-1
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-500 dark:from-blue-700 dark:to-pink-500">
+                LearnStack
+              </span><div
+                className="-bottom-2 left-0 w-full h-3 -z-10 -rotate-1
              bg-gradient-to-r
              from-blue-500/15
              via-blue-500/45
@@ -165,8 +179,8 @@ function Home() {
              dark:from-blue-500/20
              dark:via-blue-500/60
              dark:to-blue-500/20"
-  aria-hidden="true"
-/>
+                aria-hidden="true"
+              />
             </span>
           </h1>
 
@@ -180,7 +194,7 @@ function Home() {
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <Link
-              to="/getstarted"
+              to="/signup"
               className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full font-bold text-white text-lg
                          bg-gradient-to-r from-blue-600 to-indigo-600 
                          hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5
@@ -297,6 +311,133 @@ function Home() {
         </div>
       </main>
 
+
+      <div className="pb-24 bg-[#FAFAFA] dark:bg-[#050505] font-dm overflow-hidden relative">
+
+        {/* Background Blurs */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-blue-50/50 to-transparent dark:from-purple-900/10 pointer-events-none -z-10" />
+        <div className="absolute top-40 -left-20 w-96 h-96 bg-blue-400/20 dark:bg-blue-600/20 rounded-full blur-[120px] pointer-events-none -z-10" />
+        <div className="absolute top-60 -right-20 w-96 h-96 bg-indigo-400/20 dark:bg-pink-600/20 rounded-full blur-[120px] pointer-events-none -z-10" />
+
+        <div className="max-w-6xl mx-auto">
+
+          {/* --- HERO & AUTH WIDGETS --- */}
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h1 className="text-4xl md:text-6xl font-black mb-6 text-gray-900 dark:text-white tracking-tight leading-[1.1]">
+              Ready to upgrade your <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-purple-400 dark:to-pink-500">
+                study routine?
+              </span>
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-10">
+              Join the platform that helps students organize the chaos of self-learning. Choose your path below to enter LearnStack.
+            </p>
+
+            {/* Auth Action Widgets */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto text-left">
+
+              {/* Sign Up Widget */}
+              <div className="relative group bg-white dark:bg-[#0a0a0a] p-8 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6">
+                    <UserPlus className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">New Here?</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+                    Create your free account to save resources, track your progress, and build your dashboard.
+                  </p>
+                  <Link
+                    to="/signup"
+                    className="w-full inline-flex justify-center items-center gap-2 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-lg shadow-blue-600/20"
+                  >
+                    Create Account <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Sign In Widget */}
+              <div className="relative group bg-white dark:bg-[#0a0a0a] p-8 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm hover:border-indigo-500/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6">
+                    <LogIn className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+                    Already have an account? Sign in to pick up right where you left off.
+                  </p>
+                  <Link
+                    to="/login"
+                    className="w-full inline-flex justify-center items-center gap-2 py-3.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-bold rounded-xl transition-colors"
+                  >
+                    Sign In <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* --- ADVANTAGES SECTION --- */}
+          <div className="mt-32">
+            <div className="text-center mb-12">
+              <span className="text-sm font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-2 block">Why LearnStack?</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Built for the modern student</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {advantages.map((adv, i) => (
+                <div key={i} className="flex flex-col items-center text-center p-6">
+                  <div className="w-16 h-16 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex items-center justify-center mb-6">
+                    <adv.icon className="w-8 h-8 text-blue-600 dark:text-purple-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{adv.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {adv.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* --- REVIEWS / SOCIAL PROOF --- */}
+          <div className="mt-32 bg-white/40 dark:bg-[#0a0a0a]/40 border border-gray-200 dark:border-gray-800 rounded-[3rem] p-8 md:p-16 backdrop-blur-xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Don't just take our word for it</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {reviews.map((review, i) => (
+                <div key={i} className="bg-white dark:bg-[#121212] p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm relative">
+                  <Quote className="absolute top-6 right-6 w-8 h-8 text-gray-100 dark:text-gray-800" />
+
+                  <div className="flex gap-1 mb-6">
+                    {[...Array(review.rating)].map((_, index) => (
+                      <Star key={index} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+
+                  <p className="text-gray-700 dark:text-gray-300 font-medium mb-8 relative z-10">
+                    "{review.text}"
+                  </p>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-purple-900/50 dark:to-pink-900/50 flex items-center justify-center text-blue-700 dark:text-purple-300 font-bold">
+                      {review.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-gray-900 dark:text-white">{review.name}</h4>
+                      <p className="text-xs text-gray-500">{review.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
       <Footer />
     </div>
   );

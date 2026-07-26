@@ -101,8 +101,8 @@ function Resources() {
             Resources
           </span>
         </h1>
-        <p className="text-lg md:text-xl mb-10 font-extralight text-gray-700 dark:text-gray-300">
-          Everything you need to learn - in one place 📚
+        <p className="text-lg md:text-xl mb-10 text-gray-700 dark:text-gray-300">
+          Everything you need to learn in one place...
         </p>
 
         {/* Filters & Search Container */}

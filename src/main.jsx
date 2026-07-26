@@ -12,8 +12,8 @@ import Resources from './pages/Resources/Resources.jsx'
 import LearningPaths from './pages/LearningPaths/LearningPaths.jsx'
 import Achievements from './pages/Achievements/Achievements.jsx'
 import Community from './pages/Community/Community.jsx'
-import GetStarted from './pages/Get Started/GetStarted.jsx'
 import Dashboard from './pages/Dashboard/Dashboard.jsx'
+import Courses from './pages/Courses/Courses.jsx'
 import Profile from './pages/Profile/Profile.jsx'
 import Settings  from './pages/Settings/AccountSettings.jsx'
 import Loader from './components/Other/Loader.jsx'
@@ -38,8 +38,8 @@ const router = createBrowserRouter(
         <Route path='resources' element={<ProtectedRoute><Resources /></ProtectedRoute>} />
         <Route path='learningpaths' element={<ProtectedRoute><LearningPaths /></ProtectedRoute>} />
         <Route path='achievements' element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+        <Route path='courses' element={<ProtectedRoute><Courses /></ProtectedRoute>} />
         <Route path='community' element={<ProtectedRoute><Community /></ProtectedRoute>} />
-        <Route path='getstarted' element={<ProtectedRoute><GetStarted /></ProtectedRoute>} />
         <Route path='settings' element={<ProtectedRoute><Settings /></ProtectedRoute>}/>
         <Route path='profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         
