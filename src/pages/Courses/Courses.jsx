@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { BookOpen, PlayCircle, Search, Filter } from "lucide-react";
 import CourseModal from "./CourseModal";
 import Loader from "../../components/Other/Loader";
-// 1. Import the correct methods from your config
 import { databases, DATABASE_ID, COURSES_COLLECTION_ID } from "../../appwrite/config"; 
 import CustomDropdown from "../../components/Other/CustomDropdown";
 import { departmentOptions, semesterOptions } from "../../data/learningpaths";
@@ -24,14 +23,19 @@ function Courses() {
     const courseSemOptions = [{ label: "All Semesters", value: "All" }, ...semesterOptions];
 
     useEffect(() => {
+        // Automatically grab the search query from the URL if it exists
+        const params = new URLSearchParams(window.location.search);
+        const urlSearchQuery = params.get("search");
+        if (urlSearchQuery) {
+            setSearchQuery(urlSearchQuery);
+        }
+
         const loadCourses = async () => {
             try {
                 setLoading(true);
-                // 2. Use the correct fetch method from config.js
                 const response = await databases.listDocuments(DATABASE_ID, COURSES_COLLECTION_ID);
                 
                 if (response && response.documents) {
-                    // Filter out items that are NOT "Course" (if they share the same sheet as Resources)
                     const courseData = response.documents.filter(item => item.Item_Type === "Course");
                     setCourses(courseData);
                 }
@@ -119,7 +123,7 @@ function Courses() {
                             <div className="aspect-video bg-gray-100 dark:bg-gray-900 relative overflow-hidden">
                                 {course.YouTube_ID ? (
                                     <img
-                                        src={`https://img.youtube.com/vi/${course.YouTube_ID}/maxresdefault.jpg`}
+                                        src={`https://img.youtube.com/vi/${course.YouTube_ID.split(',')[0].trim()}/maxresdefault.jpg`}
                                         alt={course.Title}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />

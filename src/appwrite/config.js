@@ -228,7 +228,7 @@ export const databases = {
         
         // If pulling UserProgress or ActivityLogs, only return current user's data
         if (currentUser && currentUser.userId && (collectionId === "UserProgress" || collectionId === "ActivityLogs")) {
-            return { documents: data.filter(doc => doc.userId === currentUser.userId) };
+            return { documents: data.filter(doc => doc.userId === currentUser.userId || doc.UserId === currentUser.userId) };
         }
         // If pulling Courses, return all data
         return { documents: data };
