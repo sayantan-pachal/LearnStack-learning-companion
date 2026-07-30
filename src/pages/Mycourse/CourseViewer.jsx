@@ -114,7 +114,7 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
             <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
                 
                 {/* Left Side: Video Player Area */}
-                <div className="flex-1 flex flex-col bg-black overflow-y-auto">
+                <div className="flex-1 flex flex-col bg-black overflow-y-auto scrollbar-hide">
                     {activeLesson ? (
                         <div className="w-full aspect-video bg-black shrink-0 relative">
                             {activeLesson.type === "video" ? (
