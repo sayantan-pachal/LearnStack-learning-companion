@@ -30,7 +30,7 @@ const CertificateModal = ({ badge, user, onClose }) => {
         }, 800);
     };
 
-    const shareText = `I just earned the ${badge.courseName} certificate on LearnStack! 🚀`;
+    const shareText = `I just earned the ${badge.courseName || badge.Title} certificate on LearnStack! 🚀`;
 
     const handleShareLinkedIn = () => {
         const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)}`;
@@ -50,9 +50,12 @@ const CertificateModal = ({ badge, user, onClose }) => {
         setIsShareModalOpen(false);
     };
 
-    const formattedDate = badge.date 
-        ? new Date(badge.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-        : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    // 1. UPDATED DATE LOGIC: Grabs the exact Date column from your backend progress record
+    const earnedDateRaw = badge?.progressDetails?.Date || badge?.progressDetails?.date || badge?.Date || badge?.date;
+    
+    const formattedDate = earnedDateRaw 
+        ? new Date(earnedDateRaw).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+        : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); // Failsafe fallback
 
     // Function to format name with Capitalized first letters
     const formatName = (name) => {
@@ -65,7 +68,7 @@ const CertificateModal = ({ badge, user, onClose }) => {
     };
 
     const candidateName = formatName(user?.name);
-    const qrPayload = `LEARNSTACK VERIFICATION\n\nCandidate: ${candidateName}\nCourse: ${badge.courseName}\nStatus: Successfully Completed\nDate: ${formattedDate}\nIssuer: LearnStack Platform`;
+    const qrPayload = `LEARNSTACK VERIFICATION\n\nCandidate: ${candidateName}\nCourse: ${badge.courseName || badge.Title}\nStatus: Successfully Completed\nDate: ${formattedDate}\nIssuer: LearnStack Platform`;
 
     return (
         <div className="fixed inset-0 z-[500] flex justify-center items-start sm:items-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto print:p-0 cert-modal-container">
@@ -74,7 +77,7 @@ const CertificateModal = ({ badge, user, onClose }) => {
             <div className="flex flex-col items-center gap-6 w-full max-w-4xl my-auto py-8 print:py-0 print:block print:w-auto print:max-w-none relative">
                 
                 {/* 1. The Certificate Area */}
-                <div className="bg-white p-8 sm:p-10 md:p-16 rounded-[2rem] w-full relative text-center border-[8px] sm:border-[16px] border-indigo-50 shadow-2xl flex flex-col justify-center items-center overflow-hidden certificate-wrapper">
+                <div className="bg-white p-8 sm:p-10 md:p-16 print:p-16 rounded-[2rem] print:rounded-none w-full relative text-center border-[8px] sm:border-[16px] print:border-[20px] border-indigo-50 shadow-2xl print:shadow-none flex flex-col justify-center items-center overflow-hidden certificate-wrapper">
                     
                     <button 
                         onClick={onClose} 
@@ -83,65 +86,67 @@ const CertificateModal = ({ badge, user, onClose }) => {
                         <X className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
 
-                    <div className="absolute top-0 left-0 w-32 h-32 sm:w-64 sm:h-64 bg-blue-50 rounded-br-full opacity-50 pointer-events-none" />
-                    <div className="absolute bottom-0 right-0 w-40 h-40 sm:w-80 sm:h-80 bg-indigo-50 rounded-tl-full opacity-50 pointer-events-none" />
+                    {/* Decorative Background Elements */}
+                    <div className="absolute top-0 left-0 w-32 h-32 sm:w-64 sm:h-64 print:w-64 print:h-64 bg-blue-50 rounded-br-full opacity-50 pointer-events-none" />
+                    <div className="absolute bottom-0 right-0 w-40 h-40 sm:w-80 sm:h-80 print:w-80 print:h-80 bg-indigo-50 rounded-tl-full opacity-50 pointer-events-none" />
                     
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.03]">
-                        <Award className="w-96 h-96 sm:w-[36rem] sm:h-[36rem] text-indigo-900" strokeWidth={0.5} />
+                        <Award className="w-96 h-96 sm:w-[36rem] sm:h-[36rem] print:w-[36rem] print:h-[36rem] text-indigo-900" strokeWidth={0.5} />
                     </div>
                     
-                    <div className="relative z-10 w-full flex flex-col items-center mt-4 sm:mt-0">
+                    <div className="relative z-10 w-full flex flex-col items-center mt-4 sm:mt-0 print:mt-0">
                         
                         <div className="flex justify-center mb-6 sm:mb-10 print:mb-12">
                             <Logo3 />
                         </div>
 
-                        <h2 className="text-xl sm:text-3xl md:text-5xl font-black text-gray-900 mb-4 sm:mb-6 uppercase tracking-[0.1em] sm:tracking-[0.2em] leading-tight">
+                        <h2 className="text-xl sm:text-3xl md:text-5xl print:text-5xl font-black text-gray-900 mb-4 sm:mb-6 print:mb-6 uppercase tracking-[0.1em] sm:tracking-[0.2em] print:tracking-[0.2em] leading-tight">
                             Certificate of Completion
                         </h2>
                         
-                        <p className="text-gray-500 font-bold text-xs sm:text-sm md:text-base mb-4 sm:mb-6 uppercase tracking-widest">
+                        <p className="text-gray-500 font-bold text-xs sm:text-sm md:text-base print:text-base mb-4 sm:mb-6 print:mb-6 uppercase tracking-widest">
                             This proudly certifies that
                         </p>
                         
-                        <h3 className="text-3xl sm:text-5xl md:text-6xl font-serif italic text-indigo-600 mb-6 sm:mb-8 border-b-2 border-indigo-100 inline-block px-4 sm:px-16 pb-2 sm:pb-4 w-full sm:w-auto break-words">
+                        <h3 className="text-3xl sm:text-5xl md:text-6xl print:text-6xl font-serif italic text-indigo-600 mb-6 sm:mb-8 print:mb-8 border-b-2 border-indigo-100 inline-block px-4 sm:px-16 print:px-16 pb-2 sm:pb-4 print:pb-4 w-full sm:w-auto print:w-auto break-words">
                             {candidateName}
                         </h3>
                         
-                        <p className="text-gray-500 font-bold text-xs sm:text-sm md:text-base mb-3 sm:mb-4 uppercase tracking-widest">
+                        <p className="text-gray-500 font-bold text-xs sm:text-sm md:text-base print:text-base mb-3 sm:mb-4 print:mb-4 uppercase tracking-widest">
                             Has successfully completed the course:
                         </p>
                         
-                        <h4 className="text-xl sm:text-3xl md:text-4xl font-black text-gray-900 mb-10 sm:mb-16 px-2 sm:px-4 leading-snug">
-                            {badge.courseName}
+                        <h4 className="text-xl sm:text-3xl md:text-4xl print:text-4xl font-black text-gray-900 mb-10 sm:mb-16 print:mb-16 px-2 sm:px-4 print:px-4 leading-snug">
+                            {badge.courseName || badge.Title}
                         </h4>
 
-                        <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end w-full px-4 sm:px-8 md:px-16 pt-6 sm:pt-8 gap-8 sm:gap-0">
+                        <div className="flex flex-col sm:flex-row print:flex-row justify-between items-center sm:items-end print:items-end w-full px-4 sm:px-8 md:px-16 print:px-16 pt-6 sm:pt-8 print:pt-8 gap-8 sm:gap-0 print:gap-0">
                             
-                            <div className="text-center sm:text-left w-full sm:w-40 order-2 sm:order-1">
-                                <p className="font-bold text-gray-900 text-base sm:text-lg border-b-2 border-gray-300 pb-1 sm:pb-2 mb-1 sm:mb-2 sm:w-32 mx-auto sm:mx-0">
+                            {/* 2. UPDATED DATE STYLING: Removed strict width & added whitespace-nowrap */}
+                            <div className="text-center sm:text-left print:text-left w-full sm:w-auto print:w-auto order-2 sm:order-1 print:order-1">
+                                <p className="font-bold text-gray-900 text-base sm:text-lg print:text-lg border-b-2 border-gray-300 pb-1 sm:pb-2 print:pb-2 mb-1 sm:mb-2 print:mb-2 mx-auto sm:mx-0 print:mx-0 whitespace-nowrap px-2">
                                     {formattedDate}
                                 </p>
-                                <p className="text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Date Earned</p>
+                                <p className="text-gray-400 text-[10px] sm:text-xs print:text-xs font-bold uppercase tracking-wider">Date Earned</p>
                             </div>
                             
-                            <div className="flex flex-col items-center order-1 sm:order-2 w-full sm:w-40">
-                                <div className="p-2 bg-white border-2 border-gray-200 rounded-xl shadow-sm mb-2 w-[110px]">
+                            <div className="flex flex-col items-center order-1 sm:order-2 print:order-2 w-full sm:w-40 print:w-40">
+                                <div className="p-2 bg-white border-2 border-gray-200 rounded-xl shadow-sm mb-2 w-[110px] print:w-[120px]">
                                     <div style={{ height: "auto", margin: "0 auto", maxWidth: "100%", width: "100%" }}>
                                         <QRCode size={256} style={{ height: "auto", maxWidth: "100%", width: "100%" }} value={qrPayload} viewBox={`0 0 256 256`} level="M" />
                                     </div>
                                 </div>
-                                <p className="text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center w-full">
+                                <p className="text-gray-400 text-[10px] sm:text-xs print:text-xs font-bold uppercase tracking-wider text-center w-full">
                                     Scan to Verify
                                 </p>
                             </div>
 
-                            <div className="text-center sm:text-right w-full sm:w-40 order-3 sm:order-3">
-                                <p className="flex items-center justify-center sm:justify-end gap-1 font-bold text-gray-900 text-lg sm:text-xl font-serif italic border-b-2 border-gray-300 pb-1 sm:pb-2 mb-1 sm:mb-2">
+                            <div className="text-center sm:text-right print:text-right w-full sm:w-auto print:w-auto order-3 sm:order-3 print:order-3">
+                                <p className="flex items-center justify-center sm:justify-end print:justify-end gap-1 font-bold text-gray-900 text-lg sm:text-xl print:text-xl font-serif italic border-b-2 border-gray-300 pb-1 sm:pb-2 print:pb-2 mb-1 sm:mb-2 print:mb-2 px-2 whitespace-nowrap">
                                     <span>LearnStack</span>
-                                    <BadgeCheck className="w-5 h-5 text-sky-600" />
+                                    <BadgeCheck className="w-5 h-5 print:w-6 print:h-6 text-sky-600" />
                                 </p>
-                                <p className="text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Authorized By</p>
+                                <p className="text-gray-400 text-[10px] sm:text-xs print:text-xs font-bold uppercase tracking-wider">Authorized By</p>
                             </div>
                             
                         </div>
@@ -191,20 +196,23 @@ const CertificateModal = ({ badge, user, onClose }) => {
                 )}
             </div>
 
-            {/* Print CSS explicitly targeting one perfect landscape page */}
+            {/* Print CSS enforcing perfect A4 Landscape scaling */}
             <style dangerouslySetInnerHTML={{__html: `
                 @media print {
                     @page { 
-                        size: landscape; 
+                        size: A4 landscape; 
                         margin: 0 !important; 
                     }
                     html, body {
-                        width: 100vw !important;
-                        height: 100vh !important;
+                        width: 297mm !important;
+                        height: 210mm !important;
+                        min-width: 1024px !important;
                         margin: 0 !important;
                         padding: 0 !important;
                         overflow: hidden !important;
                         background: white !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
                     }
                     body * { visibility: hidden; }
                     
@@ -212,8 +220,8 @@ const CertificateModal = ({ badge, user, onClose }) => {
                         position: absolute !important;
                         left: 0 !important;
                         top: 0 !important;
-                        width: 100vw !important;
-                        height: 100vh !important;
+                        width: 297mm !important;
+                        height: 210mm !important;
                         background: white !important;
                         display: flex !important; 
                         align-items: center !important;
@@ -226,9 +234,10 @@ const CertificateModal = ({ badge, user, onClose }) => {
                     }
                     
                     .certificate-wrapper { 
-                        width: 100vw !important; 
-                        height: 100vh !important; 
+                        width: 297mm !important; 
+                        height: 210mm !important; 
                         max-width: none !important;
+                        max-height: none !important;
                         border: 20px solid #eef2ff !important; 
                         border-radius: 0 !important; 
                         margin: 0 !important;

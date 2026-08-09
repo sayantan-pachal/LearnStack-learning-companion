@@ -72,11 +72,14 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
         if (finalPercentage >= 80 && progressDoc) {
             try {
                 const targetId = progressDoc.UserId || progressDoc.userId || progressDoc.$id;
+
+                const todayStr = new Date().toLocaleDateString('en-US');
+                
                 await databases.updateDocument(
                     DATABASE_ID,
                     PROGRESS_COLLECTION_ID,
                     targetId,
-                    { Badge: "Y", CourseId: progressDoc.CourseId }
+                    { Badge: "Y", CourseId: progressDoc.CourseId, Date: todayStr }
                 );
                 onPassSuccess(progressDoc.CourseId); 
             } catch (err) {
