@@ -3,7 +3,7 @@ import { Lock, Unlock, Award, ClipboardList } from "lucide-react";
 
 const ExamCard = ({ course, progress, onStartExam, navigate }) => {
     const isEnrolled = !!progress;
-    const hasPassed = progress?.Badge === "Y" || progress?.Badge === "C";
+    const hasPassed = progress?.Badge === "Y" || progress?.Badge === "y" || progress?.Badge === "C" || progress?.Badge === "c";
 
     return (
         <div className={`p-6 rounded-3xl border transition-all duration-300 relative overflow-hidden flex flex-col ${

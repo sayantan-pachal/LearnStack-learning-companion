@@ -6,7 +6,7 @@ import { databases, DATABASE_ID, COURSES_COLLECTION_ID, PROGRESS_COLLECTION_ID }
 import ExamCard from "./ExamCard";
 import ExamRunner from "./ExamRunner";
 
-function Exam() {
+function Exams() {
     const [searchParams] = useSearchParams();
     const targetCourseId = searchParams.get("courseId");
     
@@ -27,9 +27,22 @@ function Exam() {
                 const userStr = localStorage.getItem("learnstack_user");
                 if (!userStr) return navigate("/login");
 
+                // 1. Fetch all items from the collection
                 const coursesRes = await databases.listDocuments(DATABASE_ID, COURSES_COLLECTION_ID);
-                setCourses(coursesRes.documents || []);
+                const allItems = coursesRes.documents || [];
 
+                // 2. FILTER: Only keep items that are strictly courses
+                const filteredCourses = allItems.filter(item => {
+                    const itemType = String(item.Item_Type || "").trim().toLowerCase();
+                    const itemId = String(item.ID || item.$id || "").trim().toUpperCase();
+                    
+                    // Keep if Item_Type is "course" OR ID starts with "CR"
+                    return itemType === "course" || itemId.startsWith("CR");
+                });
+
+                setCourses(filteredCourses);
+
+                // 3. Fetch user progress
                 const progressRes = await databases.listDocuments(DATABASE_ID, PROGRESS_COLLECTION_ID);
                 setUserProgress(progressRes.documents || []);
 
@@ -124,4 +137,4 @@ function Exam() {
     );
 }
 
-export default Exam;
+export default Exams;
