@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 // Simple parser to extract just the YouTube Video ID
 const extractYouTubeID = (url) => {
+    if (!url) return null;
     const cleanUrl = String(url).trim();
     const match = cleanUrl.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
     return (match && match[2].length === 11) ? match[2] : cleanUrl; // Fallback to raw ID if regex fails
@@ -13,21 +14,21 @@ const extractYouTubeID = (url) => {
 
 const CourseViewer = ({ isOpen, onClose, course }) => {
     const [activeLesson, setActiveLesson] = useState(null);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true); // New state for collapsible sidebar
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const navigate = useNavigate();
 
-    // Prevent background scrolling when open
+    // Prevent background scrolling when open & reset sidebar state
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
-            setIsSidebarOpen(true); // Always start with sidebar open when modal opens
+            setIsSidebarOpen(true);
         } else {
             document.body.style.overflow = "unset";
         }
         return () => { document.body.style.overflow = "unset"; };
     }, [isOpen]);
 
-    // Build the lessons list based on the current course
+    // Memoize the lesson generation so it only recalculates if the course changes
     const lessons = useMemo(() => {
         if (!course) return [];
 
@@ -39,7 +40,6 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
 
         if (itemsList.length === 0) return [];
 
-        // Map through all items sequentially to create Lesson 1, Lesson 2, Lesson 3, etc.
         return itemsList.map((itemUrl, index) => {
             const videoId = isVideo ? extractYouTubeID(itemUrl) : null;
             
@@ -54,23 +54,22 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
         });
     }, [course]);
 
-    // Reset activeLesson when the course changes or modal opens/closes
+    // Manage active lesson state when modal opens/closes
     useEffect(() => {
         if (isOpen && lessons.length > 0) {
-            // Always set to the first lesson of the current course
             setActiveLesson(lessons[0]);
-        }
-        
-        // When the modal closes, wipe the state clean
-        if (!isOpen) {
+        } else if (!isOpen) {
             setActiveLesson(null);
         }
-    }, [isOpen, course, lessons]);
+    }, [isOpen, lessons]);
 
     if (!isOpen || !course) return null;
 
+    const progressPercent = course.progressDetails?.CompletionPercentage || 0;
+
     return (
         <div className="fixed inset-0 z-[300] bg-white dark:bg-[#050505] flex flex-col animate-in fade-in duration-300">
+            
             {/* Top Navigation Bar */}
             <div className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center justify-between px-4 md:px-6 shrink-0">
                 <div className="flex items-center gap-4">
@@ -84,12 +83,25 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                         {course.Title}
                     </h2>
                 </div>
+                
+                {/* Progress Bar (Hidden on very small screens) */}
+                <div className="hidden md:flex items-center gap-3">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {progressPercent}% Completed
+                    </span>
+                    <div className="w-32 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                        <div 
+                            className="h-full bg-blue-600 dark:bg-purple-500 rounded-full transition-all"
+                            style={{ width: `${progressPercent}%` }}
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* Main Content Area */}
             <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
                 
-                {/* Left Side: Video Player Area */}
+                {/* Left Side: Video/PDF Player Area */}
                 <div className="flex-1 flex flex-col bg-black overflow-y-auto scrollbar-hide transition-all duration-300">
                     {activeLesson ? (
                         <div className="w-full aspect-video bg-black shrink-0 relative">
@@ -100,7 +112,7 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                                     className="w-full h-full absolute inset-0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
-                                ></iframe>
+                                />
                             ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-white p-6 text-center">
                                     <FileText className="w-16 h-16 text-blue-400 mb-4" />
@@ -109,7 +121,7 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                                         href={activeLesson.url} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
-                                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold transition-colors mt-4"
+                                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold transition-colors mt-4 shadow-lg"
                                     >
                                         Open Document
                                     </a>
@@ -117,7 +129,7 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                             )}
                         </div>
                     ) : (
-                        <div className="w-full aspect-video flex items-center justify-center bg-gray-900 text-gray-400">
+                        <div className="w-full aspect-video flex items-center justify-center bg-gray-900 text-gray-400 font-medium">
                             Loading lesson...
                         </div>
                     )}
@@ -133,7 +145,7 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                     </div>
                 </div>
 
-                {/* Right Side: Collapsible Syllabus / Module List */}
+                {/* Right Side: Collapsible Sidebar */}
                 <div 
                     className={`bg-[#FAFAFA] dark:bg-[#0a0a0a] border-l border-gray-200 dark:border-gray-800 flex flex-col shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
                         isSidebarOpen 
@@ -141,7 +153,7 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                             : "w-full lg:w-[60px] h-14 lg:h-auto"
                     }`}
                 >
-                    {/* Clickable Header/Toggle Button */}
+                    {/* Sidebar Toggle Header */}
                     <button 
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                         className="h-14 w-full flex items-center border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] transition-colors cursor-pointer px-4 relative z-10"
@@ -159,14 +171,14 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                         </h3>
                     </button>
                     
-                    {/* Inner Content Area - Wrapped to prevent text-crunching during sliding animation */}
-                    <div className={`flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin transition-opacity duration-300 ${
+                    {/* Scrollable Sidebar Content */}
+                    <div className={`flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin transition-opacity duration-300 flex flex-col ${
                         isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
                     }`}>
-                        <div className="p-4 space-y-4 w-full lg:w-[400px] xl:w-[450px]">
+                        <div className="p-4 space-y-4 w-full lg:w-[400px] xl:w-[450px] flex-1 flex flex-col">
                             
                             {/* Module List */}
-                            <div className="bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+                            <div className="bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm flex-1">
                                 <div className="p-4 bg-gray-50 dark:bg-[#0d0d0d] font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 text-sm">
                                     Module
                                 </div>
@@ -181,7 +193,7 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                                                     isActive ? "bg-blue-50 dark:bg-purple-500/10" : ""
                                                 }`}
                                             >
-                                                {/* Thumbnail Image Logic */}
+                                                {/* Thumbnail Image */}
                                                 <div className="shrink-0 w-24 h-14 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden relative border border-gray-300 dark:border-gray-700 flex items-center justify-center">
                                                     {lesson.type === "video" && lesson.videoId ? (
                                                         <img 
@@ -195,12 +207,13 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                                                         </div>
                                                     )}
                                                     
-                                                    {/* Hover play icon overlay */}
+                                                    {/* Hover Play Icon */}
                                                     <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                                         <PlayCircle className="w-6 h-6 text-white shadow-sm" />
                                                     </div>
                                                 </div>
 
+                                                {/* Lesson Details */}
                                                 <div className="flex flex-col flex-1 overflow-hidden">
                                                     <span className={`text-sm font-medium line-clamp-2 leading-tight ${isActive ? "text-blue-700 dark:text-purple-300" : "text-gray-700 dark:text-gray-300"}`}>
                                                         {lesson.title}
@@ -219,11 +232,15 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                             </div>
 
                             {/* Exam Section */}
-                            <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                            <div className="pt-4 border-t border-gray-200 dark:border-gray-800 shrink-0">
+                                {/* Optimized styling to fit inside the sidebar gracefully */}
+                                <p className="text-gray-500 dark:text-gray-400 text-xs text-center font-medium mb-3">
+                                    Pass with 80% or higher to earn your verified badge.
+                                </p>
                                 <button
                                     onClick={() => {
                                         onClose(); 
-                                        navigate("/exam");
+                                        navigate(`/exam?courseId=${course.ID || course.$id}`);
                                     }}
                                     className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
                                 >
@@ -231,7 +248,7 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                                     Take Final Exam
                                 </button>
                             </div>
-
+                            
                         </div>
                     </div>
                 </div>

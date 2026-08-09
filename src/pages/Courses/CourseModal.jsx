@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { X, PlayCircle, FileText, Lock, Clock, BookOpen, GraduationCap, CheckCircle, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// Import the database methods and constants
 import { databases, DATABASE_ID, PROGRESS_COLLECTION_ID, ID } from "../../appwrite/config";
+import { useToast } from "../../components/Other/ToastContext"; 
 
 const CourseModal = ({ isOpen, onClose, course }) => {
     const [isEnrolling, setIsEnrolling] = useState(false);
@@ -10,6 +10,7 @@ const CourseModal = ({ isOpen, onClose, course }) => {
     const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(true);
     
     const navigate = useNavigate();
+    const showToast = useToast();
 
     // Prevent background scrolling when modal is open
     useEffect(() => {
@@ -56,7 +57,7 @@ const CourseModal = ({ isOpen, onClose, course }) => {
         checkEnrollmentStatus();
     }, [isOpen, course]);
 
-    // Dynamic Syllabus Generation (Updated to match CourseViewer's flat sequential list)
+    // Dynamic Syllabus Generation (Flat sequential list)
     const lessons = useMemo(() => {
         if (!course) return [];
 
@@ -85,7 +86,7 @@ const CourseModal = ({ isOpen, onClose, course }) => {
             // 1. Get logged-in user
             const userStr = localStorage.getItem("learnstack_user");
             if (!userStr) {
-                alert("Please log in to enroll in this course.");
+                showToast("Please log in to enroll in this course.", "error");
                 setIsEnrolling(false);
                 return;
             }
@@ -105,13 +106,14 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                 }
             );
 
+            showToast("Successfully enrolled in the course!", "success");
             setIsEnrolling(false);
             onClose(); 
-            navigate("/mycourses"); 
+            navigate("/mylearning"); 
             
         } catch (error) {
             console.error("Failed to enroll:", error);
-            alert("An error occurred while enrolling. Please try again.");
+            showToast("An error occurred while enrolling. Please try again.", "error");
             setIsEnrolling(false);
         }
     };

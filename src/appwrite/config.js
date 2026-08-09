@@ -319,3 +319,4 @@ export const DATABASE_ID = "learnstack_db";
 export const COURSES_COLLECTION_ID = "Courses";
 export const PROGRESS_COLLECTION_ID = "UserProgress";
 export const ROADMAPS_COLLECTION_ID = "Roadmaps";
+export const QUESTIONS_COLLECTION_ID = "Questions";
