@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-escape */
 /* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useMemo, useEffect } from "react";
-import { X, PlayCircle, CheckCircle, FileText, Menu, ClipboardList } from "lucide-react";
+import { X, PlayCircle, CheckCircle, FileText, Menu, ClipboardList, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Simple parser to extract just the YouTube Video ID
@@ -13,12 +13,14 @@ const extractYouTubeID = (url) => {
 
 const CourseViewer = ({ isOpen, onClose, course }) => {
     const [activeLesson, setActiveLesson] = useState(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true); // New state for collapsible sidebar
     const navigate = useNavigate();
 
     // Prevent background scrolling when open
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
+            setIsSidebarOpen(true); // Always start with sidebar open when modal opens
         } else {
             document.body.style.overflow = "unset";
         }
@@ -82,24 +84,13 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                         {course.Title}
                     </h2>
                 </div>
-                <div className="hidden md:flex items-center gap-3">
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        {course.progressDetails?.CompletionPercentage || 0}% Completed
-                    </span>
-                    <div className="w-32 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                        <div 
-                            className="h-full bg-blue-600 dark:bg-purple-500 rounded-full transition-all"
-                            style={{ width: `${course.progressDetails?.CompletionPercentage || 0}%` }}
-                        />
-                    </div>
-                </div>
             </div>
 
             {/* Main Content Area */}
             <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
                 
                 {/* Left Side: Video Player Area */}
-                <div className="flex-1 flex flex-col bg-black overflow-y-auto scrollbar-hide">
+                <div className="flex-1 flex flex-col bg-black overflow-y-auto scrollbar-hide transition-all duration-300">
                     {activeLesson ? (
                         <div className="w-full aspect-video bg-black shrink-0 relative">
                             {activeLesson.type === "video" ? (
@@ -142,78 +133,105 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
                     </div>
                 </div>
 
-                {/* Right Side: Syllabus / Module List */}
-                <div className="w-full lg:w-[400px] xl:w-[450px] bg-[#FAFAFA] dark:bg-[#0a0a0a] border-l border-gray-200 dark:border-gray-800 flex flex-col h-[50vh] lg:h-auto shrink-0 overflow-hidden">
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center gap-2 shadow-sm z-10">
-                        <Menu className="w-5 h-5 text-gray-500" />
-                        <h3 className="font-bold text-gray-900 dark:text-white">Course Content</h3>
-                    </div>
-                    
-                    <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
-                        <div className="bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
-                            <div className="p-4 bg-gray-50 dark:bg-[#0d0d0d] font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 text-sm">
-                                Module
-                            </div>
-                            <div>
-                                {lessons.map(lesson => {
-                                    const isActive = activeLesson?.id === lesson.id;
-                                    return (
-                                        <button
-                                            key={lesson.id}
-                                            onClick={() => setActiveLesson(lesson)}
-                                            className={`w-full flex items-center gap-3 p-3 text-left transition-colors border-b last:border-0 border-gray-100 dark:border-gray-800/50 hover:bg-blue-50/50 dark:hover:bg-white/[0.04] ${
-                                                isActive ? "bg-blue-50 dark:bg-purple-500/10" : ""
-                                            }`}
-                                        >
-                                            {/* Thumbnail Image Logic */}
-                                            <div className="shrink-0 w-24 h-14 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden relative border border-gray-300 dark:border-gray-700 flex items-center justify-center">
-                                                {lesson.type === "video" && lesson.videoId ? (
-                                                    <img 
-                                                        src={`https://img.youtube.com/vi/${lesson.videoId}/mqdefault.jpg`} 
-                                                        alt="thumbnail" 
-                                                        className="w-full h-full object-cover" 
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-                                                        <FileText className="w-5 h-5 text-blue-500" />
-                                                    </div>
-                                                )}
-                                                
-                                                {/* Hover play icon overlay */}
-                                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                                    <PlayCircle className="w-6 h-6 text-white shadow-sm" />
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-col flex-1 overflow-hidden">
-                                                <span className={`text-sm font-medium line-clamp-2 leading-tight ${isActive ? "text-blue-700 dark:text-purple-300" : "text-gray-700 dark:text-gray-300"}`}>
-                                                    {lesson.title}
-                                                </span>
-                                                <div className="flex items-center justify-between mt-1">
-                                                    <span className="text-[10px] uppercase font-bold text-gray-500">
-                                                        {lesson.type === "video" ? "Video" : "Document"}
-                                                    </span>
-                                                    {lesson.isCompleted && <CheckCircle className="w-3.5 h-3.5 text-green-500" />}
-                                                </div>
-                                            </div>
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                {/* Right Side: Collapsible Syllabus / Module List */}
+                <div 
+                    className={`bg-[#FAFAFA] dark:bg-[#0a0a0a] border-l border-gray-200 dark:border-gray-800 flex flex-col shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
+                        isSidebarOpen 
+                            ? "w-full lg:w-[400px] xl:w-[450px] h-[50vh] lg:h-auto" 
+                            : "w-full lg:w-[60px] h-14 lg:h-auto"
+                    }`}
+                >
+                    {/* Clickable Header/Toggle Button */}
+                    <button 
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        className="h-14 w-full flex items-center border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] transition-colors cursor-pointer px-4 relative z-10"
+                        title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                    >
+                        <div className="w-6 h-6 flex items-center justify-center shrink-0 text-gray-500 transition-transform duration-300">
+                            {isSidebarOpen ? <ChevronRight className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                         </div>
+                        <h3 
+                            className={`font-bold text-gray-900 dark:text-white whitespace-nowrap ml-3 transition-opacity duration-200 ${
+                                isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none hidden lg:block"
+                            }`}
+                        >
+                            Course Content
+                        </h3>
+                    </button>
+                    
+                    {/* Inner Content Area - Wrapped to prevent text-crunching during sliding animation */}
+                    <div className={`flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin transition-opacity duration-300 ${
+                        isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                    }`}>
+                        <div className="p-4 space-y-4 w-full lg:w-[400px] xl:w-[450px]">
+                            
+                            {/* Module List */}
+                            <div className="bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+                                <div className="p-4 bg-gray-50 dark:bg-[#0d0d0d] font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 text-sm">
+                                    Module
+                                </div>
+                                <div>
+                                    {lessons.map(lesson => {
+                                        const isActive = activeLesson?.id === lesson.id;
+                                        return (
+                                            <button
+                                                key={lesson.id}
+                                                onClick={() => setActiveLesson(lesson)}
+                                                className={`w-full flex items-center gap-3 p-3 text-left transition-colors border-b last:border-0 border-gray-100 dark:border-gray-800/50 hover:bg-blue-50/50 dark:hover:bg-white/[0.04] ${
+                                                    isActive ? "bg-blue-50 dark:bg-purple-500/10" : ""
+                                                }`}
+                                            >
+                                                {/* Thumbnail Image Logic */}
+                                                <div className="shrink-0 w-24 h-14 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden relative border border-gray-300 dark:border-gray-700 flex items-center justify-center">
+                                                    {lesson.type === "video" && lesson.videoId ? (
+                                                        <img 
+                                                            src={`https://img.youtube.com/vi/${lesson.videoId}/mqdefault.jpg`} 
+                                                            alt="thumbnail" 
+                                                            className="w-full h-full object-cover" 
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                                                            <FileText className="w-5 h-5 text-blue-500" />
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {/* Hover play icon overlay */}
+                                                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                                        <PlayCircle className="w-6 h-6 text-white shadow-sm" />
+                                                    </div>
+                                                </div>
 
-                        {/* Exam Section */}
-                        <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
-                            <button
-                                onClick={() => {
-                                    onClose(); 
-                                    navigate("/exam");
-                                }}
-                                className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                            >
-                                <ClipboardList className="w-5 h-5" />
-                                Take Final Exam
-                            </button>
+                                                <div className="flex flex-col flex-1 overflow-hidden">
+                                                    <span className={`text-sm font-medium line-clamp-2 leading-tight ${isActive ? "text-blue-700 dark:text-purple-300" : "text-gray-700 dark:text-gray-300"}`}>
+                                                        {lesson.title}
+                                                    </span>
+                                                    <div className="flex items-center justify-between mt-1">
+                                                        <span className="text-[10px] uppercase font-bold text-gray-500">
+                                                            {lesson.type === "video" ? "Video" : "Document"}
+                                                        </span>
+                                                        {lesson.isCompleted && <CheckCircle className="w-3.5 h-3.5 text-green-500" />}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Exam Section */}
+                            <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                                <button
+                                    onClick={() => {
+                                        onClose(); 
+                                        navigate("/exam");
+                                    }}
+                                    className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                                >
+                                    <ClipboardList className="w-5 h-5" />
+                                    Take Final Exam
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
