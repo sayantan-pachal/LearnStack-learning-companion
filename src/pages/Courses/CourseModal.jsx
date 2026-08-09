@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { X, PlayCircle, FileText, Lock, Clock, BookOpen, GraduationCap, CheckCircle } from "lucide-react";
+import { X, PlayCircle, FileText, Lock, Clock, BookOpen, GraduationCap, CheckCircle, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 // Import the database methods and constants
 import { databases, DATABASE_ID, PROGRESS_COLLECTION_ID, ID } from "../../appwrite/config";
 
 const CourseModal = ({ isOpen, onClose, course }) => {
     const [isEnrolling, setIsEnrolling] = useState(false);
+    const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
+    const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(true);
+    
     const navigate = useNavigate();
 
     // Prevent background scrolling when modal is open
@@ -18,8 +21,43 @@ const CourseModal = ({ isOpen, onClose, course }) => {
         return () => { document.body.style.overflow = "unset"; };
     }, [isOpen]);
 
-    // Dynamic Module Generation Strategy
-    const modules = useMemo(() => {
+    // Check if the user is already enrolled when the modal opens
+    useEffect(() => {
+        const checkEnrollmentStatus = async () => {
+            if (!isOpen || !course) return;
+            
+            const userStr = localStorage.getItem("learnstack_user");
+            if (!userStr) {
+                setIsAlreadyEnrolled(false);
+                setIsCheckingEnrollment(false);
+                return;
+            }
+
+            try {
+                setIsCheckingEnrollment(true);
+                const courseId = course.id || course.$id || course.ID;
+
+                // Fetch existing progress
+                const existingProgress = await databases.listDocuments(DATABASE_ID, PROGRESS_COLLECTION_ID);
+                
+                // Check if a document exists with this course ID
+                const enrolled = existingProgress.documents.some(
+                    doc => String(doc.CourseId) === String(courseId) || String(doc.courseId) === String(courseId)
+                );
+
+                setIsAlreadyEnrolled(enrolled);
+            } catch (error) {
+                console.error("Failed to check enrollment:", error);
+            } finally {
+                setIsCheckingEnrollment(false);
+            }
+        };
+
+        checkEnrollmentStatus();
+    }, [isOpen, course]);
+
+    // Dynamic Syllabus Generation (Updated to match CourseViewer's flat sequential list)
+    const lessons = useMemo(() => {
         if (!course) return [];
 
         const videoIds = course.YouTube_ID ? course.YouTube_ID.split(',').map(id => id.trim()).filter(Boolean) : [];
@@ -30,28 +68,13 @@ const CourseModal = ({ isOpen, onClose, course }) => {
 
         if (itemsList.length === 0) return [];
 
-        const lessonsPerModule = 5;
-        const generatedModules = [];
-
-        for (let i = 0; i < itemsList.length; i += lessonsPerModule) {
-            const chunk = itemsList.slice(i, i + lessonsPerModule);
-            const moduleNumber = Math.floor(i / lessonsPerModule) + 1;
-
-            const lessons = chunk.map((itemUrl, index) => ({
-                id: `${moduleNumber}-${index + 1}`,
-                title: `Lesson ${i + index + 1}`,
-                type: isVideo ? "video" : "pdf",
-                url: itemUrl,
-                locked: true 
-            }));
-
-            generatedModules.push({
-                title: `Module ${moduleNumber}: Section Overview`,
-                lessons: lessons
-            });
-        }
-
-        return generatedModules;
+        return itemsList.map((itemUrl, index) => ({
+            id: `lesson-${index + 1}`,
+            title: `Lesson ${index + 1}`,
+            type: isVideo ? "video" : "pdf",
+            url: itemUrl,
+            locked: true 
+        }));
     }, [course]);
 
     if (!isOpen || !course) return null;
@@ -69,24 +92,18 @@ const CourseModal = ({ isOpen, onClose, course }) => {
             const user = JSON.parse(userStr);
             const courseId = course.id || course.$id || course.ID;
 
-            // 2. Check if already enrolled (listDocuments auto-filters by userId in your config)
-            const existingProgress = await databases.listDocuments(DATABASE_ID, PROGRESS_COLLECTION_ID);
-            const isAlreadyEnrolled = existingProgress.documents.some(doc => String(doc.CourseId) === String(courseId));
-
-            // 3. Create the enrollment record matching your exact Sheet headers
-            if (!isAlreadyEnrolled) {
-                await databases.createDocument(
-                    DATABASE_ID,
-                    PROGRESS_COLLECTION_ID,
-                    ID.unique(),
-                    {
-                        UserId: user.userId,
-                        CourseId: courseId,
-                        CompletedModules: 0,
-                        CompletionPercentage: 0
-                    }
-                );
-            }
+            // 2. Create the enrollment record
+            await databases.createDocument(
+                DATABASE_ID,
+                PROGRESS_COLLECTION_ID,
+                ID.unique(),
+                {
+                    UserId: user.userId,
+                    CourseId: courseId,
+                    CompletedModules: 0,
+                    CompletionPercentage: 0
+                }
+            );
 
             setIsEnrolling(false);
             onClose(); 
@@ -133,29 +150,27 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Course Syllabus</h3>
                         
                         <div className="space-y-4 pb-8">
-                            {modules.length > 0 ? modules.map((mod, i) => (
-                                <div key={i} className="border border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50 dark:bg-white/[0.02] overflow-hidden">
-                                    <div className="p-4 bg-white dark:bg-[#0d0d0d] border-b border-gray-200 dark:border-gray-800 font-semibold text-gray-900 dark:text-white flex justify-between items-center">
-                                        {mod.title}
-                                        <span className="text-xs text-gray-500 font-medium">{mod.lessons.length} lessons</span>
-                                    </div>
-                                    <div className="p-2">
-                                        {mod.lessons.map(lesson => (
-                                            <div key={lesson.id} className="flex items-center gap-3 p-3 text-gray-600 dark:text-gray-400">
-                                                {lesson.type === "video" ? (
-                                                    <PlayCircle className="w-4 h-4 text-blue-500 dark:text-purple-400 shrink-0" />
-                                                ) : (
-                                                    <FileText className="w-4 h-4 text-blue-500 dark:text-purple-400 shrink-0" />
-                                                )}
-                                                <span className="text-sm">{lesson.title}</span>
-                                                <Lock className="w-3.5 h-3.5 ml-auto opacity-40 shrink-0" />
-                                            </div>
-                                        ))}
-                                    </div>
+                            <div className="border border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50 dark:bg-white/[0.02] overflow-hidden">
+                                <div className="p-4 bg-white dark:bg-[#0d0d0d] border-b border-gray-200 dark:border-gray-800 font-semibold text-gray-900 dark:text-white flex justify-between items-center">
+                                    Course Modules
+                                    <span className="text-xs text-gray-500 font-medium">{lessons.length} lessons</span>
                                 </div>
-                            )) : (
-                                <p className="text-gray-500 italic text-sm">Syllabus content is being updated.</p>
-                            )}
+                                <div className="p-2">
+                                    {lessons.length > 0 ? lessons.map(lesson => (
+                                        <div key={lesson.id} className="flex items-center gap-3 p-3 text-gray-600 dark:text-gray-400">
+                                            {lesson.type === "video" ? (
+                                                <PlayCircle className="w-4 h-4 text-blue-500 dark:text-purple-400 shrink-0" />
+                                            ) : (
+                                                <FileText className="w-4 h-4 text-blue-500 dark:text-purple-400 shrink-0" />
+                                            )}
+                                            <span className="text-sm">{lesson.title}</span>
+                                            <Lock className="w-3.5 h-3.5 ml-auto opacity-40 shrink-0" />
+                                        </div>
+                                    )) : (
+                                        <p className="text-gray-500 italic text-sm p-3">Syllabus content is being updated.</p>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -196,31 +211,49 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                         </div>
                         <div className="flex items-center justify-between text-sm text-gray-700 dark:text-gray-300">
                             <span className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> Total Items</span>
-                            <span className="font-semibold">{modules.reduce((total, mod) => total + mod.lessons.length, 0)} Lessons</span>
+                            <span className="font-semibold">{lessons.length} Lessons</span>
                         </div>
                     </div>
 
                     <div className="mt-auto flex flex-col gap-3">
-                        <button
-                            onClick={handleEnroll}
-                            disabled={isEnrolling}
-                            className={`w-full py-3.5 rounded-xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 ${
-                                isEnrolling 
-                                ? "bg-gray-400 dark:bg-gray-700 cursor-not-allowed" 
-                                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-purple-500 dark:to-pink-500 shadow-lg shadow-blue-500/30 dark:shadow-purple-500/30 hover:-translate-y-0.5"
-                            }`}
-                        >
-                            {isEnrolling ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    Enrolling...
-                                </>
-                            ) : (
-                                "Enroll in Course"
-                            )}
-                        </button>
+                        {isCheckingEnrollment ? (
+                            <div className="w-full py-3.5 rounded-xl bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                        ) : isAlreadyEnrolled ? (
+                            <button
+                                onClick={() => {
+                                    onClose();
+                                    navigate("/mycourses");
+                                }}
+                                className="w-full py-3.5 rounded-xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5"
+                            >
+                                Go to My Learning <ArrowRight className="w-5 h-5 ml-1" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleEnroll}
+                                disabled={isEnrolling}
+                                className={`w-full py-3.5 rounded-xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 ${
+                                    isEnrolling 
+                                    ? "bg-gray-400 dark:bg-gray-700 cursor-not-allowed" 
+                                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-purple-500 dark:to-pink-500 shadow-lg shadow-blue-500/30 dark:shadow-purple-500/30 hover:-translate-y-0.5"
+                                }`}
+                            >
+                                {isEnrolling ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Enrolling...
+                                    </>
+                                ) : (
+                                    "Enroll in Course"
+                                )}
+                            </button>
+                        )}
+                        
                         <p className="text-xs text-center text-gray-500 font-medium">
-                            Enrolling will add this to your personal dashboard.
+                            {isAlreadyEnrolled 
+                                ? "You are already enrolled in this course."
+                                : "Enrolling will add this to your personal dashboard."
+                            }
                         </p>
                     </div>
                 </div>

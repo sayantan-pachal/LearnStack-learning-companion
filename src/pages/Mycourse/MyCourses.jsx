@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BookOpen, PlayCircle, Trophy, ArrowRight, LayoutDashboard } from "lucide-react";
+import { BookOpen, PlayCircle, Trophy, ArrowRight, LayoutDashboard, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Other/Loader";
 import { databases, DATABASE_ID, COURSES_COLLECTION_ID, PROGRESS_COLLECTION_ID } from "../../appwrite/config";
@@ -116,7 +116,13 @@ function MyCourses() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-0">
                         {enrolledCourses.map((course) => {
                             const firstVideoId = course.YouTube_ID ? course.YouTube_ID.split(',')[0].trim() : null;
-                            const progressPercent = course.progressDetails?.CompletionPercentage || 0;
+                            
+                            // Check if Badge exists and equals "Y" or "C"
+                            const badgeValue = String(course.progressDetails?.Badge || "").toUpperCase().trim();
+                            const hasEarnedBadge = badgeValue === "Y" || badgeValue === "C";
+                            
+                            // If badge is earned, force 100%, otherwise use actual completion percentage
+                            const progressPercent = hasEarnedBadge ? 100 : (course.progressDetails?.CompletionPercentage || 0);
 
                             return (
                                 <div
@@ -153,21 +159,28 @@ function MyCourses() {
                                         </h3>
 
                                         <div className="mt-auto space-y-3">
+                                            {/* Progress Status Text (No longer showing module count) */}
                                             <div className="flex justify-between text-xs font-bold text-gray-500 dark:text-gray-400">
-                                                <span>{progressPercent}% Complete</span>
-                                                <span>{course.progressDetails?.CompletedModules || 0} Modules</span>
+                                                <span className={`flex items-center gap-1.5 ${hasEarnedBadge ? "text-green-600 dark:text-green-500" : ""}`}>
+                                                    {hasEarnedBadge && <CheckCircle className="w-3.5 h-3.5" />}
+                                                    {progressPercent}% Complete
+                                                </span>
                                             </div>
                                             
                                             {/* Progress Track */}
                                             <div className="w-full h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                                                 <div 
-                                                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-purple-500 dark:to-pink-500 rounded-full transition-all duration-1000"
+                                                    className={`h-full rounded-full transition-all duration-1000 ${
+                                                        hasEarnedBadge 
+                                                            ? "bg-green-500" 
+                                                            : "bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-purple-500 dark:to-pink-500"
+                                                    }`}
                                                     style={{ width: `${progressPercent}%` }}
                                                 />
                                             </div>
 
-                                            <div className="pt-2 flex items-center justify-end text-sm font-bold text-blue-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform">
-                                                Continue <ArrowRight className="w-4 h-4 ml-1" />
+                                            <div className={`pt-2 flex items-center justify-end text-sm font-bold group-hover:translate-x-1 transition-transform ${hasEarnedBadge ? "text-green-600 dark:text-green-500" : "text-blue-600 dark:text-purple-400"}`}>
+                                                {hasEarnedBadge ? "Review Course" : "Continue"} <ArrowRight className="w-4 h-4 ml-1" />
                                             </div>
                                         </div>
                                     </div>

@@ -1,7 +1,8 @@
 /* eslint-disable no-useless-escape */
 /* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useMemo, useEffect } from "react";
-import { X, PlayCircle, CheckCircle, FileText, Menu } from "lucide-react";
+import { X, PlayCircle, CheckCircle, FileText, Menu, ClipboardList } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Simple parser to extract just the YouTube Video ID
 const extractYouTubeID = (url) => {
@@ -12,6 +13,7 @@ const extractYouTubeID = (url) => {
 
 const CourseViewer = ({ isOpen, onClose, course }) => {
     const [activeLesson, setActiveLesson] = useState(null);
+    const navigate = useNavigate();
 
     // Prevent background scrolling when open
     useEffect(() => {
@@ -23,8 +25,8 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
         return () => { document.body.style.overflow = "unset"; };
     }, [isOpen]);
 
-    // Build the modules list based on the current course
-    const modules = useMemo(() => {
+    // Build the lessons list based on the current course
+    const lessons = useMemo(() => {
         if (!course) return [];
 
         const videoLinks = course.YouTube_ID ? course.YouTube_ID.split(',').map(id => id.trim()).filter(Boolean) : [];
@@ -35,50 +37,33 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
 
         if (itemsList.length === 0) return [];
 
-        const lessonsPerModule = 5;
-        const generatedModules = [];
-        let lessonCounter = 1;
-
-        for (let i = 0; i < itemsList.length; i += lessonsPerModule) {
-            const chunk = itemsList.slice(i, i + lessonsPerModule);
-            const moduleNumber = Math.floor(i / lessonsPerModule) + 1;
-
-            const lessons = chunk.map((itemUrl) => {
-                const videoId = isVideo ? extractYouTubeID(itemUrl) : null;
-                
-                return {
-                    id: `lesson-${lessonCounter}`,
-                    title: `Lesson ${lessonCounter}`,
-                    type: isVideo ? "video" : "pdf",
-                    videoId: videoId,
-                    url: itemUrl,
-                    isCompleted: false 
-                };
-            });
+        // Map through all items sequentially to create Lesson 1, Lesson 2, Lesson 3, etc.
+        return itemsList.map((itemUrl, index) => {
+            const videoId = isVideo ? extractYouTubeID(itemUrl) : null;
             
-            lessonCounter += chunk.length;
-
-            generatedModules.push({
-                title: `Module ${moduleNumber}`,
-                lessons: lessons
-            });
-        }
-
-        return generatedModules;
+            return {
+                id: `lesson-${index + 1}`,
+                title: `Lesson ${index + 1}`,
+                type: isVideo ? "video" : "pdf",
+                videoId: videoId,
+                url: itemUrl,
+                isCompleted: false 
+            };
+        });
     }, [course]);
 
-    // THE FIX: Reset activeLesson when the course changes or modal opens/closes
+    // Reset activeLesson when the course changes or modal opens/closes
     useEffect(() => {
-        if (isOpen && modules.length > 0) {
-            // Always set to the first lesson of the current course's modules
-            setActiveLesson(modules[0].lessons[0]);
+        if (isOpen && lessons.length > 0) {
+            // Always set to the first lesson of the current course
+            setActiveLesson(lessons[0]);
         }
         
         // When the modal closes, wipe the state clean
         if (!isOpen) {
             setActiveLesson(null);
         }
-    }, [isOpen, course, modules]);
+    }, [isOpen, course, lessons]);
 
     if (!isOpen || !course) return null;
 
@@ -159,65 +144,77 @@ const CourseViewer = ({ isOpen, onClose, course }) => {
 
                 {/* Right Side: Syllabus / Module List */}
                 <div className="w-full lg:w-[400px] xl:w-[450px] bg-[#FAFAFA] dark:bg-[#0a0a0a] border-l border-gray-200 dark:border-gray-800 flex flex-col h-[50vh] lg:h-auto shrink-0 overflow-hidden">
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center gap-2">
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center gap-2 shadow-sm z-10">
                         <Menu className="w-5 h-5 text-gray-500" />
                         <h3 className="font-bold text-gray-900 dark:text-white">Course Content</h3>
                     </div>
                     
                     <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
-                        {modules.map((mod, idx) => (
-                            <div key={idx} className="bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
-                                <div className="p-4 bg-gray-50 dark:bg-[#0d0d0d] font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 text-sm">
-                                    {mod.title}
-                                </div>
-                                <div>
-                                    {mod.lessons.map(lesson => {
-                                        const isActive = activeLesson?.id === lesson.id;
-                                        return (
-                                            <button
-                                                key={lesson.id}
-                                                onClick={() => setActiveLesson(lesson)}
-                                                className={`w-full flex items-center gap-3 p-3 text-left transition-colors border-b last:border-0 border-gray-100 dark:border-gray-800/50 hover:bg-blue-50/50 dark:hover:bg-white/[0.04] ${
-                                                    isActive ? "bg-blue-50 dark:bg-purple-500/10" : ""
-                                                }`}
-                                            >
-                                                {/* Thumbnail Image Logic */}
-                                                <div className="shrink-0 w-24 h-14 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden relative border border-gray-300 dark:border-gray-700 flex items-center justify-center">
-                                                    {lesson.type === "video" && lesson.videoId ? (
-                                                        <img 
-                                                            src={`https://img.youtube.com/vi/${lesson.videoId}/mqdefault.jpg`} 
-                                                            alt="thumbnail" 
-                                                            className="w-full h-full object-cover" 
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-                                                            <FileText className="w-5 h-5 text-blue-500" />
-                                                        </div>
-                                                    )}
-                                                    
-                                                    {/* Hover play icon overlay */}
-                                                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                                        <PlayCircle className="w-6 h-6 text-white shadow-sm" />
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-col flex-1 overflow-hidden">
-                                                    <span className={`text-sm font-medium line-clamp-2 leading-tight ${isActive ? "text-blue-700 dark:text-purple-300" : "text-gray-700 dark:text-gray-300"}`}>
-                                                        {lesson.title}
-                                                    </span>
-                                                    <div className="flex items-center justify-between mt-1">
-                                                        <span className="text-[10px] uppercase font-bold text-gray-500">
-                                                            {lesson.type === "video" ? "Video" : "Document"}
-                                                        </span>
-                                                        {lesson.isCompleted && <CheckCircle className="w-3.5 h-3.5 text-green-500" />}
-                                                    </div>
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                        <div className="bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+                            <div className="p-4 bg-gray-50 dark:bg-[#0d0d0d] font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 text-sm">
+                                Module
                             </div>
-                        ))}
+                            <div>
+                                {lessons.map(lesson => {
+                                    const isActive = activeLesson?.id === lesson.id;
+                                    return (
+                                        <button
+                                            key={lesson.id}
+                                            onClick={() => setActiveLesson(lesson)}
+                                            className={`w-full flex items-center gap-3 p-3 text-left transition-colors border-b last:border-0 border-gray-100 dark:border-gray-800/50 hover:bg-blue-50/50 dark:hover:bg-white/[0.04] ${
+                                                isActive ? "bg-blue-50 dark:bg-purple-500/10" : ""
+                                            }`}
+                                        >
+                                            {/* Thumbnail Image Logic */}
+                                            <div className="shrink-0 w-24 h-14 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden relative border border-gray-300 dark:border-gray-700 flex items-center justify-center">
+                                                {lesson.type === "video" && lesson.videoId ? (
+                                                    <img 
+                                                        src={`https://img.youtube.com/vi/${lesson.videoId}/mqdefault.jpg`} 
+                                                        alt="thumbnail" 
+                                                        className="w-full h-full object-cover" 
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                                                        <FileText className="w-5 h-5 text-blue-500" />
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Hover play icon overlay */}
+                                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                                    <PlayCircle className="w-6 h-6 text-white shadow-sm" />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col flex-1 overflow-hidden">
+                                                <span className={`text-sm font-medium line-clamp-2 leading-tight ${isActive ? "text-blue-700 dark:text-purple-300" : "text-gray-700 dark:text-gray-300"}`}>
+                                                    {lesson.title}
+                                                </span>
+                                                <div className="flex items-center justify-between mt-1">
+                                                    <span className="text-[10px] uppercase font-bold text-gray-500">
+                                                        {lesson.type === "video" ? "Video" : "Document"}
+                                                    </span>
+                                                    {lesson.isCompleted && <CheckCircle className="w-3.5 h-3.5 text-green-500" />}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Exam Section */}
+                        <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                            <button
+                                onClick={() => {
+                                    onClose(); 
+                                    navigate("/exam");
+                                }}
+                                className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                            >
+                                <ClipboardList className="w-5 h-5" />
+                                Take Final Exam
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
