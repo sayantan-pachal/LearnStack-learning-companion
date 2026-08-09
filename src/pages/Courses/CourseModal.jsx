@@ -222,7 +222,7 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                             <button
                                 onClick={() => {
                                     onClose();
-                                    navigate("/mycourses");
+                                    navigate("/mylearning");
                                 }}
                                 className="w-full py-3.5 rounded-xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5"
                             >

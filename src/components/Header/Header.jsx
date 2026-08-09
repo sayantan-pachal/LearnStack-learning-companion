@@ -19,7 +19,7 @@ export default function Header() {
   
   const userLinks = [
     { to: "/profile", label: "My Profile" },
-    { to: "/mycourses", label: "My Courses" },
+    { to: "/mylearning", label: "My Learning" },
     { to: "/achievements", label: "My Achievements" },
     { to: "/settings", label: "Account Settings" }, 
     { to: "/resetpassword", label: "Reset Password" },

@@ -40,7 +40,7 @@ const router = createBrowserRouter(
         <Route path='learningpaths' element={<ProtectedRoute><LearningPaths /></ProtectedRoute>} />
         <Route path='achievements' element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path='courses' element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-        <Route path='mycourses' element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
+        <Route path='mylearning' element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
         <Route path='community' element={<ProtectedRoute><Community /></ProtectedRoute>} />
         <Route path='settings' element={<ProtectedRoute><Settings /></ProtectedRoute>}/>
         <Route path='profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
