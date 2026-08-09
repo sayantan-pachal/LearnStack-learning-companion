@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { BookOpen, FileText, Video, Code } from "lucide-react";
+import { BookOpen, FileText, Video, Code, Search, ExternalLink, TvMinimalPlay } from "lucide-react";
 import { departmentOptions, semesterOptions } from "../../data/learningpaths";
 import { databases, DATABASE_ID, COURSES_COLLECTION_ID } from "../../appwrite/config";
 import Loader from "../../components/Other/Loader";
 
-// Import the new modular components
+// Import the modular components
 import ResourceCard from "./ResourceCard";
 import ResourceFilters from "./ResourceFilters";
 import CategoryTabs from "./CategoryTabs";
@@ -136,8 +136,24 @@ function Resources() {
             <p className="text-lg font-bold">{error}</p>
           </div>
         ) : filteredResources.length === 0 ? (
-          <div className="text-center py-20 bg-white/50 dark:bg-white/[0.02] rounded-3xl border border-dashed border-black/20 dark:border-white/20">
-            <p className="text-gray-500 dark:text-gray-400 text-lg">No resources found matching your filters.</p>
+          <div className="flex flex-col items-center justify-center text-center py-20 bg-white/50 dark:bg-white/[0.02] rounded-3xl border border-dashed border-black/20 dark:border-white/20">
+            <p className="text-gray-500 dark:text-gray-400 text-lg mb-6">
+              No resources found matching your filters.
+            </p>
+
+            {/* Smart YouTube Redirect Button */}
+            {searchQuery.trim().length > 0 && (
+              <a 
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-3 bg-[#FF0000] hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-red-500/30 mb-6"
+              >
+                <Search className="w-5 h-5" />
+                Search on <TvMinimalPlay className="w-5 h-5" /> YouTube
+              </a>
+            )}
+
             <button
               onClick={() => {
                 setSearchQuery("");
@@ -145,7 +161,7 @@ function Resources() {
                 setSelectedSemester("All");
                 setActiveCategory("All");
               }}
-              className="mt-4 text-blue-600 dark:text-purple-400 font-bold hover:underline"
+              className="text-blue-600 dark:text-purple-400 font-bold hover:underline"
             >
               Clear all filters
             </button>
