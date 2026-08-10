@@ -1,17 +1,18 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
-import { XCircle, CheckCircle, Award, ArrowLeft, ArrowRight, ShieldCheck, Clock } from "lucide-react";
+import { XCircle, CheckCircle, ArrowLeft, ArrowRight, ShieldCheck, Clock, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../components/Other/ToastContext";
-import Loader from "../../components/Other/Loader";
 import { databases, DATABASE_ID, QUESTIONS_COLLECTION_ID, PROGRESS_COLLECTION_ID } from "../../appwrite/config";
+import ExamGuidelines from "./ExamGuidelines";
+import ExamResult from "./ExamResult";
 
 const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
     const showToast = useToast();
     const navigate = useNavigate();
 
     const [isInitializing, setIsInitializing] = useState(true);
-    const [view, setView] = useState("quiz"); 
+    const [view, setView] = useState("guidelines"); 
     const [showExitConfirm, setShowExitConfirm] = useState(false); 
     const [showSubmitConfirm, setShowSubmitConfirm] = useState(false); 
     
@@ -20,6 +21,7 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
     const [selectedAnswers, setSelectedAnswers] = useState({});
     const [score, setScore] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(0);
 
     useEffect(() => {
         document.body.style.overflow = "hidden";
@@ -29,14 +31,21 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
     useEffect(() => {
         const prepareExam = async () => {
             try {
-                const delay = new Promise(res => setTimeout(res, 2000));
                 const qRes = await databases.listDocuments(DATABASE_ID, QUESTIONS_COLLECTION_ID);
                 const allQuestions = qRes.documents || [];
                 const courseId = String(course.ID || course.$id);
-                const fetchedQuestions = allQuestions.filter(q => String(q.CourseId) === courseId);
                 
-                await delay;
-
+                const fetchedQuestions = allQuestions
+                    .filter(q => String(q.CourseId) === courseId)
+                    .map(q => {
+                        const options = [q.OptionA, q.OptionB, q.OptionC, q.OptionD];
+                        for (let i = options.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [options[i], options[j]] = [options[j], options[i]];
+                        }
+                        return { ...q, shuffledOptions: options };
+                    });
+                
                 if (fetchedQuestions.length === 0) {
                     showToast("No questions found for this exam yet.", "error");
                     onClose();
@@ -44,6 +53,7 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
                 }
 
                 setQuestions(fetchedQuestions);
+                setTimeLeft(fetchedQuestions.length * 60); 
                 setIsInitializing(false);
             } catch (error) {
                 console.error("Exam load error:", error);
@@ -54,10 +64,33 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
         prepareExam();
     }, [course, onClose, showToast]);
 
-    const handleSelect = (option) => {
-        setSelectedAnswers(prev => ({ ...prev, [currentIndex]: option }));
+    useEffect(() => {
+        if (view !== "quiz" || timeLeft <= 0 || isSubmitting) return;
+        const timerId = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timerId);
+                    submitExam(); 
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(timerId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [view, timeLeft, isSubmitting]);
+
+    const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
     };
 
+    const preventCheating = (e) => {
+        e.preventDefault();
+        showToast("Action disabled. This is a secure exam environment.", "error");
+    };
+    
     const submitExam = async () => {
         setIsSubmitting(true);
         let correctCount = 0;
@@ -81,6 +114,9 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
                     targetId,
                     { Badge: "Y", CourseId: progressDoc.CourseId, Date: todayStr }
                 );
+
+                // Add the Toast Success Notification here!
+                showToast("🎉 Congratulations! Your certificate has been successfully claimed.", "success");
                 onPassSuccess(progressDoc.CourseId); 
             } catch (err) {
                 showToast("Failed to save passing score.", "error");
@@ -98,50 +134,40 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
                     <div className="absolute inset-0 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                     <ShieldCheck className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600 dark:text-indigo-400" />
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-2">Verifying Credentials</h2>
+                <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-2">Securing Environment</h2>
                 <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium animate-pulse">
-                    Setting up your secure exam environment...
+                    Preparing questions and anti-cheat systems...
                 </p>
             </div>
         );
     }
 
-    if (view === "result") {
-        const passed = score >= 80;
+    if (view === "guidelines") {
         return (
-            <div className="fixed inset-0 z-[500] bg-gray-50 dark:bg-[#050505] flex items-center justify-center font-dm animate-in zoom-in-95 duration-300 p-4">
-                <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl p-8 md:p-16 max-w-2xl w-full text-center shadow-2xl">
-                    {passed ? (
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8 animate-bounce">
-                            <Award className="w-10 h-10 sm:w-12 sm:h-12" />
-                        </div>
-                    ) : (
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8">
-                            <XCircle className="w-10 h-10 sm:w-12 sm:h-12" />
-                        </div>
-                    )}
-                    <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white mb-4">
-                        {passed ? "Congratulations!" : "Keep Trying!"}
-                    </h1>
-                    <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-6 sm:mb-8">
-                        You scored <span className={`font-black text-xl sm:text-2xl ${passed ? "text-green-500" : "text-red-500"}`}>{score}%</span>
-                    </p>
-                    <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-                        {passed ? (
-                            <button onClick={() => { onClose(); navigate("/achievements"); }} className="px-6 sm:px-8 py-3 sm:py-3.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 text-sm sm:text-base">
-                                View My Badge
-                            </button>
-                        ) : (
-                            <button onClick={() => { setSelectedAnswers({}); setCurrentIndex(0); setScore(0); setView("quiz"); }} className="px-6 sm:px-8 py-3 sm:py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 text-sm sm:text-base">
-                                Retake Exam
-                            </button>
-                        )}
-                        <button onClick={onClose} className="px-6 sm:px-8 py-3 sm:py-3.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-all text-sm sm:text-base">
-                            Exit
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <ExamGuidelines 
+                courseTitle={course?.Title} 
+                questionsCount={questions.length} 
+                onStart={() => setView("quiz")} 
+                onClose={onClose} 
+            />
+        );
+    }
+
+    if (view === "result") {
+        return (
+            <ExamResult 
+                passed={score >= 80}
+                score={score}
+                onClose={onClose}
+                onViewBadge={() => { onClose(); navigate("/achievements"); }}
+                onRetake={() => {
+                    setSelectedAnswers({}); 
+                    setCurrentIndex(0); 
+                    setScore(0); 
+                    setTimeLeft(questions.length * 60);
+                    setView("quiz");
+                }}
+            />
         );
     }
 
@@ -149,136 +175,91 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
     const isLast = currentIndex === questions.length - 1;
 
     return (
-        <div className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] flex flex-col h-screen w-screen overflow-hidden font-dm animate-in fade-in duration-300">
-            
+        <div 
+            className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] flex flex-col h-screen w-screen overflow-hidden font-dm animate-in fade-in duration-300 select-none"
+            onCopy={preventCheating}
+            onCut={preventCheating}
+            onPaste={preventCheating}
+            onContextMenu={preventCheating}
+        >
+            {/* Modals for exit/submit */}
             {showExitConfirm && (
-                <div className="fixed inset-0 z-[600] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 p-6 sm:p-8 rounded-2xl sm:rounded-3xl max-w-sm w-full text-center shadow-2xl">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                            <XCircle className="w-6 h-6 sm:w-8 sm:h-8" />
-                        </div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">Exit Exam?</h3>
-                        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6 sm:mb-8">
-                            Are you sure you want to leave? All your current answers and progress will be lost.
-                        </p>
+                <div className="fixed inset-0 z-[600] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-[#111] p-8 rounded-3xl max-w-sm w-full text-center shadow-2xl">
+                        <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                        <h3 className="text-2xl font-bold dark:text-white mb-2">Forfeit Exam?</h3>
+                        <p className="text-gray-500 dark:text-gray-400 mb-6">Your timer will stop, and all current progress will be lost permanently.</p>
                         <div className="flex gap-3">
-                            <button onClick={() => setShowExitConfirm(false)} className="flex-1 py-3 sm:py-3.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-xl font-bold transition-colors text-sm sm:text-base">
-                                Cancel
-                            </button>
-                            <button onClick={onClose} className="flex-1 py-3 sm:py-3.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors shadow-lg shadow-red-500/30 text-sm sm:text-base">
-                                Yes, Exit
-                            </button>
+                            <button onClick={() => setShowExitConfirm(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-800 dark:text-white rounded-xl font-bold">Cancel</button>
+                            <button onClick={onClose} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold">Yes, Exit</button>
                         </div>
                     </div>
                 </div>
             )}
 
             {showSubmitConfirm && (
-                <div className="fixed inset-0 z-[600] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 p-6 sm:p-8 rounded-2xl sm:rounded-3xl max-w-sm w-full text-center shadow-2xl">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                            <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8" />
-                        </div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">Submit Exam?</h3>
-                        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6 sm:mb-8">
-                            Are you sure you're ready to submit? You cannot change your answers after this point.
-                        </p>
+                <div className="fixed inset-0 z-[600] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-[#111] p-8 rounded-3xl max-w-sm w-full text-center shadow-2xl">
+                        <CheckCircle className="w-12 h-12 text-indigo-600 mx-auto mb-4" />
+                        <h3 className="text-2xl font-bold dark:text-white mb-2">Ready to Submit?</h3>
+                        <p className="text-gray-500 dark:text-gray-400 mb-6">You cannot change your answers after this point.</p>
                         <div className="flex gap-3">
-                            <button onClick={() => setShowSubmitConfirm(false)} className="flex-1 py-3 sm:py-3.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-xl font-bold transition-colors text-sm sm:text-base">
-                                Review
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    setShowSubmitConfirm(false);
-                                    submitExam();
-                                }} 
-                                className="flex-1 py-3 sm:py-3.5 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold transition-colors shadow-lg shadow-green-500/30 text-sm sm:text-base"
-                            >
-                                Yes, Submit
-                            </button>
+                            <button onClick={() => setShowSubmitConfirm(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-800 dark:text-white rounded-xl font-bold">Review</button>
+                            <button onClick={() => { setShowSubmitConfirm(false); submitExam(); }} className="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold">Submit</button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* HEADER */}
-            <header className="h-14 sm:h-16 border-b border-gray-100 dark:border-gray-900 flex items-center justify-between px-3 sm:px-8 shrink-0 relative">
-                <button 
-                    onClick={() => setShowExitConfirm(true)}
-                    className="flex items-center gap-1 sm:gap-2 text-gray-500 hover:text-red-500 font-bold transition-colors z-10 p-1"
-                >
-                    <XCircle className="w-5 h-5 sm:w-6 sm:h-6" /> <span className="hidden sm:inline">Exit Exam</span>
+            <header className="h-16 sm:h-20 border-b border-gray-100 dark:border-gray-900 flex items-center justify-between px-4 sm:px-8 shrink-0 relative bg-white dark:bg-[#050505]">
+                <button onClick={() => setShowExitConfirm(true)} className="flex items-center gap-2 text-gray-500 hover:text-red-500 font-bold z-10">
+                    <XCircle className="w-5 h-5 sm:w-6 sm:h-6" /> <span className="hidden sm:inline">Exit</span>
                 </button>
                 
-                {/* Absolutely Centered Element */}
-                <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full whitespace-nowrap">
-                    <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Exam in Progress
+                <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-2 text-sm sm:text-base font-black px-5 py-2 rounded-full border-2 transition-colors ${timeLeft <= 60 ? "bg-red-50 text-red-600 border-red-200 animate-pulse" : "bg-gray-50 text-gray-900 border-gray-200"}`}>
+                    <Clock className="w-4 h-4 sm:w-5 sm:h-5" /> {formatTime(timeLeft)}
                 </div>
                 
-                <div className="text-xs sm:text-sm font-bold text-gray-500 z-10 p-1">
-                    {currentIndex + 1} / {questions.length}
+                <div className="text-sm sm:text-base font-black text-gray-400 z-10 bg-gray-50 dark:bg-gray-900 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-800">
+                    {currentIndex + 1} <span className="opacity-50">/ {questions.length}</span>
                 </div>
             </header>
 
-            <div className="w-full h-1 sm:h-1.5 bg-gray-100 dark:bg-gray-900 shrink-0">
-                <div className="h-full bg-indigo-600 transition-all duration-300" style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }} />
+            <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-900 shrink-0">
+                <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all" style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }} />
             </div>
 
-            {/* MAIN CONTENT */}
-            <main className="flex-1 flex flex-col max-w-5xl mx-auto w-full p-3 sm:p-6 lg:p-8 min-h-0">
-                
-                {/* Question Area */}
-                <div className="mb-4 sm:mb-6 shrink-0 flex items-center justify-center min-h-[20%] sm:min-h-[25%] md:min-h-[30%] px-2">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white text-center leading-snug">
+            <main className="flex-1 flex flex-col max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8 min-h-0">
+                <div className="mb-6 sm:mb-8 shrink-0 flex items-center justify-center min-h-[20%] sm:min-h-[30%] px-2">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white text-center leading-relaxed">
                         {currentQ.QuestionText}
                     </h2>
                 </div>
 
-                {/* Options Grid */}
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 min-h-0">
-                    {["OptionA", "OptionB", "OptionC", "OptionD"].map((optKey) => {
-                        const isSelected = selectedAnswers[currentIndex] === currentQ[optKey];
-                        return (
-                            <button
-                                key={optKey}
-                                onClick={() => handleSelect(currentQ[optKey])}
-                                className={`w-full h-full flex items-center justify-center text-center p-3 sm:p-6 rounded-xl sm:rounded-2xl border-2 transition-all duration-200 font-bold text-base sm:text-lg md:text-xl shadow-sm ${
-                                    isSelected 
-                                    ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 scale-[0.98]" 
-                                    : "border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-gray-50 dark:hover:bg-white/[0.02]"
-                                }`}
-                            >
-                                {currentQ[optKey]}
-                            </button>
-                        );
-                    })}
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 min-h-0">
+                    {currentQ.shuffledOptions.map((optValue, index) => (
+                        <button
+                            key={index}
+                            onClick={() => setSelectedAnswers(prev => ({ ...prev, [currentIndex]: optValue }))}
+                            className={`w-full h-full flex items-center justify-center text-center p-4 sm:p-6 rounded-2xl border-2 transition-all font-bold text-base sm:text-xl shadow-sm ${selectedAnswers[currentIndex] === optValue ? "border-indigo-500 bg-indigo-50 text-indigo-700 ring-4 ring-indigo-500/20" : "border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-gray-50"}`}
+                        >
+                            {optValue}
+                        </button>
+                    ))}
                 </div>
 
-                {/* Bottom Navigation */}
-                <div className="h-auto sm:h-24 shrink-0 flex justify-between items-center mt-4 sm:mt-6 pt-2 sm:pt-0">
-                    <button
-                        onClick={() => setCurrentIndex(prev => prev - 1)}
-                        disabled={currentIndex === 0}
-                        className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-3 sm:py-4 font-bold text-gray-500 disabled:opacity-30 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-xl transition-colors text-sm sm:text-base"
-                    >
+                <div className="h-auto sm:h-24 shrink-0 flex justify-between items-center mt-6 sm:mt-8 pt-4 sm:pt-0 border-t border-gray-100 sm:border-none">
+                    <button onClick={() => setCurrentIndex(prev => prev - 1)} disabled={currentIndex === 0} className="flex items-center gap-2 px-5 py-3.5 font-bold text-gray-500 disabled:opacity-30 hover:bg-gray-100 rounded-xl transition-colors">
                         <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /> Previous
                     </button>
 
                     {isLast ? (
-                        <button
-                            onClick={() => setShowSubmitConfirm(true)}
-                            disabled={isSubmitting || !selectedAnswers[currentIndex]}
-                            className="flex items-center gap-1.5 sm:gap-2 px-6 sm:px-10 py-3 sm:py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:-translate-y-1 text-sm sm:text-lg"
-                        >
-                            {isSubmitting ? "Grading..." : "Submit Exam"} <CheckCircle className="w-4 h-4 sm:w-6 sm:h-6" />
+                        <button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting || selectedAnswers[currentIndex] === undefined} className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:-translate-y-1">
+                            {isSubmitting ? "Processing..." : "Finish Exam"} <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                     ) : (
-                        <button
-                            onClick={() => setCurrentIndex(prev => prev + 1)}
-                            disabled={!selectedAnswers[currentIndex]}
-                            className="flex items-center gap-1.5 sm:gap-2 px-6 sm:px-10 py-3 sm:py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:-translate-y-1 text-sm sm:text-lg"
-                        >
-                            Next <ArrowRight className="w-4 h-4 sm:w-6 sm:h-6" />
+                        <button onClick={() => setCurrentIndex(prev => prev + 1)} disabled={selectedAnswers[currentIndex] === undefined} className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:-translate-y-1">
+                            Next Question <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                     )}
                 </div>
