@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Trophy, Star, Flame, Medal, CheckCircle, Award, Download } from "lucide-react";
-import { 
-  databases, 
-  DATABASE_ID, 
-  PROGRESS_COLLECTION_ID, 
-  COURSES_COLLECTION_ID 
-} from "../../appwrite/config"; 
+import {
+  databases,
+  DATABASE_ID,
+  PROGRESS_COLLECTION_ID,
+  COURSES_COLLECTION_ID
+} from "../../appwrite/config";
 import Loader from "../../components/Other/Loader";
 import CertificateModal from "./CertificateModal"; // <-- Import the reusable view
 
@@ -13,15 +13,15 @@ function Achievements() {
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState({
     badgesCount: 0,
-    streak: 0, 
+    streak: 0,
     lessonsCompleted: 0,
     milestones: 0
   });
-  
+
   const [earnedBadges, setEarnedBadges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // State for controlling the Certificate Modal
   const [selectedBadge, setSelectedBadge] = useState(null);
 
@@ -29,7 +29,7 @@ function Achievements() {
     const fetchAchievementsData = async () => {
       try {
         setLoading(true);
-        
+
         // Retrieve current user
         const userStr = localStorage.getItem("learnstack_user");
         const currentUser = userStr ? JSON.parse(userStr) : null;
@@ -59,19 +59,19 @@ function Achievements() {
           // Check if Badge is 'Y' or 'C'
           const badgeValue = String(progressDoc.Badge || "").toUpperCase().trim();
           if (badgeValue === "Y" || badgeValue === "C") {
-            
+
             // Find the matching course to get its specific Title
-            const matchedCourse = coursesData.find(c => 
-                String(c.ID) === String(progressDoc.CourseId) || 
-                String(c.$id) === String(progressDoc.CourseId)
+            const matchedCourse = coursesData.find(c =>
+              String(c.ID) === String(progressDoc.CourseId) ||
+              String(c.$id) === String(progressDoc.CourseId)
             );
 
             if (matchedCourse) {
               badgesList.push({
-                id: progressDoc.$id || progressDoc.CourseId, 
+                id: progressDoc.$id || progressDoc.CourseId,
                 courseName: matchedCourse.Title,
-                badgeTitle: matchedCourse.Badge || "Course Scholar", 
-                date: progressDoc.$updatedAt || new Date().toISOString()
+                badgeTitle: matchedCourse.Badge || "Course Scholar",
+                date: progressDoc.Date || progressDoc.date || "N/A"
               });
             }
           }
@@ -79,13 +79,13 @@ function Achievements() {
 
         setStats({
           badgesCount: badgesList.length,
-          streak: 0, 
+          streak: 0,
           lessonsCompleted: totalLessons,
           milestones: milestoneCount
         });
-        
+
         setEarnedBadges(badgesList);
-        
+
       } catch (err) {
         console.error("Failed to load achievements:", err);
         setError("Could not load your achievements. Please try again.");
@@ -99,9 +99,9 @@ function Achievements() {
 
   if (loading) {
     return (
-        <div className="min-h-screen flex items-center justify-center dark:bg-black">
-            <Loader />
-        </div>
+      <div className="min-h-screen flex items-center justify-center dark:bg-black">
+        <Loader />
+      </div>
     );
   }
 
@@ -126,9 +126,9 @@ function Achievements() {
       </div>
 
       {error ? (
-          <div className="mt-12 text-center py-10 bg-red-50 dark:bg-red-900/10 rounded-3xl border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 max-w-3xl mx-auto">
-            <p className="text-lg font-bold">{error}</p>
-          </div>
+        <div className="mt-12 text-center py-10 bg-red-50 dark:bg-red-900/10 rounded-3xl border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 max-w-3xl mx-auto">
+          <p className="text-lg font-bold">{error}</p>
+        </div>
       ) : (
         <>
           {/* Stats Overview */}
@@ -166,33 +166,33 @@ function Achievements() {
             </h2>
 
             {earnedBadges.length === 0 ? (
-                <div className="text-center py-20 bg-white/50 dark:bg-white/[0.02] rounded-3xl border border-dashed border-black/20 dark:border-white/10">
-                  <Award className="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400 text-xl font-bold">No badges earned yet.</p>
-                  <p className="text-gray-400 dark:text-gray-500 mt-2">Complete courses to unlock your first certificate!</p>
-                </div>
+              <div className="text-center py-20 bg-white/50 dark:bg-white/[0.02] rounded-3xl border border-dashed border-black/20 dark:border-white/10">
+                <Award className="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400 text-xl font-bold">No badges earned yet.</p>
+                <p className="text-gray-400 dark:text-gray-500 mt-2">Complete courses to unlock your first certificate!</p>
+              </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {earnedBadges.map((badge) => (
-                    <button
-                      key={badge.id}
-                      onClick={() => setSelectedBadge(badge)}
-                      className="text-left p-6 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 shadow-sm hover:shadow-xl hover:border-indigo-500/30 transition-all duration-300 group flex flex-col items-center justify-center cursor-pointer"
-                    >
-                      <div className="bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-300">
-                        <Star className="w-12 h-12 text-yellow-500 dark:text-yellow-400" fill="currentColor" />
-                      </div>
-                      
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white text-center line-clamp-2">
-                        {badge.courseName}
-                      </h3>
-                      
-                      <div className="flex items-center gap-2 mt-4 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 px-3 py-1.5 rounded-lg transition-colors">
-                        <Download className="w-3.5 h-3.5" /> View Certificate
-                      </div>
-                    </button>
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {earnedBadges.map((badge) => (
+                  <button
+                    key={badge.id}
+                    onClick={() => setSelectedBadge(badge)}
+                    className="text-left p-6 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 shadow-sm hover:shadow-xl hover:border-indigo-500/30 transition-all duration-300 group flex flex-col items-center justify-center cursor-pointer"
+                  >
+                    <div className="bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-300">
+                      <Star className="w-12 h-12 text-yellow-500 dark:text-yellow-400" fill="currentColor" />
+                    </div>
+
+                    <h3 className="font-bold text-lg text-gray-900 dark:text-white text-center line-clamp-2">
+                      {badge.courseName}
+                    </h3>
+
+                    <div className="flex items-center gap-2 mt-4 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 px-3 py-1.5 rounded-lg transition-colors">
+                      <Download className="w-3.5 h-3.5" /> View Certificate
+                    </div>
+                  </button>
+                ))}
+              </div>
             )}
           </div>
         </>
@@ -209,10 +209,10 @@ function Achievements() {
       </div>
 
       {/* Renders the digital certificate modal when a badge is clicked */}
-      <CertificateModal 
-         badge={selectedBadge} 
-         user={user} 
-         onClose={() => setSelectedBadge(null)} 
+      <CertificateModal
+        badge={selectedBadge}
+        user={user}
+        onClose={() => setSelectedBadge(null)}
       />
 
     </div>
