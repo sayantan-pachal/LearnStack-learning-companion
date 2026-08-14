@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { BookOpen, PlayCircle, Trophy, ArrowRight, LayoutDashboard, CheckCircle } from "lucide-react";
+import { BookOpen, PlayCircle, Trophy, ArrowRight, LayoutDashboard, CheckCircle, Puzzle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Other/Loader";
 import { databases, DATABASE_ID, COURSES_COLLECTION_ID, PROGRESS_COLLECTION_ID } from "../../appwrite/config";
-import CourseViewer from "./CourseViewer"; // Import the new full-screen component
+import CourseViewer from "./CourseViewer"; 
 
 function MyCourses() {
     const [enrolledCourses, setEnrolledCourses] = useState([]);
@@ -25,9 +25,14 @@ function MyCourses() {
                     return;
                 }
 
-                // 1. Fetch the user's enrollments from UserProgress sheet
-                const progressRes = await databases.listDocuments(DATABASE_ID, PROGRESS_COLLECTION_ID);
+                // 🚀 SPEED BOOST: Fetch Progress and Courses at the exact same time
+                const [progressRes, coursesRes] = await Promise.all([
+                    databases.listDocuments(DATABASE_ID, PROGRESS_COLLECTION_ID),
+                    databases.listDocuments(DATABASE_ID, COURSES_COLLECTION_ID)
+                ]);
+
                 const userProgress = progressRes.documents || [];
+                const allCourses = coursesRes.documents || [];
 
                 if (userProgress.length === 0) {
                     setEnrolledCourses([]);
@@ -35,13 +40,8 @@ function MyCourses() {
                     return;
                 }
 
-                // 2. Fetch ALL courses to match metadata (Titles, Thumbnails)
-                const coursesRes = await databases.listDocuments(DATABASE_ID, COURSES_COLLECTION_ID);
-                const allCourses = coursesRes.documents || [];
-
-                // 3. Map the progress records to the full course data
+                // Map the progress records to the full course data
                 const mappedCourses = userProgress.map(progress => {
-                    // RESILIENT ID MAPPING: Checks both capitalized and lowercase variations from the Sheet
                     const pCourseId = progress.CourseId || progress.courseId;
 
                     const matchedCourse = allCourses.find(c => 
@@ -53,11 +53,11 @@ function MyCourses() {
                     if (matchedCourse) {
                         return {
                             ...matchedCourse,
-                            progressDetails: progress // Attach the UserProgress row data
+                            progressDetails: progress 
                         };
                     }
                     return null;
-                }).filter(Boolean); // Remove any nulls if a course was deleted from the main DB
+                }).filter(Boolean);
 
                 setEnrolledCourses(mappedCourses);
 
@@ -89,20 +89,19 @@ function MyCourses() {
             <div className="max-w-7xl mx-auto">
                 
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex flex-row md:items-center justify-between mb-12 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div>
-                        <h1 className="text-3xl md:text-5xl font-black mb-3 tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
-                            <LayoutDashboard className="w-8 h-8 text-blue-600 dark:text-purple-500" />
-                            My Learning
+                        <h1 className="text-3xl md:text-5xl font-black mb-2 tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
+                            My<spam className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-purple-500 dark:to-pink-500 bg-clip-text text-transparent">Learning</spam>
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-400 text-lg">
+                        <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg">
                             Pick up right where you left off.
                         </p>
                     </div>
                     
-                    <div className="flex items-center gap-2 bg-white dark:bg-[#111] p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                        <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-purple-900/30 flex items-center justify-center">
-                            <Trophy className="w-6 h-6 text-blue-600 dark:text-purple-400" />
+                    <div className="flex items-center gap-2 bg-white dark:bg-[#111] p-3 md:p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                        <div className="md:flex hidden w-12 h-12 rounded-full bg-blue-100 dark:bg-purple-900/30 items-center justify-center">
+                            <Puzzle className="w-6 h-6 text-blue-600 dark:text-purple-500" />
                         </div>
                         <div>
                             <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Enrolled</p>
@@ -117,11 +116,9 @@ function MyCourses() {
                         {enrolledCourses.map((course) => {
                             const firstVideoId = course.YouTube_ID ? course.YouTube_ID.split(',')[0].trim() : null;
                             
-                            // Check if Badge exists and equals "Y" or "C"
                             const badgeValue = String(course.progressDetails?.Badge || "").toUpperCase().trim();
                             const hasEarnedBadge = badgeValue === "Y" || badgeValue === "C";
                             
-                            // If badge is earned, force 100%, otherwise use actual completion percentage
                             const progressPercent = hasEarnedBadge ? 100 : (course.progressDetails?.CompletionPercentage || 0);
 
                             return (
@@ -159,7 +156,6 @@ function MyCourses() {
                                         </h3>
 
                                         <div className="mt-auto space-y-3">
-                                            {/* Progress Status Text (No longer showing module count) */}
                                             <div className="flex justify-between text-xs font-bold text-gray-500 dark:text-gray-400">
                                                 <span className={`flex items-center gap-1.5 ${hasEarnedBadge ? "text-green-600 dark:text-green-500" : ""}`}>
                                                     {hasEarnedBadge && <CheckCircle className="w-3.5 h-3.5" />}
@@ -167,7 +163,6 @@ function MyCourses() {
                                                 </span>
                                             </div>
                                             
-                                            {/* Progress Track */}
                                             <div className="w-full h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                                                 <div 
                                                     className={`h-full rounded-full transition-all duration-1000 ${
@@ -205,7 +200,6 @@ function MyCourses() {
                 )}
             </div>
 
-            {/* Reusable Full-Screen Course Viewer */}
             <CourseViewer 
                 isOpen={isViewerOpen} 
                 onClose={() => setIsViewerOpen(false)} 

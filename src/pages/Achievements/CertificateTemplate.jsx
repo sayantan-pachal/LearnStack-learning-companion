@@ -1,7 +1,7 @@
 import React from "react";
 import { Award, BadgeCheck, X } from "lucide-react";
 import QRCode from "react-qr-code";
-import Logo3 from "../../../public/Logo3";
+import Logo from "../../../public/Logo_certificate";
 
 const CertificateTemplate = ({ candidateName, courseName, formattedDate, qrPayload, onClose }) => {
     return (
@@ -27,7 +27,7 @@ const CertificateTemplate = ({ candidateName, courseName, formattedDate, qrPaylo
                 <div className="relative z-10 w-full flex flex-col items-center mt-4 sm:mt-0 print:mt-0">
                     
                     <div className="flex justify-center mb-6 sm:mb-10 print:mb-12">
-                        <Logo3 />
+                        <Logo />
                     </div>
 
                     <h2 className="text-xl sm:text-3xl md:text-5xl print:text-5xl font-black text-gray-900 mb-4 sm:mb-6 print:mb-6 uppercase tracking-[0.1em] sm:tracking-[0.2em] print:tracking-[0.2em] leading-tight">
