@@ -10,7 +10,7 @@ function Edgecase() {
             
             {/* Main Illustration - Constrained dynamically by screen height */}
             <img
-                src="/error.svg"
+                src="../../../public/Svg/error.svg"
                 alt="Unexpected Route"
                 className="w-auto h-[60vh] max-h-[300px] mb-2 drop-shadow-xl hover:scale-105 transition-transform duration-700 ease-out object-contain"
             />
