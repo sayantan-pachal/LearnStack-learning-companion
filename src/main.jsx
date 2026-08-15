@@ -15,7 +15,6 @@ import Dashboard from './pages/Dashboard/Dashboard.jsx'
 import Courses from './pages/Courses/Courses.jsx'
 import MyCourses from './pages/Mycourse/MyCourses.jsx'
 import Profile from './pages/Profile/Profile.jsx'
-import Settings  from './pages/Settings/AccountSettings.jsx'
 import Exam from './pages/Exam/Exam.jsx'
 import Loader from './components/Other/Loader.jsx'
 import Edgecase from './components/Other/Edgecase.jsx'
@@ -42,7 +41,6 @@ const router = createBrowserRouter(
         <Route path='mylearning' element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
         <Route path='exam' element={<ProtectedRoute><Exam /></ProtectedRoute>} />
         <Route path='community' element={<ProtectedRoute><Community /></ProtectedRoute>} />
-        <Route path='settings' element={<ProtectedRoute><Settings /></ProtectedRoute>}/>
         <Route path='profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         
       </Route>

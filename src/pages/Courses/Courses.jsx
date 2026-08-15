@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { BookOpen, PlayCircle, Search, Filter } from "lucide-react";
+import { BookOpen, PlayCircle, Search } from "lucide-react";
 import CourseModal from "./CourseModal";
 import Loader from "../../components/Other/Loader";
 import { databases, DATABASE_ID, COURSES_COLLECTION_ID } from "../../appwrite/config"; 
@@ -23,7 +23,6 @@ function Courses() {
     const courseSemOptions = [{ label: "All Semesters", value: "All" }, ...semesterOptions];
 
     useEffect(() => {
-        // Automatically grab the search query from the URL if it exists
         const params = new URLSearchParams(window.location.search);
         const urlSearchQuery = params.get("search");
         if (urlSearchQuery) {
@@ -79,7 +78,7 @@ function Courses() {
                 <div className="max-w-5xl mx-auto text-center animate-in fade-in slide-in-from-bottom-4 duration-700 mb-12">
                     <h1 className="text-3xl md:text-6xl font-black mb-6 tracking-tight text-gray-900 dark:text-white">
                         LearnStack{" "}
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-purple-500 dark:to-pink-500">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-400 dark:to-theme-pink-400">
                             Courses
                         </span>
                     </h1>
@@ -96,7 +95,7 @@ function Courses() {
                                 placeholder="Search courses..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 outline-none transition-all shadow-sm text-gray-900 dark:text-white"
+                                className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-theme-blue-500 dark:focus:ring-theme-pink-500 outline-none transition-all shadow-sm text-gray-900 dark:text-white"
                             />
                         </div>
 
@@ -117,7 +116,7 @@ function Courses() {
                         <div
                             key={course.id || course.$id || Math.random()}
                             onClick={() => openCourse(course)}
-                            className="group bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-blue-500/50 dark:hover:border-purple-500/50 transition-all duration-300 cursor-pointer flex flex-col"
+                            className="group bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-theme-blue-500/50 dark:hover:border-theme-pink-500/50 transition-all duration-300 cursor-pointer flex flex-col"
                         >
                             {/* Thumbnail Area */}
                             <div className="aspect-video bg-gray-100 dark:bg-gray-900 relative overflow-hidden">
@@ -128,12 +127,12 @@ function Courses() {
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-blue-50 dark:from-indigo-900/40 dark:to-blue-900/40">
-                                        <BookOpen className="w-12 h-12 text-blue-300 dark:text-blue-700" />
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-theme-blue-100 to-theme-pink-50 dark:from-theme-blue-900/40 dark:to-theme-pink-900/40">
+                                        <BookOpen className="w-12 h-12 text-theme-blue-400 dark:text-theme-blue-600" />
                                     </div>
                                 )}
 
-                                {/* Play Overlay overlay on hover */}
+                                {/* Play Overlay on Hover */}
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                                     <PlayCircle className="w-12 h-12 text-white" />
                                 </div>
@@ -145,7 +144,7 @@ function Courses() {
 
                             {/* Card Content */}
                             <div className="p-5 flex flex-col flex-1">
-                                <h3 className="font-bold text-gray-900 dark:text-white text-lg line-clamp-2 mb-3 group-hover:text-blue-600 dark:group-hover:text-purple-400 transition-colors">
+                                <h3 className="font-bold text-gray-900 dark:text-white text-lg line-clamp-2 mb-3 group-hover:text-theme-blue-600 dark:group-hover:text-theme-pink-400 transition-colors">
                                     {course.Title}
                                 </h3>
 
@@ -153,7 +152,7 @@ function Courses() {
                                     <span className="flex items-center gap-1.5">
                                         <BookOpen className="w-3.5 h-3.5" /> Sem {course.Semester}
                                     </span>
-                                    <span className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full">
+                                    <span className="flex items-center gap-1.5 bg-theme-blue-50 dark:bg-theme-blue-900/20 text-theme-blue-600 dark:text-theme-blue-400 px-2 py-1 rounded-full font-semibold">
                                         {course.YouTube_ID ? "Video Course" : "PDF Course"}
                                     </span>
                                 </div>
@@ -171,7 +170,7 @@ function Courses() {
                                 setSelectedDept("All");
                                 setSelectedSemester("All");
                             }}
-                            className="mt-4 text-blue-600 dark:text-purple-400 font-bold hover:underline"
+                            className="mt-4 text-theme-blue-600 dark:text-theme-pink-400 font-bold hover:underline transition-colors"
                         >
                             Clear all filters
                         </button>

@@ -66,7 +66,6 @@ export default function LearningPaths() {
 
     
 
-    // If data is loading, show your awesome custom full-page loader!
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center dark:bg-black">

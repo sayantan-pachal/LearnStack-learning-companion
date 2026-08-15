@@ -38,10 +38,8 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                 setIsCheckingEnrollment(true);
                 const courseId = course.id || course.$id || course.ID;
 
-                // Fetch existing progress
                 const existingProgress = await databases.listDocuments(DATABASE_ID, PROGRESS_COLLECTION_ID);
                 
-                // Check if a document exists with this course ID
                 const enrolled = existingProgress.documents.some(
                     doc => String(doc.CourseId) === String(courseId) || String(doc.courseId) === String(courseId)
                 );
@@ -57,7 +55,7 @@ const CourseModal = ({ isOpen, onClose, course }) => {
         checkEnrollmentStatus();
     }, [isOpen, course]);
 
-    // Dynamic Syllabus Generation (Flat sequential list)
+    // Dynamic Syllabus Generation
     const lessons = useMemo(() => {
         if (!course) return [];
 
@@ -83,7 +81,6 @@ const CourseModal = ({ isOpen, onClose, course }) => {
     const handleEnroll = async () => {
         setIsEnrolling(true);
         try {
-            // 1. Get logged-in user
             const userStr = localStorage.getItem("learnstack_user");
             if (!userStr) {
                 showToast("Please log in to enroll in this course.", "error");
@@ -93,7 +90,6 @@ const CourseModal = ({ isOpen, onClose, course }) => {
             const user = JSON.parse(userStr);
             const courseId = course.id || course.$id || course.ID;
 
-            // 2. Create the enrollment record
             await databases.createDocument(
                 DATABASE_ID,
                 PROGRESS_COLLECTION_ID,
@@ -136,7 +132,7 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                 {/* Left Side: Course Details & Syllabus */}
                 <div className="w-full md:w-3/5 lg:w-2/3 h-full overflow-y-auto scrollbar-thin flex flex-col border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-800">
                     <div className="p-6 md:p-8 md:pb-4">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-4">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-theme-blue-50 dark:bg-theme-blue-900/20 text-theme-blue-600 dark:text-theme-pink-400 text-xs font-bold uppercase tracking-wider mb-4">
                             <GraduationCap className="w-4 h-4" />
                             {course.Department} • Semester {course.Semester}
                         </div>
@@ -161,9 +157,9 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                                     {lessons.length > 0 ? lessons.map(lesson => (
                                         <div key={lesson.id} className="flex items-center gap-3 p-3 text-gray-600 dark:text-gray-400">
                                             {lesson.type === "video" ? (
-                                                <PlayCircle className="w-4 h-4 text-blue-500 dark:text-purple-400 shrink-0" />
+                                                <PlayCircle className="w-4 h-4 text-theme-blue-500 dark:text-theme-pink-400 shrink-0" />
                                             ) : (
-                                                <FileText className="w-4 h-4 text-blue-500 dark:text-purple-400 shrink-0" />
+                                                <FileText className="w-4 h-4 text-theme-blue-500 dark:text-theme-pink-400 shrink-0" />
                                             )}
                                             <span className="text-sm">{lesson.title}</span>
                                             <Lock className="w-3.5 h-3.5 ml-auto opacity-40 shrink-0" />
@@ -191,8 +187,8 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                                 }}
                             />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-blue-50 dark:from-indigo-900/40 dark:to-blue-900/40">
-                                <BookOpen className="w-12 h-12 text-blue-400 dark:text-blue-700" />
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-theme-blue-100 to-theme-pink-50 dark:from-theme-blue-900/40 dark:to-theme-pink-900/40">
+                                <BookOpen className="w-12 h-12 text-theme-blue-400 dark:text-theme-blue-600" />
                             </div>
                         )}
                         <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
@@ -204,11 +200,11 @@ const CourseModal = ({ isOpen, onClose, course }) => {
 
                     <div className="space-y-4 mb-8">
                         <div className="flex items-center justify-between text-sm text-gray-700 dark:text-gray-300">
-                            <span className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-blue-500" /> Format</span>
+                            <span className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-theme-blue-500" /> Format</span>
                             <span className="font-semibold">{course.YouTube_ID ? "Video Lectures" : "Interactive PDF"}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm text-gray-700 dark:text-gray-300">
-                            <span className="flex items-center gap-2"><Clock className="w-4 h-4 text-indigo-500" /> Access</span>
+                            <span className="flex items-center gap-2"><Clock className="w-4 h-4 text-theme-pink-500" /> Access</span>
                             <span className="font-semibold">Lifetime access</span>
                         </div>
                         <div className="flex items-center justify-between text-sm text-gray-700 dark:text-gray-300">
@@ -226,7 +222,7 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                                     onClose();
                                     navigate("/mylearning");
                                 }}
-                                className="w-full py-3.5 rounded-xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5"
+                                className="w-full py-3.5 rounded-xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-90 shadow-lg shadow-emerald-500/20 hover:-translate-y-0.5"
                             >
                                 Go to My Learning <ArrowRight className="w-5 h-5 ml-1" />
                             </button>
@@ -237,7 +233,7 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                                 className={`w-full py-3.5 rounded-xl font-bold text-white transition-all duration-300 flex items-center justify-center gap-2 ${
                                     isEnrolling 
                                     ? "bg-gray-400 dark:bg-gray-700 cursor-not-allowed" 
-                                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-purple-500 dark:to-pink-500 shadow-lg shadow-blue-500/30 dark:shadow-purple-500/30 hover:-translate-y-0.5"
+                                    : "bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 hover:opacity-90 shadow-lg shadow-theme-blue-500/20 hover:-translate-y-0.5"
                                 }`}
                             >
                                 {isEnrolling ? (

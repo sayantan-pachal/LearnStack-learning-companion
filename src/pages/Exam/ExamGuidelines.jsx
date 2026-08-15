@@ -6,7 +6,7 @@ const ExamGuidelines = ({ courseTitle, questionsCount, onStart, onClose }) => {
         <div className="fixed inset-0 z-[500] bg-gray-50 dark:bg-[#050505] flex items-center justify-center font-dm animate-in fade-in duration-300 p-4">
             <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-3xl p-8 sm:p-12 max-w-2xl w-full shadow-2xl">
                 <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-800">
-                    <div className="p-4 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-2xl">
+                    <div className="p-4 bg-theme-blue-50 dark:bg-theme-blue-900/30 text-theme-blue-600 dark:text-theme-pink-400 rounded-2xl">
                         <ShieldCheck className="w-8 h-8" />
                     </div>
                     <div>
@@ -17,7 +17,7 @@ const ExamGuidelines = ({ courseTitle, questionsCount, onStart, onClose }) => {
 
                 <div className="space-y-6 mb-10">
                     <div className="flex gap-4 items-start">
-                        <Clock className="w-6 h-6 text-blue-500 shrink-0 mt-0.5" />
+                        <Clock className="w-6 h-6 text-theme-blue-500 shrink-0 mt-0.5" />
                         <div>
                             <h3 className="font-bold text-gray-900 dark:text-white text-lg">Time Limit: {questionsCount} Minutes</h3>
                             <p className="text-gray-500 dark:text-gray-400 text-sm">You have exactly 1 minute per question. The exam will automatically submit when the timer reaches zero.</p>
@@ -45,7 +45,7 @@ const ExamGuidelines = ({ courseTitle, questionsCount, onStart, onClose }) => {
                     </button>
                     <button 
                         onClick={onStart} 
-                        className="px-6 py-4 flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 flex items-center justify-center gap-2"
+                        className="px-6 py-4 flex-1 bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 hover:opacity-90 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 flex items-center justify-center gap-2"
                     >
                         <PlayCircle className="w-5 h-5" /> Start Exam Now
                     </button>

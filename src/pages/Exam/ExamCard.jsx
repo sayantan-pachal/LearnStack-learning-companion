@@ -1,66 +1,58 @@
 import React from "react";
-import { Lock, Unlock, Award, ClipboardList } from "lucide-react";
+import { ShieldCheck, Clock, ClipboardX, Award, PlayCircle } from "lucide-react";
 
-const ExamCard = ({ course, progress, onStartExam, navigate }) => {
-    const isEnrolled = !!progress;
-    const hasPassed = progress?.Badge === "Y" || progress?.Badge === "y" || progress?.Badge === "C" || progress?.Badge === "c";
-
+const ExamGuidelines = ({ courseTitle, questionsCount, onStart, onClose }) => {
     return (
-        <div className={`p-6 rounded-3xl border transition-all duration-300 relative overflow-hidden flex flex-col ${
-            isEnrolled 
-            ? "bg-white dark:bg-[#111] border-indigo-100 dark:border-indigo-900/30 shadow-md hover:shadow-xl hover:-translate-y-1" 
-            : "bg-gray-50 dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 opacity-75 grayscale-[0.5]"
-        }`}>
-            
-            <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl ${isEnrolled ? "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600" : "bg-gray-200 dark:bg-gray-800 text-gray-500"}`}>
-                    <ClipboardList className="w-6 h-6" />
+        <div className="fixed inset-0 z-[500] bg-gray-50 dark:bg-[#050505] flex items-center justify-center font-dm animate-in fade-in duration-300 p-4">
+            <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-3xl p-8 sm:p-12 max-w-2xl w-full shadow-2xl">
+                <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-800">
+                    <div className="p-4 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-2xl">
+                        <ShieldCheck className="w-8 h-8" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">Exam Guidelines</h1>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium">{courseTitle} Final Exam</p>
+                    </div>
                 </div>
-                {hasPassed ? (
-                    <span className="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full">
-                        <Award className="w-3.5 h-3.5" /> Passed
-                    </span>
-                ) : isEnrolled ? (
-                    <span className="flex items-center gap-1 text-xs font-bold text-blue-600 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
-                        <Unlock className="w-3.5 h-3.5" /> Unlocked
-                    </span>
-                ) : (
-                    <span className="flex items-center gap-1 text-xs font-bold text-gray-500 bg-gray-200 dark:bg-gray-800 px-3 py-1 rounded-full">
-                        <Lock className="w-3.5 h-3.5" /> Locked
-                    </span>
-                )}
-            </div>
 
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
-                {course.Title} Final Exam
-            </h3>
-            
-            <div className="mt-auto pt-6">
-                {hasPassed ? (
-                    <button 
-                        onClick={() => navigate("/achievements")}
-                        className="w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold transition-colors"
-                    >
-                        View Certificate
+                <div className="space-y-6 mb-10">
+                    <div className="flex gap-4 items-start">
+                        <Clock className="w-6 h-6 text-blue-500 shrink-0 mt-0.5" />
+                        <div>
+                            <h3 className="font-bold text-gray-900 dark:text-white text-lg">Time Limit: {questionsCount} Minutes</h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">You have exactly 1 minute per question. The exam will automatically submit when the timer reaches zero.</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-4 items-start">
+                        <ClipboardX className="w-6 h-6 text-red-500 shrink-0 mt-0.5" />
+                        <div>
+                            <h3 className="font-bold text-gray-900 dark:text-white text-lg">Anti-Cheating Enabled</h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">Text selection, copying, and right-clicking are strictly disabled in this environment.</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-4 items-start">
+                        <Award className="w-6 h-6 text-green-500 shrink-0 mt-0.5" />
+                        <div>
+                            <h3 className="font-bold text-gray-900 dark:text-white text-lg">Passing Criteria</h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">You must score 80% or higher to earn your verified certification badge.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100 dark:border-gray-800">
+                    <button onClick={onClose} className="px-6 py-4 flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-all">
+                        Cancel
                     </button>
-                ) : isEnrolled ? (
                     <button 
-                        onClick={() => onStartExam(course, progress)}
-                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-lg hover:shadow-indigo-500/30"
+                        onClick={onStart} 
+                        className="px-6 py-4 flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 flex items-center justify-center gap-2"
                     >
-                        Start Exam
+                        <PlayCircle className="w-5 h-5" /> Start Exam Now
                     </button>
-                ) : (
-                    <button 
-                        onClick={() => navigate("/courses")}
-                        className="w-full py-3 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl font-bold transition-colors hover:bg-gray-300 dark:hover:bg-gray-700"
-                    >
-                        Enroll to Unlock
-                    </button>
-                )}
+                </div>
             </div>
         </div>
     );
 };
 
-export default ExamCard;
+export default ExamGuidelines;

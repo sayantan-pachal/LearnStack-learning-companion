@@ -14,9 +14,9 @@ import BadgeModal from "./BadgeModal";
 // Helper function to generate cool, snappy badge names based on course titles
 const getBadgeName = (courseName) => {
   if (!courseName) return "Skill Badge";
-  
+
   const lowerName = courseName.toLowerCase();
-  
+
   if (lowerName.includes("data structure") || lowerName.includes("algorithm") || lowerName.includes("dsa")) return "DSA Essentials";
   if (lowerName.includes("python")) return "Python Pro";
   if (lowerName.includes("javascript") || lowerName.includes("js")) return "JS Ninja";
@@ -24,7 +24,7 @@ const getBadgeName = (courseName) => {
   if (lowerName.includes("html") || lowerName.includes("css") || lowerName.includes("frontend") || lowerName.includes("web")) return "Web Dev Master";
   if (lowerName.includes("backend") || lowerName.includes("node") || lowerName.includes("api")) return "Backend Architect";
   if (lowerName.includes("c#") || lowerName.includes("c++") || lowerName.includes("java") || lowerName.includes("c")) return "Core Developer";
-  
+
   // Generic Fallback: Take the first 1-2 words and append "Essentials"
   const words = courseName.split(" ");
   if (words.length <= 2) return `${courseName} Essentials`;
@@ -36,18 +36,18 @@ function Achievements() {
 
   const [stats, setStats] = useState({
     certificatesCount: 0,
-    subBadgesCount: 0 
+    subBadgesCount: 0
   });
 
   const [earnedCertificates, setEarnedCertificates] = useState([]);
-  const [earnedBadges, setEarnedBadges] = useState([]); 
+  const [earnedBadges, setEarnedBadges] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [selectedBadge, setSelectedBadge] = useState(null);
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -81,9 +81,6 @@ function Achievements() {
             );
 
             if (matchedCourse) {
-              // =========================================================
-              // STRICT DATE LOGIC
-              // =========================================================
               const rawDate = progressDoc.date || progressDoc.Date;
               let formattedDate = "N/A";
 
@@ -99,23 +96,21 @@ function Achievements() {
                   formattedDate = rawDate;
                 }
               }
-              // =========================================================
 
               // 1. Add to Certificates List
               certificatesList.push({
                 id: progressDoc.$id || progressDoc.CourseId,
                 courseName: matchedCourse.Title,
                 badgeTitle: matchedCourse.Badge || "Course Scholar",
-                date: formattedDate, 
+                date: formattedDate,
                 progressDetails: progressDoc
               });
 
               // 2. Add to Skill Badges List
               badgesList.push({
-                // Add a 'badge-' prefix so React keys don't clash with certificates
-                id: `badge-${progressDoc.$id || progressDoc.CourseId}`, 
+                id: `badge-${progressDoc.$id || progressDoc.CourseId}`,
                 courseName: matchedCourse.Title,
-                badgeTitle: getBadgeName(matchedCourse.Title), // Dynamically generate snappy name
+                badgeTitle: getBadgeName(matchedCourse.Title),
                 date: formattedDate,
                 progressDetails: progressDoc
               });
@@ -125,7 +120,7 @@ function Achievements() {
 
         setStats({
           certificatesCount: certificatesList.length,
-          subBadgesCount: badgesList.length 
+          subBadgesCount: badgesList.length
         });
 
         setEarnedCertificates(certificatesList);
@@ -155,64 +150,66 @@ function Achievements() {
       <div className="max-w-7xl mx-auto">
 
         {/* ================= HEADER SECTION ================= */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {/* ✨ Adjusted desktop padding/margins and font sizes (md:text-4xl instead of md:text-5xl) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div>
-            <h1 className="text-3xl md:text-5xl font-black mb-2 tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
-                Your <span className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-purple-500 dark:to-pink-500 bg-clip-text text-transparent">Achievements</span>
+            <h1 className="text-3xl md:text-4xl font-black mb-2 tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
+              Your <span className="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 bg-clip-text text-transparent">Achievements</span>
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg">
+            <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
               Track your verified certificates and showcase your acquired skills.
             </p>
           </div>
 
           <div className="flex gap-4">
-            <div className="flex items-center gap-4 bg-white/80 dark:bg-[#111]/80 backdrop-blur-xl p-4 md:px-6 md:py-4 rounded-3xl border border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-blue-900/5 dark:shadow-none transition-transform">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-indigo-900/40 dark:to-blue-900/40 flex items-center justify-center border border-white dark:border-gray-800 shadow-inner">
-                <Award className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center gap-3 bg-white/80 dark:bg-[#111]/80 backdrop-blur-xl p-4 md:px-5 md:py-3 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-theme-blue-900/5 dark:shadow-none transition-transform">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-theme-blue-100 to-theme-pink-50 dark:from-theme-blue-900/40 dark:to-theme-pink-900/40 flex items-center justify-center border border-white dark:border-gray-800 shadow-inner">
+                <Award className="w-5 h-5 text-theme-blue-600 dark:text-theme-blue-400" />
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-0.5">Certificates</p>
-                <p className="text-2xl font-black text-gray-900 dark:text-white leading-none">{stats.certificatesCount}</p>
+                <p className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-0.5">Certificates</p>
+                <p className="text-xl md:text-2xl font-black text-gray-900 dark:text-white leading-none">{stats.certificatesCount}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 bg-white/80 dark:bg-[#111]/80 backdrop-blur-xl p-4 md:px-6 md:py-4 rounded-3xl border border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-purple-900/5 dark:shadow-none transition-transform">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center border border-white dark:border-gray-800 shadow-inner">
-                <ShieldCheck className="w-6 h-6 text-purple-600 dark:text-pink-400" />
+            <div className="flex items-center gap-3 bg-white/80 dark:bg-[#111]/80 backdrop-blur-xl p-4 md:px-5 md:py-3 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-theme-pink-900/5 dark:shadow-none transition-transform">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-theme-pink-100 to-purple-100 dark:from-theme-pink-900/40 dark:to-purple-900/40 flex items-center justify-center border border-white dark:border-gray-800 shadow-inner">
+                <ShieldCheck className="w-5 h-5 text-theme-pink-600 dark:text-theme-pink-400" />
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-0.5">Badges</p>
-                <p className="text-2xl font-black text-gray-900 dark:text-white leading-none">{stats.subBadgesCount}</p>
+                <p className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-0.5">Badges</p>
+                <p className="text-xl md:text-2xl font-black text-gray-900 dark:text-white leading-none">{stats.subBadgesCount}</p>
               </div>
             </div>
           </div>
         </div>
 
         {error ? (
-          <div className="mt-12 text-center py-10 bg-red-50 dark:bg-red-900/10 rounded-3xl border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 max-w-3xl mx-auto">
-            <p className="text-lg font-bold">{error}</p>
+          <div className="mt-12 text-center py-8 bg-red-50 dark:bg-red-900/10 rounded-3xl border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 max-w-3xl mx-auto">
+            <p className="text-base font-bold">{error}</p>
           </div>
         ) : (
           <>
             {/* ================= CERTIFICATES GRID ================= */}
             <div className="mt-12">
-              <h2 className="text-2xl md:text-3xl font-black mb-8 text-gray-900 dark:text-white flex items-center gap-3 tracking-tight">
-                <Award className="w-7 h-7 text-indigo-500" />
+              {/* ✨ Reduced section header size */}
+              <h2 className="text-xl md:text-2xl font-black mb-6 text-gray-900 dark:text-white flex items-center gap-2 tracking-tight">
+                <Award className="w-6 h-6 text-theme-blue-500" />
                 Verified Certificates
               </h2>
 
               {earnedCertificates.length === 0 ? (
-                <div className="text-center py-24 px-6 bg-white/50 dark:bg-[#111]/50 backdrop-blur-sm rounded-[3rem] border border-dashed border-gray-300 dark:border-gray-800 relative z-0 animate-in fade-in zoom-in-95 duration-500">
-                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-900/50 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Award className="w-10 h-10 text-gray-400 dark:text-gray-600" />
+                <div className="text-center py-20 px-6 bg-white/50 dark:bg-[#111]/50 backdrop-blur-sm rounded-3xl border border-dashed border-gray-300 dark:border-gray-800 relative z-0 animate-in fade-in zoom-in-95 duration-500">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Award className="w-8 h-8 text-gray-400 dark:text-gray-600" />
                   </div>
-                  <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">No Certificates Yet</h3>
-                  <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto text-lg">
+                  <h3 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-2">No Certificates Yet</h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto text-sm md:text-base">
                     Complete courses and pass the final exams to unlock your first verified certificate.
                   </p>
                   <button
                     onClick={() => navigate("/courses")}
-                    className="bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black px-8 py-3.5 rounded-xl font-bold transition-all hover:scale-105 shadow-xl mx-auto flex items-center gap-2"
+                    className="bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black px-6 py-3 rounded-xl font-bold transition-all hover:scale-105 shadow-xl mx-auto flex items-center gap-2 text-sm"
                   >
                     Browse Courses <ArrowRight className="w-4 h-4" />
                   </button>
@@ -223,26 +220,27 @@ function Achievements() {
                     <button
                       key={cert.id}
                       onClick={() => setSelectedCertificate(cert)}
-                      className={`group bg-white dark:bg-[#0a0a0a] p-8 rounded-[2rem] border border-gray-200 dark:border-gray-800 overflow-hidden shadow-lg shadow-gray-200/50 dark:shadow-none hover:shadow-2xl hover:shadow-indigo-500/10 dark:hover:shadow-indigo-500/10 hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-500 cursor-pointer flex flex-col items-center hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-8`}
+                      className={`group bg-white dark:bg-[#0a0a0a] p-6 rounded-[1.5rem] border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-theme-blue-500/10 dark:hover:shadow-theme-blue-500/10 hover:border-theme-blue-300 dark:hover:border-theme-blue-500/50 transition-all duration-500 cursor-pointer flex flex-col items-center hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-8`}
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <div className="relative w-28 h-28 mx-auto mb-6">
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-200 to-indigo-200 dark:from-blue-900/40 dark:to-indigo-900/40 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500 opacity-60"></div>
-                          <div className="relative w-full h-full bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-[#1a1a1a] rounded-full flex items-center justify-center border border-white dark:border-gray-700 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                              <Award className="w-12 h-12 text-blue-500 dark:text-blue-400" />
-                          </div>
+                      <div className="relative w-24 h-24 mx-auto mb-5">
+                        <div className="absolute inset-0 bg-gradient-to-br from-theme-blue-200 to-theme-pink-200 dark:from-theme-blue-900/40 dark:to-theme-pink-900/40 rounded-full blur-lg group-hover:blur-xl transition-all duration-500 opacity-60"></div>
+                        <div className="relative w-full h-full bg-gradient-to-br from-white to-theme-blue-50 dark:from-gray-800 dark:to-[#1a1a1a] rounded-full flex items-center justify-center border border-white dark:border-gray-700 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                          <Award className="w-10 h-10 text-theme-blue-500 dark:text-theme-blue-400" />
+                        </div>
                       </div>
-                      
-                      <h3 className="font-black text-xl text-gray-900 dark:text-white text-center line-clamp-2 leading-tight mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+
+                      {/* ✨ Reduced card font size */}
+                      <h3 className="font-black text-lg text-gray-900 dark:text-white text-center line-clamp-2 leading-tight mb-2 group-hover:text-theme-blue-600 dark:group-hover:text-theme-pink-400 transition-colors">
                         {cert.courseName}
                       </h3>
-                      
-                      <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-6 uppercase tracking-widest">
-                          {cert.date}
+
+                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-5 uppercase tracking-widest">
+                        {cert.date}
                       </p>
 
-                      <div className="mt-auto flex items-center gap-2 text-sm font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 px-5 py-2.5 rounded-xl transition-colors w-full justify-center">
-                        <Download className="w-4 h-4" /> View Certificate
+                      <div className="mt-auto flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-wider text-theme-blue-600 dark:text-theme-pink-400 bg-theme-blue-50 dark:bg-theme-blue-500/10 group-hover:bg-theme-blue-100 dark:group-hover:bg-theme-blue-500/20 px-4 py-2.5 rounded-xl transition-colors w-full justify-center">
+                        <Download className="w-3.5 h-3.5" /> View Certificate
                       </div>
                     </button>
                   ))}
@@ -251,54 +249,54 @@ function Achievements() {
             </div>
 
             {/* ================= SKILL BADGES SECTION ================= */}
-            <div className="mt-20 pt-16 border-t border-gray-200 dark:border-gray-800">
-              <div className="flex items-center gap-3 mb-8">
-                <ShieldCheck className="w-7 h-7 text-purple-500" />
-                <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+            <div className="mt-16 pt-12 border-t border-gray-200 dark:border-gray-800">
+              <div className="flex items-center gap-2 mb-6">
+                <ShieldCheck className="w-6 h-6 text-theme-pink-500" />
+                <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                   Skill Badges
                 </h2>
               </div>
 
               {earnedBadges.length === 0 ? (
-                  <div className="text-center py-24 px-6 bg-white/50 dark:bg-[#111]/50 backdrop-blur-sm rounded-[3rem] border border-dashed border-gray-300 dark:border-gray-800 relative z-0 animate-in fade-in zoom-in-95 duration-500">
-                    <div className="w-20 h-20 bg-gray-100 dark:bg-gray-900/50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <ShieldCheck className="w-10 h-10 text-gray-400 dark:text-gray-600" />
-                    </div>
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">No Badges Yet</h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto text-lg">
-                        Complete specific course milestones and mini-challenges to earn skill badges.
-                    </p>
+                <div className="text-center py-20 px-6 bg-white/50 dark:bg-[#111]/50 backdrop-blur-sm rounded-3xl border border-dashed border-gray-300 dark:border-gray-800 relative z-0 animate-in fade-in zoom-in-95 duration-500">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <ShieldCheck className="w-8 h-8 text-gray-400 dark:text-gray-600" />
                   </div>
+                  <h3 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-2">No Badges Yet</h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto text-sm md:text-base">
+                    Complete specific course milestones and mini-challenges to earn skill badges.
+                  </p>
+                </div>
               ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-0">
-                    {earnedBadges.map((badge, index) => (
-                      <button
-                        key={badge.id}
-                        onClick={() => setSelectedBadge(badge)}
-                        className={`group bg-white dark:bg-[#0a0a0a] p-8 rounded-[2rem] border border-gray-200 dark:border-gray-800 overflow-hidden shadow-lg shadow-gray-200/50 dark:shadow-none hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/10 hover:border-purple-300 dark:hover:border-purple-500/50 transition-all duration-500 cursor-pointer flex flex-col items-center hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-8`}
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <div className="relative w-28 h-28 mx-auto mb-6">
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-900/40 dark:to-pink-900/40 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500 opacity-60"></div>
-                            <div className="relative w-full h-full bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-[#1a1a1a] rounded-full flex items-center justify-center border border-white dark:border-gray-700 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                                <Star className="w-12 h-12 text-purple-500 dark:text-purple-400" fill="currentColor" />
-                            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-0">
+                  {earnedBadges.map((badge, index) => (
+                    <button
+                      key={badge.id}
+                      onClick={() => setSelectedBadge(badge)}
+                      className={`group bg-white dark:bg-[#0a0a0a] p-6 rounded-[1.5rem] border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-theme-pink-500/10 dark:hover:shadow-theme-pink-500/10 hover:border-theme-pink-300 dark:hover:border-theme-pink-500/50 transition-all duration-500 cursor-pointer flex flex-col items-center hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-8`}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className="relative w-24 h-24 mx-auto mb-5">
+                        <div className="absolute inset-0 bg-gradient-to-br from-theme-pink-200 to-purple-200 dark:from-theme-pink-900/40 dark:to-purple-900/40 rounded-full blur-lg group-hover:blur-xl transition-all duration-500 opacity-60"></div>
+                        <div className="relative w-full h-full bg-gradient-to-br from-white to-theme-pink-50 dark:from-gray-800 dark:to-[#1a1a1a] rounded-full flex items-center justify-center border border-white dark:border-gray-700 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                          <Star className="w-10 h-10 text-theme-pink-500 dark:text-theme-pink-400" fill="currentColor" />
                         </div>
-                        
-                        <h3 className="font-black text-xl text-gray-900 dark:text-white text-center line-clamp-2 leading-tight mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                          {badge.badgeTitle}
-                        </h3>
-                        
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-6 uppercase tracking-widest">
-                            {badge.date}
-                        </p>
+                      </div>
 
-                        <div className="mt-auto flex items-center gap-2 text-sm font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 group-hover:bg-purple-100 dark:group-hover:bg-purple-500/20 px-5 py-2.5 rounded-xl transition-colors w-full justify-center">
-                          <Download className="w-4 h-4" /> View Badge
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                      <h3 className="font-black text-lg text-gray-900 dark:text-white text-center line-clamp-2 leading-tight mb-2 group-hover:text-theme-pink-600 dark:group-hover:text-theme-pink-400 transition-colors">
+                        {badge.badgeTitle}
+                      </h3>
+
+                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-5 uppercase tracking-widest">
+                        {badge.date}
+                      </p>
+
+                      <div className="mt-auto flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-wider text-theme-pink-600 dark:text-theme-pink-400 bg-theme-pink-50 dark:bg-theme-pink-500/10 group-hover:bg-theme-pink-100 dark:group-hover:bg-theme-pink-500/20 px-4 py-2.5 rounded-xl transition-colors w-full justify-center">
+                        <Download className="w-3.5 h-3.5" /> View Badge
+                      </div>
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
 

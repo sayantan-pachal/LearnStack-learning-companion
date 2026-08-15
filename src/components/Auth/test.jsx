@@ -2,17 +2,14 @@ import React from 'react'
 
 function test() {
   return (
-    <div className="animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center justify-center py-10">
-                    <img 
-                        src="/Svg/Construction.svg" 
-                        alt="Building Workspace" 
-                        className="w-32 h-32 sm:w-80 sm:h-80 mx-auto mb-2 sm:mb-4 object-contain drop-shadow-xl"
-                    />
-                    <h2 className="text-xl font-black text-gray-900 dark:text-white mb-2">Setting up your workspace</h2>
-                    <p className="text-sm font-bold text-smart-green-600 dark:text-smart-green-400 animate-pulse">
-                        Personalizing your dashboard...
-                    </p>
-                </div>
+    <div className="flex items-center space-x-2 bg-green-500">
+      <img src="/Logo_images/logo1.png" alt="LearnStack Logo" className="w-10 h-10" />
+      <span className="flex flex-col items-center font-bold text-gray-900 dark:text-white leading-tight">
+        <span className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-500 dark:from-blue-700 dark:to-pink-500">LearnStack</span>
+        </span>
+      </span>
+    </div>
   )
 }
 
