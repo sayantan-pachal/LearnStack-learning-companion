@@ -38,7 +38,7 @@ export default function Loader() {
 
                 {/* The Runner */}
                 <img
-                    src="../../../public/Svg/loader1.svg"
+                    src="/Svg/loader1.svg"
                     alt="Loading"
                     className="w-40 h-40 dark:invert relative z-10"
                 />

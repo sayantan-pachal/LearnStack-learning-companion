@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Login from "./Login";
 import Signup from "./Signup";
 import ForgotPassword from "./ForgotPassword";
-import ThemeToggle from "../Header/ThemeToggle";
+import ThemeToggle from "../Other/ThemeToggle";
 import Logo from "../../../public/Logo_badge";
 
 export default function Auth() {

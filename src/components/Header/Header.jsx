@@ -4,7 +4,7 @@ import { Menu, X, BookOpen, Compass, Trophy, Users, Home, UserRound, Shapes } fr
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import Logo1 from "../../../public/Logo1";
 import Logo2 from "../../../public/Logo2"; // Assuming this is a stacked/mobile logo
-import ThemeToggle from "./ThemeToggle";
+import ThemeToggle from "../Other/ThemeToggle";
 import { useToast } from "../Other/ToastContext";
 import { account } from "../../appwrite/config";
 

@@ -5,7 +5,7 @@ import { ArrowRight, BookOpen, Compass, Trophy, ChevronRight, Sparkles, LayoutDa
 import { Link } from "react-router-dom";
 import Logo1 from "../../../public/Logo1"
 import Logo2 from "../../../public/Logo2"
-import ThemeToggle from "../../components/Header/ThemeToggle";
+import ThemeToggle from "../../components/Other/ThemeToggle";
 
 // --- HEADER COMPONENT ---
 const Header = () => {

@@ -140,7 +140,7 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
         return (
             <div className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] flex flex-col items-center justify-center animate-in fade-in duration-300 font-dm text-center p-6">
                 <img
-                    src="../../../public/Svg/Building Page.svg"
+                    src="/Svg/Building Page.svg"
                     alt="Loading..."
                     className="w-48 h-48 sm:w-64 sm:h-64 mb-6 sm:mb-8 object-contain animate-pulse drop-shadow-xl"
                 />
@@ -168,7 +168,7 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
         return (
             <div className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-500 font-dm text-center p-6">
                 <img
-                    src="../../../public/Svg/Data analyst.svg"
+                    src="/Svg/Data analyst.svg"
                     alt="Analyzing..."
                     className="w-48 h-48 sm:w-64 sm:h-64 mb-6 sm:mb-8 object-contain drop-shadow-2xl"
                 />

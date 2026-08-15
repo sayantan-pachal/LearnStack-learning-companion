@@ -9,7 +9,7 @@ const ExamResult = ({ passed, score, onClose, onRetake, onViewBadge }) => {
             {/* ✨ Background Confetti SVG (Rendered only if passed) */}
             {passed && (
                 <img 
-                    src="../../../public/Svg/Confetti.svg" 
+                    src="/Svg/Confetti.svg" 
                     alt="Confetti Background" 
                     className="absolute inset-0 w-full h-full object-cover opacity-80 pointer-events-none z-0 animate-in fade-in duration-700"
                 />
@@ -21,7 +21,7 @@ const ExamResult = ({ passed, score, onClose, onRetake, onViewBadge }) => {
                 {passed ? (
                     /* ✨ Replaced Award Icon with Successful Target SVG */
                     <img 
-                        src="../../../public/Svg/Successful target.svg" 
+                        src="/Svg/Successful target.svg" 
                         alt="Successful Target" 
                         className="w-32 h-32 sm:w-80 sm:h-80 mx-auto mb-2 sm:mb-4 object-contain drop-shadow-xl"
                     />

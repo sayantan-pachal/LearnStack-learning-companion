@@ -292,7 +292,7 @@ export default function Signup({ onSwitchMode }) {
             {showSuccessAnimation && (
                 <div className="animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center justify-center py-10">
                     <img 
-                        src="../../../public/Svg/Construction.svg" 
+                        src="/Svg/Construction.svg" 
                         alt="Building Workspace" 
                         className="w-40 h-40 object-contain drop-shadow-xl mb-6"
                     />
