@@ -48,7 +48,7 @@ export default function Auth() {
 
                 {/* DESKTOP VIEW: SLIDING IMAGE PANEL */}
                 {/* ✨ OPTIMIZED: Added flex-col, proper background colors, and alignment */}
-                <div className={`hidden md:flex flex-col items-center justify-between absolute top-0 left-0 w-1/2 h-full z-30 transition-transform duration-[1000ms] cubic-bezier(0.4, 0, 0.2, 1) shadow-2xl bg-[#f5f5f5] dark:bg-[#111111] ${
+                <div className={`hidden md:flex flex-col items-center justify-between absolute top-0 left-0 w-1/2 h-full z-30 transition-transform duration-[1800ms] cubic-bezier(0.4, 0, 0.2, 1) shadow-2xl bg-[#f5f5f5] dark:bg-[#111111] ${
                     isRightPanelActive ? 'translate-x-0' : 'translate-x-full'
                 }`}>
                     {/* Top Section: Logo */}
