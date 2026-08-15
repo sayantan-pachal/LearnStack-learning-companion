@@ -36,16 +36,16 @@ const ExamResult = ({ passed, score, onClose, onRetake, onViewBadge }) => {
                 </h1>
                 
                 <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-2 sm:mb-4">
-                    You scored <span className={`font-black text-xl sm:text-2xl ${passed ? "text-green-500" : "text-red-500"}`}>{score}%</span>
+                    You scored <span className={`font-black text-xl sm:text-2xl ${passed ? "text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-pink-500 dark:from-blue-700 dark:to-pink-500" : "text-red-500"}`}>{score}%</span>
                 </p>
                 
                 <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-3 sm:mt-4">
                     {passed ? (
-                        <button onClick={onViewBadge} className="px-6 sm:px-8 py-3 sm:py-3.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 text-sm sm:text-base">
+                        <button onClick={onViewBadge} className="px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-blue-600 to-pink-500 dark:from-blue-700 dark:to-pink-500 hover:opacity-90 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 text-sm sm:text-base">
                             View My Badge
                         </button>
                     ) : (
-                        <button onClick={onRetake} className="px-6 sm:px-8 py-3 sm:py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 text-sm sm:text-base">
+                        <button onClick={onRetake} className="px-6 sm:px-8 py-3 sm:py-3.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 text-sm sm:text-base">
                             Retake Exam
                         </button>
                     )}
