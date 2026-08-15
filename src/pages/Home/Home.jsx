@@ -41,11 +41,11 @@ const Header = () => {
           <a href="#features" className="hidden md:flex text-gray-500 hover:text-blue-600 dark:hover:text-purple-400 transition-colors">
             Features
           </a>
-          <Link to="/login" className="hidden md:flex text-gray-900 dark:text-white hover:text-blue-600 hover:opacity-70 transition-opacity">
+          <Link to="/auth" className="hidden md:flex text-gray-900 dark:text-white hover:text-blue-600 hover:opacity-70 transition-opacity">
             Sign In
           </Link>
 
-          <Link to="/signup" className="hidden md:flex group relative px-6 py-2.5 hover:dark:text-white bg-gray-900 dark:bg-white text-white dark:text-black rounded-full overflow-hidden shadow-lg hover:shadow-xl transition-all">
+          <Link to="/auth" className="hidden md:flex group relative px-6 py-2.5 hover:dark:text-white bg-gray-900 dark:bg-white text-white dark:text-black rounded-full overflow-hidden shadow-lg hover:shadow-xl transition-all">
             <div className="absolute inset-0 w-full h-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
             <span className="relative z-10 flex items-center gap-2">
               Get Started <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
@@ -194,7 +194,7 @@ function Home() {
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <Link
-              to="/signup"
+              to="/auth"
               className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full font-bold text-white text-lg
                          bg-gradient-to-r from-blue-600 to-indigo-600 
                          hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5

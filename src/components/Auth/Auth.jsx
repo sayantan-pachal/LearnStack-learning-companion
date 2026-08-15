@@ -3,6 +3,7 @@ import Login from "./Login";
 import Signup from "./Signup";
 import ForgotPassword from "./ForgotPassword";
 import ThemeToggle from "../Header/ThemeToggle";
+import Logo from "../../../public/Logo_badge";
 
 export default function Auth() {
     // Modes: 'login', 'signup', 'forgot'
@@ -22,9 +23,7 @@ export default function Auth() {
 
             <div className="relative z-10 w-full max-w-4xl h-auto md:h-[600px] max-h-[95dvh] bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl rounded-3xl md:rounded-[2.5rem] shadow-2xl border border-black/10 dark:border-white/10 overflow-hidden flex flex-col md:flex-row">
                 
-                {/* ========================================================= */}
                 {/* LEFT SIDE: SIGNUP FORM */}
-                {/* ========================================================= */}
                 <div className={`hidden md:flex absolute top-0 left-0 w-1/2 h-full z-10 items-center justify-center p-8 transition-all duration-[800ms] ease-in-out ${
                     !isRightPanelActive ? 'opacity-100 brightness-100 scale-100 delay-100' : 'opacity-0 brightness-50 scale-95 pointer-events-none'
                 }`}>
@@ -32,9 +31,7 @@ export default function Auth() {
                     {!isRightPanelActive && <Signup onSwitchMode={() => setAuthMode('login')} />}
                 </div>
 
-                {/* ========================================================= */}
                 {/* RIGHT SIDE: LOGIN OR FORGOT PASSWORD */}
-                {/* ========================================================= */}
                 <div className={`hidden md:flex absolute top-0 right-0 w-1/2 h-full z-10 items-center justify-center p-8 transition-all duration-[800ms] ease-in-out ${
                     isRightPanelActive ? 'opacity-100 brightness-100 scale-100 delay-100' : 'opacity-0 brightness-50 scale-95 pointer-events-none'
                 }`}>
@@ -48,23 +45,29 @@ export default function Auth() {
                         <ForgotPassword onBackToLogin={() => setAuthMode('login')} />
                     )}
                 </div>
-                {/* ========================================================= */}
+
                 {/* DESKTOP VIEW: SLIDING IMAGE PANEL */}
-                {/* ========================================================= */}
-                <div className={`hidden md:block absolute top-0 left-0 w-1/2 h-full z-30 transition-transform duration-[1800ms] cubic-bezier(0.4, 0, 0.2, 1) shadow-2xl ${
+                {/* ✨ OPTIMIZED: Added flex-col, proper background colors, and alignment */}
+                <div className={`hidden md:flex flex-col items-center justify-between absolute top-0 left-0 w-1/2 h-full z-30 transition-transform duration-[1000ms] cubic-bezier(0.4, 0, 0.2, 1) shadow-2xl bg-[#f5f5f5] dark:bg-[#111111] ${
                     isRightPanelActive ? 'translate-x-0' : 'translate-x-full'
                 }`}>
-                    <img 
-                        src="/error.svg" 
-                        alt="LearnStack Cover"
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                    {/* Top Section: Logo */}
+                    <div className="w-full flex justify-center pt-10">
+                        <Logo />
+                    </div>
+
+                    {/* Bottom Section: Student Illustration */}
+                    <div className="w-full flex-1 flex items-end justify-center pb-8 px-4">
+                        <img 
+                            src="/Svg/STUDENT.svg" 
+                            alt="LearnStack Cover"
+                            // Using object-contain ensures the SVG scales perfectly without stretching
+                            className="w-11/12 max-h-full object-contain"
+                        />
+                    </div>
                 </div>
 
-                {/* ========================================================= */}
                 {/* MOBILE VIEW: Responsive Stack */}
-                {/* ========================================================= */}
                 <div className="md:hidden w-full h-full relative z-20 flex flex-col items-center justify-center p-5 sm:p-8 overflow-y-auto scrollbar-hide">
                     <div className="w-full flex justify-center py-4">
                         {authMode === 'login' && (

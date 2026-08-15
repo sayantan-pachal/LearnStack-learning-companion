@@ -1,83 +1,45 @@
-import React, { useEffect } from "react";
-import { Award, XCircle } from "lucide-react";
+import React from "react";
+import { XCircle } from "lucide-react";
 
 const ExamResult = ({ passed, score, onClose, onRetake, onViewBadge }) => {
     
-    // Generate native floating pieces of paper when passed
-    useEffect(() => {
-        if (!passed) return;
-
-        const container = document.getElementById("confetti-container");
-        if (!container) return;
-
-        const colors = ["#4f46e5", "#10b981", "#f59e0b", "#ec4899", "#3b82f6"];
-        const particleCount = 40;
-
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement("div");
-            particle.className = "absolute bottom-0 w-3 h-4 rounded-sm opacity-90 animate-shoot-up";
-            
-            // Random horizontal positioning, colors, and flight angles
-            const randomX = Math.random() * window.innerWidth;
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            const randomDuration = 1.5 + Math.random() * 2; // Between 1.5s and 3.5s
-            const randomDelay = Math.random() * 0.5;
-
-            particle.style.left = `${randomX}px`;
-            particle.style.backgroundColor = randomColor;
-            particle.style.animationDuration = `${randomDuration}s`;
-            particle.style.animationDelay = `${randomDelay}s`;
-
-            container.appendChild(particle);
-
-            // Clean up DOM elements after animation finishes
-            setTimeout(() => {
-                particle.remove();
-            }, (randomDuration + randomDelay) * 1000);
-        }
-    }, [passed]);
-
     return (
-        <div id="confetti-container" className="fixed inset-0 z-[500] bg-gray-50 dark:bg-[#050505] flex items-center justify-center font-dm animate-in zoom-in-95 duration-300 p-4 overflow-hidden pointer-events-none">
+        <div className="fixed inset-0 z-[500] bg-gray-50 dark:bg-[#050505] flex items-center justify-center font-dm animate-in zoom-in-95 duration-300 p-4 overflow-hidden">
             
-            {/* Embedded styles for the paper shooting effect */}
-            <style dangerouslySetInnerHTML={{__html: `
-                @keyframes shootUp {
-                    0% {
-                        transform: translateY(20vh) rotate(0deg) scale(0.5);
-                        opacity: 1;
-                    }
-                    50% {
-                        opacity: 1;
-                    }
-                    100% {
-                        transform: translateY(-80vh) rotate(720deg) scale(1);
-                        opacity: 0;
-                    }
-                }
-                .animate-shoot-up {
-                    animation: shootUp ease-out forwards;
-                }
-            `}} />
+            {/* ✨ Background Confetti SVG (Rendered only if passed) */}
+            {passed && (
+                <img 
+                    src="../../../public/Svg/Confetti.svg" 
+                    alt="Confetti Background" 
+                    className="absolute inset-0 w-full h-full object-cover opacity-80 pointer-events-none z-0 animate-in fade-in duration-700"
+                />
+            )}
 
-            {/* Main Result Card (Pointer-events enabled so buttons are clickable) */}
-            <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl p-8 md:p-16 max-w-2xl w-full text-center shadow-2xl relative z-10 pointer-events-auto">
+            {/* Main Result Card */}
+            <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl p-6 md:p-10 max-w-2xl w-full text-center shadow-2xl relative z-10 pointer-events-auto">
+                
                 {passed ? (
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8 animate-bounce">
-                        <Award className="w-10 h-10 sm:w-12 sm:h-12" />
-                    </div>
+                    /* ✨ Replaced Award Icon with Successful Target SVG */
+                    <img 
+                        src="../../../public/Svg/Successful target.svg" 
+                        alt="Successful Target" 
+                        className="w-32 h-32 sm:w-80 sm:h-80 mx-auto mb-2 sm:mb-4 object-contain drop-shadow-xl"
+                    />
                 ) : (
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4 shadow-inner">
                         <XCircle className="w-10 h-10 sm:w-12 sm:h-12" />
                     </div>
                 )}
-                <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white mb-4">
+                
+                <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white mb-1 sm:mb-2">
                     {passed ? "Congratulations!" : "Keep Trying!"}
                 </h1>
-                <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-6 sm:mb-8">
+                
+                <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-2 sm:mb-4">
                     You scored <span className={`font-black text-xl sm:text-2xl ${passed ? "text-green-500" : "text-red-500"}`}>{score}%</span>
                 </p>
-                <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
+                
+                <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-3 sm:mt-4">
                     {passed ? (
                         <button onClick={onViewBadge} className="px-6 sm:px-8 py-3 sm:py-3.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition-all hover:-translate-y-1 text-sm sm:text-base">
                             View My Badge
@@ -92,6 +54,7 @@ const ExamResult = ({ passed, score, onClose, onRetake, onViewBadge }) => {
                     </button>
                 </div>
             </div>
+            
         </div>
     );
 };

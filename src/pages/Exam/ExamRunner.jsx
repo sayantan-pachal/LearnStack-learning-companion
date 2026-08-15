@@ -12,10 +12,11 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
     const navigate = useNavigate();
 
     const [isInitializing, setIsInitializing] = useState(true);
-    const [view, setView] = useState("guidelines"); 
-    const [showExitConfirm, setShowExitConfirm] = useState(false); 
-    const [showSubmitConfirm, setShowSubmitConfirm] = useState(false); 
-    
+    // Added "analyzing" to the possible views
+    const [view, setView] = useState("guidelines");
+    const [showExitConfirm, setShowExitConfirm] = useState(false);
+    const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+
     const [questions, setQuestions] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState({});
@@ -34,7 +35,7 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
                 const qRes = await databases.listDocuments(DATABASE_ID, QUESTIONS_COLLECTION_ID);
                 const allQuestions = qRes.documents || [];
                 const courseId = String(course.ID || course.$id);
-                
+
                 const fetchedQuestions = allQuestions
                     .filter(q => String(q.CourseId) === courseId)
                     .map(q => {
@@ -45,7 +46,7 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
                         }
                         return { ...q, shuffledOptions: options };
                     });
-                
+
                 if (fetchedQuestions.length === 0) {
                     showToast("No questions found for this exam yet.", "error");
                     onClose();
@@ -53,7 +54,7 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
                 }
 
                 setQuestions(fetchedQuestions);
-                setTimeLeft(fetchedQuestions.length * 60); 
+                setTimeLeft(fetchedQuestions.length * 60);
                 setIsInitializing(false);
             } catch (error) {
                 console.error("Exam load error:", error);
@@ -70,14 +71,14 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
             setTimeLeft(prev => {
                 if (prev <= 1) {
                     clearInterval(timerId);
-                    submitExam(); 
+                    submitExam();
                     return 0;
                 }
                 return prev - 1;
             });
         }, 1000);
         return () => clearInterval(timerId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [view, timeLeft, isSubmitting]);
 
     const formatTime = (seconds) => {
@@ -90,8 +91,10 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
         e.preventDefault();
         showToast("Action disabled. This is a secure exam environment.", "error");
     };
-    
+
     const submitExam = async () => {
+        // Immediately switch to the analyzing animation view
+        setView("analyzing");
         setIsSubmitting(true);
         let correctCount = 0;
 
@@ -102,26 +105,33 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
         const finalPercentage = Math.round((correctCount / questions.length) * 100);
         setScore(finalPercentage);
 
-        if (finalPercentage >= 80 && progressDoc) {
-            try {
-                const targetId = progressDoc.UserId || progressDoc.userId || progressDoc.$id;
+        // We create a minimum 3-second delay promise so the user gets to see the awesome animation
+        const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
 
-                const todayStr = new Date().toLocaleDateString('en-US');
-                
-                await databases.updateDocument(
-                    DATABASE_ID,
-                    PROGRESS_COLLECTION_ID,
-                    targetId,
-                    { Badge: "Y", CourseId: progressDoc.CourseId, Date: todayStr }
-                );
+        // This is the actual database update task
+        const updateTask = (async () => {
+            if (finalPercentage >= 80 && progressDoc) {
+                try {
+                    const targetId = progressDoc.UserId || progressDoc.userId || progressDoc.$id;
+                    const todayStr = new Date().toLocaleDateString('en-US');
 
-                // Add the Toast Success Notification here!
-                showToast("🎉 Congratulations! Your certificate has been successfully claimed.", "success");
-                onPassSuccess(progressDoc.CourseId); 
-            } catch (err) {
-                showToast("Failed to save passing score.", "error");
+                    await databases.updateDocument(
+                        DATABASE_ID,
+                        PROGRESS_COLLECTION_ID,
+                        targetId,
+                        { Badge: "Y", CourseId: progressDoc.CourseId, Date: todayStr }
+                    );
+                    showToast("🎉 Congratulations! Your certificate has been successfully claimed.", "success");
+                    onPassSuccess(progressDoc.CourseId);
+                } catch (err) {
+                    showToast("Failed to save passing score.", "error");
+                }
             }
-        }
+        })();
+
+        // Wait for BOTH the 3-second delay AND the database update to finish before moving on
+        await Promise.all([updateTask, minDelay]);
+
         setIsSubmitting(false);
         setView("result");
     };
@@ -129,11 +139,11 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
     if (isInitializing) {
         return (
             <div className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] flex flex-col items-center justify-center animate-in fade-in duration-300 font-dm text-center p-6">
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mb-6 sm:mb-8">
-                    <div className="absolute inset-0 border-4 border-indigo-100 dark:border-indigo-900/30 rounded-full" />
-                    <div className="absolute inset-0 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-                    <ShieldCheck className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600 dark:text-indigo-400" />
-                </div>
+                <img
+                    src="../../../public/Svg/Building Page.svg"
+                    alt="Loading..."
+                    className="w-48 h-48 sm:w-64 sm:h-64 mb-6 sm:mb-8 object-contain animate-pulse drop-shadow-xl"
+                />
                 <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-2">Securing Environment</h2>
                 <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium animate-pulse">
                     Preparing questions and anti-cheat systems...
@@ -144,26 +154,45 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
 
     if (view === "guidelines") {
         return (
-            <ExamGuidelines 
-                courseTitle={course?.Title} 
-                questionsCount={questions.length} 
-                onStart={() => setView("quiz")} 
-                onClose={onClose} 
+            <ExamGuidelines
+                courseTitle={course?.Title}
+                questionsCount={questions.length}
+                onStart={() => setView("quiz")}
+                onClose={onClose}
             />
+        );
+    }
+
+    // ✨ NEW VIEW: Analyzing Animation Layer
+    if (view === "analyzing") {
+        return (
+            <div className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-500 font-dm text-center p-6">
+                <img
+                    src="../../../public/Svg/Data analyst.svg"
+                    alt="Analyzing..."
+                    className="w-48 h-48 sm:w-64 sm:h-64 mb-6 sm:mb-8 object-contain drop-shadow-2xl"
+                />
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-2">
+                    Analyzing Responses
+                </h2>
+                <p className="text-base sm:text-lg text-indigo-600 dark:text-indigo-400 font-bold animate-pulse">
+                    Calculating your final score...
+                </p>
+            </div>
         );
     }
 
     if (view === "result") {
         return (
-            <ExamResult 
+            <ExamResult
                 passed={score >= 80}
                 score={score}
                 onClose={onClose}
                 onViewBadge={() => { onClose(); navigate("/achievements"); }}
                 onRetake={() => {
-                    setSelectedAnswers({}); 
-                    setCurrentIndex(0); 
-                    setScore(0); 
+                    setSelectedAnswers({});
+                    setCurrentIndex(0);
+                    setScore(0);
                     setTimeLeft(questions.length * 60);
                     setView("quiz");
                 }}
@@ -175,7 +204,7 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
     const isLast = currentIndex === questions.length - 1;
 
     return (
-        <div 
+        <div
             className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] flex flex-col h-screen w-screen overflow-hidden font-dm animate-in fade-in duration-300 select-none"
             onCopy={preventCheating}
             onCut={preventCheating}
@@ -215,11 +244,11 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
                 <button onClick={() => setShowExitConfirm(true)} className="flex items-center gap-2 text-gray-500 hover:text-red-500 font-bold z-10">
                     <XCircle className="w-5 h-5 sm:w-6 sm:h-6" /> <span className="hidden sm:inline">Exit</span>
                 </button>
-                
+
                 <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-2 text-sm sm:text-base font-black px-5 py-2 rounded-full border-2 transition-colors ${timeLeft <= 60 ? "bg-red-50 text-red-600 border-red-200 animate-pulse" : "bg-gray-50 text-gray-900 border-gray-200"}`}>
                     <Clock className="w-4 h-4 sm:w-5 sm:h-5" /> {formatTime(timeLeft)}
                 </div>
-                
+
                 <div className="text-sm sm:text-base font-black text-gray-400 z-10 bg-gray-50 dark:bg-gray-900 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-800">
                     {currentIndex + 1} <span className="opacity-50">/ {questions.length}</span>
                 </div>
@@ -254,8 +283,12 @@ const ExamRunner = ({ course, progressDoc, onClose, onPassSuccess }) => {
                     </button>
 
                     {isLast ? (
-                        <button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting || selectedAnswers[currentIndex] === undefined} className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:-translate-y-1">
-                            {isSubmitting ? "Processing..." : "Finish Exam"} <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting || selectedAnswers[currentIndex] === undefined} className="flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:-translate-y-1 min-w-[160px]">
+                            {isSubmitting ? (
+                                <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
+                            ) : (
+                                <>Finish Exam <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" /></>
+                            )}
                         </button>
                     ) : (
                         <button onClick={() => setCurrentIndex(prev => prev + 1)} disabled={selectedAnswers[currentIndex] === undefined} className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:-translate-y-1">

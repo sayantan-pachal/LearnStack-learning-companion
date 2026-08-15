@@ -38,7 +38,7 @@ export default function Loader() {
 
                 {/* The Runner */}
                 <img
-                    src="/loader1.svg"
+                    src="../../../public/Svg/loader1.svg"
                     alt="Loading"
                     className="w-40 h-40 dark:invert relative z-10"
                 />
@@ -51,7 +51,7 @@ export default function Loader() {
             <div className="mt-8 flex flex-col items-center">
                 <div className="flex items-center gap-3">
                     <h3 className="text-xl md:text-2xl font-black tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-indigo-400 dark:to-purple-500">
-                        Loading...
+                        Loading
                     </h3>
                     
                     {/* Bouncing Dots - Fixed Alignment */}
