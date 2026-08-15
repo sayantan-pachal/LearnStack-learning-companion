@@ -21,7 +21,32 @@ export default {
         '7xl': 'clamp(2.5rem, 4.5vw + 1.375rem, 4.5rem)',
       },
       colors: {
-        // Custom green palette used in the buttons and icons
+        // ✨ NEW: Primary Theme Palette (Blue)
+        'theme-blue': {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb', // Light Mode Primary
+          700: '#1d4ed8', // Dark Mode Primary
+          800: '#1e40af',
+          900: '#1e3a8a',
+        },
+        // ✨ NEW: Secondary Theme Palette (Pink)
+        'theme-pink': {
+          50: '#fdf2f8',
+          100: '#fce7f3',
+          200: '#fbcfe8',
+          300: '#f9a8d4',
+          400: '#f472b6',
+          500: '#ec4899', // Main Pink Theme
+          600: '#db2777',
+          700: '#be185d',
+          800: '#9d174d',
+          900: '#831843',
+        },
         'smart-green': {
           50: '#f0fdf4',
           100: '#dcfce7',
@@ -56,7 +81,7 @@ export default {
     },
   },
   plugins: [
-    // Required for the "animate-in slide-in-from-right" classes used in the OTP form
+    // Required for the "animate-in slide-in-from-right" classes
     require("tailwindcss-animate"),
   ],
 }

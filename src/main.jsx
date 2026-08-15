@@ -4,6 +4,7 @@ import './index.css'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom'
 import Layout from './Layout.jsx'
 import Auth from './components/Auth/Auth.jsx'
+import Test from './components/Auth/test.jsx'
 import ResetPassword from './components/Auth/ResetPassword.jsx'
 import Home from './pages/Home/Home.jsx'
 import Resources from './pages/Resources/Resources.jsx'
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
       {/* Authentication Routes: Usually also standalone (No Header/Footer) */}
       <Route path='auth' element={<Auth />} />
       <Route path='loader' element={<Loader />} />
+      <Route path='test' element={<Test />} />
       <Route path="resetpassword" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
       {/* Protected Routes: Wrapped INSIDE the Layout (Header + Outlet + Footer) */}
       <Route element={<Layout />}>

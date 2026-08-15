@@ -157,7 +157,7 @@ export default function Signup({ onSwitchMode }) {
                                 <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">Phone</label>
                                 <div className="relative">
                                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    <input type="tel" required placeholder="9876543210" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputBase} />
+                                    <input type="tel" required placeholder="9876543210" minLength={10} maxLength={10} pattern="[0-9]{10}" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputBase} />
                                 </div>
                             </div>
                             <div>
