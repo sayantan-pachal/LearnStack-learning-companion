@@ -6,7 +6,7 @@ function ProtectedRoute({ children }) {
 
   // If there is no session, or the session is missing an email, kick them to login
   if (!session || !session.email) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   // Otherwise, allow them to view the protected page (like Dashboard)

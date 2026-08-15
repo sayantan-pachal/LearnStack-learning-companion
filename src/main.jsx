@@ -5,6 +5,7 @@ import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } 
 import Layout from './Layout.jsx'
 import Login from './components/Auth/Login.jsx'
 import Signup from './components/Auth/Signup.jsx'
+import Auth from './components/Auth/Auth.jsx'
 import ResetPassword from './components/Auth/ResetPassword.jsx'
 import ForgotPassword from './components/Auth/ForgotPassword.jsx'
 import Home from './pages/Home/Home.jsx'
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
       {/* Authentication Routes: Usually also standalone (No Header/Footer) */}
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
+        <Route path='auth' element={<Auth />} />
       <Route path='loader' element={<Loader />} />
       <Route path="forgotpassword" element={<ForgotPassword />} />
       <Route path="resetpassword" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />

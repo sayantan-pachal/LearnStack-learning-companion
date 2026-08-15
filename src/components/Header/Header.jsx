@@ -70,10 +70,13 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await account.deleteSession('current');
+      // Clear local storage so ProtectedRoute knows they are logged out
+      localStorage.removeItem("learnstack_user"); 
+      
       setUser(null);
       setUserOpen(false);
       showToast("Logged out successfully. See you soon! 👋", "success");
-      navigate("/login", { replace: true });
+      navigate("/auth", { replace: true }); 
     } catch (error) {
       console.error("Logout failed:", error);
       showToast("Failed to logout. Please try again.", "error");
