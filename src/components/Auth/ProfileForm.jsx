@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { 
     GraduationCap, BookOpen, ChevronDown, 
-    Github, Linkedin, Link as LinkIcon, Loader2, ArrowRight 
+    Github, Linkedin, Link as LinkIcon, Loader2, ArrowRight , ArrowUpRight
 } from "lucide-react";
 import CustomDropdown from "../Other/CustomDropdown";
 
@@ -15,6 +15,10 @@ export default function ProfileForm({ onSubmit, loading, initialData = {} }) {
     const [github, setGithub] = useState(initialData.github || "");
     const [linkedin, setLinkedin] = useState(initialData.linkedin || "");
     const [portfolio, setPortfolio] = useState(initialData.portfolio || "");
+
+    // Account Toggle State
+    const [noGithub, setNoGithub] = useState(false);
+    const [noLinkedin, setNoLinkedin] = useState(false);
 
     const deptRef = useRef(null);
     const [deptDropdownOpen, setDeptDropdownOpen] = useState(false);
@@ -47,7 +51,14 @@ export default function ProfileForm({ onSubmit, loading, initialData = {} }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit({ college, year, department, github, linkedin, portfolio });
+        onSubmit({ 
+            college, 
+            year, 
+            department, 
+            github: noGithub ? "" : github, 
+            linkedin: noLinkedin ? "" : linkedin, 
+            portfolio 
+        });
     };
 
     const inputBase = "w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/50 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-theme-blue-500 dark:focus:ring-theme-pink-500 focus:border-transparent outline-none transition-all text-sm font-medium placeholder:text-gray-400 dark:text-white";
@@ -58,7 +69,9 @@ export default function ProfileForm({ onSubmit, loading, initialData = {} }) {
             {/* --- ACADEMIC DETAILS --- */}
             <div className="space-y-4">
                 <div>
-                    <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">College / University <span className="text-red-500">*</span></label>
+                    <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">
+                        College / University <span className="text-red-500">*</span>
+                    </label>
                     <div className="relative">
                         <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input type="text" required placeholder="e.g. IIT Madras..." value={college} onChange={(e) => setCollege(e.target.value)} className={inputBase} />
@@ -67,12 +80,16 @@ export default function ProfileForm({ onSubmit, loading, initialData = {} }) {
                 
                 <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col justify-end">
-                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">Current Year <span className="text-red-500">*</span></label>
+                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">
+                            Current Year <span className="text-red-500">*</span>
+                        </label>
                         <CustomDropdown value={year} onChange={(e) => setYear(e.target.value)} options={yearOptions} />
                     </div>
 
                     <div className="flex flex-col justify-end" ref={deptRef}>
-                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">Department <span className="text-red-500">*</span></label>
+                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">
+                            Department <span className="text-red-500">*</span>
+                        </label>
                         <div className="relative">
                             <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                             <input 
@@ -89,7 +106,7 @@ export default function ProfileForm({ onSubmit, loading, initialData = {} }) {
                             </button>
 
                             {deptDropdownOpen && (
-                                <div className="absolute z-50 mt-1 w-full animate-in fade-in zoom-in-95 duration-200 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-1.5 shadow-xl max-h-48 overflow-y-auto">
+                                <div className="absolute z-50 mt-1 w-full animate-in fade-in zoom-in-95 duration-200 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-1.5 shadow-xl max-h-48 overflow-y-auto scrollbar-hide">
                                     {predefinedDepartments.map((dept, idx) => (
                                         <button
                                             key={idx} type="button"
@@ -111,46 +128,83 @@ export default function ProfileForm({ onSubmit, loading, initialData = {} }) {
             {/* --- PROFESSIONAL LINKS --- */}
             <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-4">
                 
-                {/* GitHub & LinkedIn Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3">
-                    <div>
-                        <div className="flex justify-between items-end mb-1">
-                            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                                GitHub <span className="normal-case font-medium opacity-70">(Optional)</span>
-                            </label>
-                            <a href="https://github.com/signup" target="_blank" rel="noopener noreferrer" className="text-[9px] font-bold text-theme-blue-600 dark:text-theme-blue-400 hover:text-theme-pink-500 transition-colors">
-                                Create one ↗
-                            </a>
-                        </div>
-                        <div className="relative">
-                            <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input type="text" placeholder="github.com/username" value={github} onChange={(e) => setGithub(e.target.value)} className={inputBase} />
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div className="flex justify-between items-end mb-1">
-                            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                                LinkedIn <span className="normal-case font-medium opacity-70">(Optional)</span>
-                            </label>
-                            <a href="https://www.linkedin.com/signup" target="_blank" rel="noopener noreferrer" className="text-[9px] font-bold text-theme-blue-600 dark:text-theme-blue-400 hover:text-theme-pink-500 transition-colors">
-                                Create one ↗
-                            </a>
-                        </div>
-                        <div className="relative">
-                            <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input type="text" placeholder="linkedin.com/in/username" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className={inputBase} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Portfolio Row */}
+                {/* GitHub */}
                 <div>
-                    <div className="flex justify-between items-end mb-1">
+                    <div className="flex justify-between items-center mb-1">
                         <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                            Portfolio / Website <span className="normal-case font-medium opacity-70">(Optional)</span>
+                            GitHub {!noGithub && <span className="text-red-500">*</span>}
+                        </label>
+                        <label className="flex items-center gap-1.5 cursor-pointer group">
+                            <input 
+                                type="checkbox" 
+                                checked={noGithub}
+                                onChange={(e) => {
+                                    setNoGithub(e.target.checked);
+                                    if(e.target.checked) setGithub("");
+                                }}
+                                className="w-3 h-3 rounded border-gray-300 dark:border-gray-600 text-theme-blue-600 cursor-pointer focus:ring-theme-blue-500"
+                            />
+                            <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+                                I don't have an account
+                            </span>
                         </label>
                     </div>
+                    {!noGithub ? (
+                        <div className="relative animate-in fade-in zoom-in-95 duration-200">
+                            <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input type="text" required placeholder="github.com/username" value={github} onChange={(e) => setGithub(e.target.value)} className={inputBase} />
+                        </div>
+                    ) : (
+                        <div className="w-full flex items-center justify-between pl-4 pr-3 py-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-gray-800 animate-in fade-in zoom-in-95 duration-200">
+                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Ready to start coding?</span>
+                            <a href="https://github.com/signup" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors shadow-sm flex items-center gap-1">
+                                Create GitHub Account <ArrowUpRight className="w-3 h-3" />
+                            </a>
+                        </div>
+                    )}
+                </div>
+                
+                {/* LinkedIn */}
+                <div>
+                    <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                            LinkedIn {!noLinkedin && <span className="text-red-500">*</span>}
+                        </label>
+                        <label className="flex items-center gap-1.5 cursor-pointer group">
+                            <input 
+                                type="checkbox" 
+                                checked={noLinkedin}
+                                onChange={(e) => {
+                                    setNoLinkedin(e.target.checked);
+                                    if(e.target.checked) setLinkedin("");
+                                }}
+                                className="w-3 h-3 rounded border-gray-300 dark:border-gray-600 text-theme-blue-600 cursor-pointer focus:ring-theme-blue-500"
+                            />
+                            <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+                                I don't have an account
+                            </span>
+                        </label>
+                    </div>
+                    {!noLinkedin ? (
+                        <div className="relative animate-in fade-in zoom-in-95 duration-200">
+                            <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input type="text" required placeholder="linkedin.com/in/username" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className={inputBase} />
+                        </div>
+                    ) : (
+                        <div className="w-full flex items-center justify-between pl-4 pr-3 py-2.5 rounded-xl bg-theme-blue-50 dark:bg-theme-blue-500/10 border border-dashed border-theme-blue-200 dark:border-theme-blue-500/30 animate-in fade-in zoom-in-95 duration-200">
+                            <span className="text-xs font-medium text-theme-blue-700 dark:text-theme-blue-400">Build your network!</span>
+                            <a href="https://www.linkedin.com/signup" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-white bg-theme-blue-600 hover:bg-theme-blue-700 px-3 py-1.5 rounded-lg transition-colors shadow-sm flex items-center gap-1">
+                                Create LinkedIn Account <ArrowUpRight className="w-3 h-3" />
+                            </a>
+                        </div>
+                    )}
+                </div>
+
+                {/* Portfolio Row (Stays purely optional) */}
+                <div>
+                    <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">
+                        Portfolio / Website <span className="normal-case font-medium opacity-70">(Optional)</span>
+                    </label>
                     <div className="relative">
                         <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input type="url" placeholder="https://yourwebsite.com" value={portfolio} onChange={(e) => setPortfolio(e.target.value)} className={inputBase} />

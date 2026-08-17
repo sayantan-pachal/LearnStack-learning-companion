@@ -129,7 +129,7 @@ export default function Signup({ onSwitchMode }) {
                                 <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">Phone</label>
                                 <div className="relative">
                                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    <input type="tel" required placeholder="9876543210" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputBase} />
+                                    <input type="tel" required placeholder="9876543210" minLength={10} maxLength={10} pattern="[0-9]{10}" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputBase} />
                                 </div>
                             </div>
                             <div>
@@ -196,11 +196,11 @@ export default function Signup({ onSwitchMode }) {
 
             {/* ✨ TELEPORTED FULL-SCREEN ANIMATION */}
             {showSuccessAnimation && createPortal(
-                <div className="fixed inset-0 z-[9999] bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md animate-in zoom-in-95 fade-in duration-500 flex flex-col items-center justify-center p-4">
+                <div className="fixed inset-0 z-[9999] bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md animate-in zoom-in-95 fade-in duration-1500 flex flex-col items-center justify-center p-4">
                     <img 
                         src="/Svg/Construction.svg" 
                         alt="Building Workspace" 
-                        className="w-32 h-32 sm:w-80 sm:h-80 mx-auto mb-4 sm:mb-8 object-contain drop-shadow-xl animate-bounce"
+                        className="w-32 h-32 sm:w-80 sm:h-80 mx-auto mb-4 sm:mb-8 object-contain drop-shadow-xl"
                     />
                     <h2 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white mb-2 text-center">
                         Setting up your workspace
