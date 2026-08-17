@@ -15,6 +15,7 @@ import Dashboard from './pages/Dashboard/Dashboard.jsx'
 import Courses from './pages/Courses/Courses.jsx'
 import MyCourses from './pages/Mycourse/MyCourses.jsx'
 import Profile from './pages/Profile/Profile.jsx'
+import ResumeBuilder from './pages/Resume Builder/ResumeBuilder.jsx'
 import Exam from './pages/Exam/Exam.jsx'
 import Loader from './components/Other/Loader.jsx'
 import Edgecase from './components/Other/Edgecase.jsx'
@@ -42,7 +43,7 @@ const router = createBrowserRouter(
         <Route path='exam' element={<ProtectedRoute><Exam /></ProtectedRoute>} />
         <Route path='community' element={<ProtectedRoute><Community /></ProtectedRoute>} />
         <Route path='profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        
+        <Route path='resume-builder' element={<ProtectedRoute><ResumeBuilder /></ProtectedRoute>} />
       </Route>
       {/* 404 */}
       <Route path='*' element={<Edgecase />} />

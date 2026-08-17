@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   BookOpen, Compass, Trophy, PlayCircle, 
-  ArrowRight, CheckCircle2, Video, FileText, CalendarDays, Sparkles
+  CheckCircle2, Video, FileText, CalendarDays, Sparkles
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { account, databases, PROGRESS_COLLECTION_ID, COURSES_COLLECTION_ID, DATABASE_ID } from "../../appwrite/config";
@@ -10,6 +10,10 @@ import TodoApp from "./TodoApp";
 import MusicApp from "./MusicApp";
 import DailyQuote from "./DailyQuote";
 import AchievementChart from "./AchievementChart";
+import DailyChallenge from "./DailyChallenge";
+import FocusTimer from "./FocusTimer";
+import QuickScratchpad from "./QuickScratchpad";
+import GitHubHeatmap from "./GitHubHeatmap";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -39,7 +43,6 @@ export default function Dashboard() {
           doc => String(doc.UserId) === String(currentUser.$id) || String(doc.userId) === String(currentUser.$id)
         );
 
-        // 1. REAL ACTIVE COURSES
         const enrolledCoursesData = myProgress.map(prog => {
           const badgeValue = String(prog.Badge || "").toUpperCase();
           if (prog.CompletionPercentage >= 100 || badgeValue === "Y" || badgeValue === "C") return null;
@@ -61,7 +64,6 @@ export default function Dashboard() {
 
         setActiveCourses(enrolledCoursesData);
 
-        // 2. REAL ACHIEVEMENT GRAPH DATA
         const monthCounts = new Array(12).fill(0);
         myProgress.forEach(prog => {
             const badgeValue = String(prog.Badge || "").toUpperCase();
@@ -79,7 +81,6 @@ export default function Dashboard() {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         setChartData(months.map((m, i) => ({ month: m, count: monthCounts[i] })));
 
-        // 3. REAL NEW ADDITIONS
         const sortedCourses = [...allCourses].sort((a, b) => new Date(b.$createdAt || 0) - new Date(a.$createdAt || 0));
         const newestResources = sortedCourses.slice(0, 3).map((res) => ({
             id: res.$id || Math.random(),
@@ -105,20 +106,11 @@ export default function Dashboard() {
   const formatName = (name = "") => 
     name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
 
-  // ✨ UPDATED: Strict greeting logic!
   const getGreeting = () => {
     const hour = new Date().getHours();
-    
-    // From 6:00 AM to 11:59 AM
     if (hour >= 6 && hour < 12) return "Good morning";
-    
-    // From 12:00 PM to 4:59 PM
     if (hour >= 12 && hour < 17) return "Good afternoon";
-    
-    // From 5:00 PM to 11:59 PM
     if (hour >= 17 && hour <= 23) return "Good evening";
-    
-    // From 12:00 AM to 5:59 AM
     return "Up late"; 
   };
 
@@ -135,8 +127,8 @@ export default function Dashboard() {
   const greeting = getGreeting();
 
   return (
-    <div className="pt-24 sm:pt-28 px-4 pb-20 sm:pb-24 bg-[#f8f9fa] dark:bg-[#050505] min-h-screen font-dm overflow-x-hidden">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+    <div className="pt-24 lg:pt-32 px-4 pb-20 sm:pb-24 bg-[#f8f9fa] dark:bg-[#050505] min-h-screen font-dm overflow-x-hidden">
+      <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8">
         
         {/* ================= HERO SECTION ================= */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -151,13 +143,14 @@ export default function Dashboard() {
         </div>
 
         {/* ================= MAIN GRID ================= */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
           
           {/* LEFT COLUMN (Wider) */}
-          <div className="xl:col-span-2 space-y-6 sm:space-y-8">
-            <div className="flex md:hidden">
-              <DailyQuote  />
+          <div className="lg:col-span-2 space-y-6 lg:space-y-8">
+            <div className="flex lg:hidden">
+              <DailyQuote />
             </div>
+
             {/* ACHIEVEMENT GRAPH COMPONENT */}
             <AchievementChart chartData={chartData} maxChartValue={maxChartValue} currentYear={currentYear} />
 
@@ -223,14 +216,18 @@ export default function Dashboard() {
                 <MusicApp />
             </section>
 
+            <QuickScratchpad />
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="space-y-6 sm:space-y-8 xl:pl-4">
+          <div className="space-y-6 lg:space-y-8 lg:pl-2 xl:pl-4">
             
-            <div className="hidden md:flex">
-              <DailyQuote  />
+            <div className="hidden lg:block">
+              <DailyQuote />
             </div>
+
+            <FocusTimer/>
+            <DailyChallenge />
             
             {/* QUICK ACTIONS BENTO */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -275,6 +272,9 @@ export default function Dashboard() {
           </div>
 
         </div>
+        {/* ✨ PROPERLY PLACED: GitHub Heatmap sits beautifully under the Achievement Chart */}
+            <GitHubHeatmap githubUrl={user?.Github || user?.github} />
+        
         {/* ================= FOOTER PUNCHLINE ================= */}
         <div className="pt-10 pb-6 flex flex-col items-center justify-center text-center animate-in fade-in duration-1000 delay-500">
             <div className="w-16 h-1 bg-gradient-to-r from-theme-blue-500 to-theme-pink-500 rounded-full mb-6 opacity-50"></div>
@@ -282,6 +282,7 @@ export default function Dashboard() {
                 Stay curious. <span className="text-theme-blue-500 dark:text-theme-blue-400">Keep building.</span>
             </p>
         </div>
+
       </div>
     </div>
   );

@@ -85,17 +85,17 @@ export default function TodoApp() {
                     todos.map((todo) => (
                         <div key={todo.id} className="group flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-[#111] transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800">
                             
-                            {/* Checkbox */}
-                            <div className="relative flex items-center justify-center mt-0.5 shrink-0">
+                            {/* ✨ FIX: Wrapped the visual checkbox in a label cursor-pointer */}
+                            <label className="relative flex items-center justify-center mt-0.5 shrink-0 cursor-pointer">
                                 <input 
                                     type="checkbox" 
                                     className="peer sr-only" 
                                     checked={todo.completed}
                                     onChange={() => toggleTodo(todo.id)}
                                 />
-                                <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-700 rounded transition-all peer-checked:bg-theme-blue-600 peer-checked:border-theme-blue-600 dark:peer-checked:bg-theme-pink-500 dark:peer-checked:border-theme-pink-500 cursor-pointer"></div>
+                                <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-700 rounded transition-all peer-checked:bg-theme-blue-600 peer-checked:border-theme-blue-600 dark:peer-checked:bg-theme-pink-500 dark:peer-checked:border-theme-pink-500"></div>
                                 <CheckCircle2 className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" strokeWidth={3} />
-                            </div>
+                            </label>
 
                             {/* Text or Edit Mode */}
                             <div className="flex-1 min-w-0">
@@ -113,7 +113,9 @@ export default function TodoApp() {
                                         <button onClick={() => setEditingId(null)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><X className="w-4 h-4" /></button>
                                     </div>
                                 ) : (
-                                    <span className={`block text-sm font-medium transition-all break-words ${todo.completed ? "text-gray-400 dark:text-gray-600 line-through" : "text-gray-700 dark:text-gray-300"}`}>
+                                    <span 
+                                        className={`block text-sm font-medium transition-all break-words ${todo.completed ? "text-gray-400 dark:text-gray-600 line-through" : "text-gray-700 dark:text-gray-300"}`}
+                                    >
                                         {todo.text}
                                     </span>
                                 )}

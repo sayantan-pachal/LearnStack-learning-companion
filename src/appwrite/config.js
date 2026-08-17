@@ -186,7 +186,7 @@ export const account = {
         return true;
     },
 
-    updateProfile: async (email, newName, newPhone, newCollege, newYear, newDepartment) => {
+    updateProfile: async (email, newName, newPhone, newCollege, newYear, newDepartment, newGithub, newLinkedin, newPortfolio) => {
         const res = await fetch(SCRIPT_URL, {
             method: "POST",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -197,7 +197,10 @@ export const account = {
                 phone: newPhone,
                 college: newCollege,
                 year: newYear,
-                department: newDepartment
+                department: newDepartment,
+                github: newGithub,
+                linkedin: newLinkedin,
+                portfolio: newPortfolio
             })
         });
 
@@ -211,7 +214,10 @@ export const account = {
             phone: newPhone,
             college: newCollege,
             year: newYear,
-            department: newDepartment 
+            department: newDepartment,
+            github: newGithub,
+            linkedin: newLinkedin,
+            portfolio: newPortfolio
         };
         localStorage.setItem("learnstack_user", JSON.stringify(updatedUser));
         return data;

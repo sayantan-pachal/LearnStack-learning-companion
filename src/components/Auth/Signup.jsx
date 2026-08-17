@@ -1,59 +1,31 @@
 /* eslint-disable no-empty */
-import React, { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom"; // ✨ Imported for the full-screen animation
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom"; 
 import { useNavigate } from "react-router-dom";
-import { User, Mail, Lock, Phone, ArrowRight, Eye, EyeOff, Loader2, ShieldCheck, GraduationCap, BookOpen, ChevronDown } from "lucide-react";
+import { User, Mail, Lock, Phone, ArrowRight, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 import { account } from "../../appwrite/config"; 
 import { useToast } from "../Other/ToastContext";
-import CustomDropdown from "../Other/CustomDropdown"; 
+import ProfileForm from "./ProfileForm";
 
 export default function Signup({ onSwitchMode }) {
     const navigate = useNavigate();
     const showToast = useToast();
 
+    // Step 1 State
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState(""); 
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     
+    // Step 2 State
     const [isOtpStep, setIsOtpStep] = useState(false);
     const [userOtp, setUserOtp] = useState("");
 
+    // Step 3 State
     const [isProfileStep, setIsProfileStep] = useState(false);
-    const [college, setCollege] = useState("");
-    const [year, setYear] = useState("");
-    const [department, setDepartment] = useState("");
-
     const [loading, setLoading] = useState(false);
     const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
-
-    const deptRef = useRef(null);
-    const [deptDropdownOpen, setDeptDropdownOpen] = useState(false);
-
-    const predefinedDepartments = [
-        "Computer Science & Engineering",
-        "Information Technology",
-        "Electronics & Communication",
-        "Mechanical Engineering"
-    ];
-
-    const yearOptions = [
-        { label: "1st Year", value: "1" },
-        { label: "2nd Year", value: "2" },
-        { label: "3rd Year", value: "3" },
-        { label: "4th Year", value: "4" }
-    ];
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (deptRef.current && !deptRef.current.contains(event.target)) {
-                setDeptDropdownOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
 
     useEffect(() => {
         const checkSession = async () => {
@@ -98,16 +70,22 @@ export default function Signup({ onSwitchMode }) {
         }
     };
 
-    const handleCompleteProfile = async (e) => {
-        e.preventDefault();
-        if (!college || !year || !department) return showToast("All fields are required ⚠️", "error");
+    // ✨ This now receives ALL the data from the ProfileForm component!
+    const handleCompleteProfile = async (formData) => {
+        if (!formData.college || !formData.year || !formData.department) {
+            return showToast("Academic fields are required ⚠️", "error");
+        }
+        
         setLoading(true);
         try {
-            await account.updateProfile(email, name, phone, college, year, department);
+            // Note: Update your Appwrite config/function to accept these new params if needed!
+            await account.updateProfile(
+                email, name, phone, 
+                formData.college, formData.year, formData.department,
+                formData.github, formData.linkedin, formData.portfolio
+            );
             
-            // ✨ Show the beautiful full-screen "Construction" animation
             setShowSuccessAnimation(true);
-            
             await new Promise(resolve => setTimeout(resolve, 3000));
             
             showToast(`Welcome to LearnStack, ${name}! 🚀`, "success");
@@ -118,11 +96,10 @@ export default function Signup({ onSwitchMode }) {
         }
     };
 
-    // ✨ Updated to theme blue & pink focus rings
     const inputBase = "w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/50 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-theme-blue-500 dark:focus:ring-theme-pink-500 focus:border-transparent outline-none transition-all text-sm font-medium placeholder:text-gray-400 dark:text-white";
 
     return (
-        <div className="w-full max-w-sm relative">
+        <div className="w-full max-w-sm relative mx-auto">
             {!showSuccessAnimation && (
                 <h1 className="font-fraunces font-black text-3xl text-center mb-1 tracking-tight">Join LearnStack</h1>
             )}
@@ -163,14 +140,13 @@ export default function Signup({ onSwitchMode }) {
                                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                                         {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                                     </button>
-                                    <span className="absolute -bottom-1.5 right-4 bg-white dark:bg-[#0a0a0a] px-1.5 text-[8px] font-bold text-gray-400 tracking-wider rounded-sm pointer-events-none">
+                                    <span className="absolute -bottom-1.5 right-4 bg-[#f8f9fa] dark:bg-[#050505] px-1.5 text-[8px] font-bold text-gray-400 tracking-wider rounded-sm pointer-events-none">
                                         MIN 8 CHARS
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* ✨ Updated to Theme Blue & Pink Gradient */}
                         <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 mt-4 rounded-xl font-bold bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 text-white shadow-lg active:scale-95 transition-all disabled:opacity-70 text-sm hover:opacity-90">
                             {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <>Get Code <ArrowRight size={16} /></>}
                         </button>
@@ -198,7 +174,6 @@ export default function Signup({ onSwitchMode }) {
                                 <input type="text" maxLength="6" required placeholder="123456" value={userOtp} onChange={(e) => setUserOtp(e.target.value.replace(/\D/g, ''))} className={`${inputBase} text-center font-bold tracking-widest text-base`} />
                             </div>
                         </div>
-                        {/* ✨ Updated to Theme Blue & Pink Gradient */}
                         <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 mt-4 rounded-xl font-bold bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 text-white shadow-lg active:scale-95 transition-all disabled:opacity-70 text-sm hover:opacity-90">
                             {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <>Verify Account <ArrowRight size={16} /></>}
                         </button>
@@ -213,76 +188,9 @@ export default function Signup({ onSwitchMode }) {
                 <div className="animate-in slide-in-from-right-4 duration-300">
                     <p className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-5">Just a few more details to personalize your experience.</p>
 
-                    <form className="space-y-4" onSubmit={handleCompleteProfile}>
-                        <div>
-                            <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">College / University</label>
-                            <div className="relative">
-                                <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <input type="text" required placeholder="e.g. IIT Madras..." value={college} onChange={(e) => setCollege(e.target.value)} className={inputBase} />
-                            </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="flex flex-col justify-end">
-                                <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">Current Year</label>
-                                <CustomDropdown
-                                    value={year}
-                                    onChange={(e) => setYear(e.target.value)}
-                                    options={yearOptions}
-                                />
-                            </div>
-
-                            <div className="flex flex-col justify-end" ref={deptRef}>
-                                <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">Department</label>
-                                <div className="relative">
-                                    <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
-                                    <input 
-                                        type="text" 
-                                        required 
-                                        placeholder="e.g. CSE" 
-                                        value={department} 
-                                        onChange={(e) => setDepartment(e.target.value)} 
-                                        onFocus={() => setDeptDropdownOpen(true)}
-                                        className={`${inputBase} pr-8`} 
-                                    />
-                                    <button 
-                                        type="button"
-                                        onClick={() => setDeptDropdownOpen(!deptDropdownOpen)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                                    >
-                                        <ChevronDown size={14} className={`transition-transform duration-300 ${deptDropdownOpen ? 'rotate-180' : ''}`} />
-                                    </button>
-
-                                    {deptDropdownOpen && (
-                                        <div className="absolute z-50 mt-1 w-full animate-in fade-in zoom-in-95 duration-200 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-1.5 shadow-xl max-h-48 overflow-y-auto">
-                                            {predefinedDepartments.map((dept, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setDepartment(dept);
-                                                        setDeptDropdownOpen(false);
-                                                    }}
-                                                    className={`flex w-full items-center justify-start rounded-xl px-3 py-2.5 text-xs transition-colors text-left ${
-                                                        department === dept
-                                                            ? 'bg-theme-blue-50 text-theme-blue-600 dark:bg-theme-blue-500/10 dark:text-theme-blue-400'
-                                                            : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700/50'
-                                                    }`}
-                                                >
-                                                    {dept}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* ✨ Updated to Theme Blue & Pink Gradient */}
-                        <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 mt-4 rounded-xl font-bold bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 text-white shadow-lg active:scale-95 transition-all disabled:opacity-70 text-sm hover:opacity-90">
-                            {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <>Complete Setup <ArrowRight size={16} /></>}
-                        </button>
-                    </form>
+                    {/* ✨ HERE IS YOUR NEW REUSABLE COMPONENT */}
+                    <ProfileForm onSubmit={handleCompleteProfile} loading={loading} />
+                    
                 </div>
             )}
 
