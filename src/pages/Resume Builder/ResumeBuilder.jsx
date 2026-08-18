@@ -1,17 +1,12 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Download, LayoutTemplate, Loader2 } from 'lucide-react';
+import { PDFDownloadLink } from '@react-pdf/renderer'; 
 import ResumeForm from './ResumeForm';
 import ResumePreview from './ResumePreview';
+import ResumePDF from './ResumePDF'; 
 
 export default function ResumeBuilder({ user }) {
-
-    const previewRef = useRef();
-    const [isDownloading, setIsDownloading] = useState(false);
-
-    const handleDownload = () => {
-        window.print();
-    };
     // Pre-filled with your reference data
     const [personal, setPersonal] = useState({
         name: "SAYANTAN PACHAL",
@@ -36,6 +31,8 @@ export default function ResumeBuilder({ user }) {
             title: 'SmartKrishi',
             subtitle: 'Smart Agriculture Dashboard (React, AI/ML Integration)',
             date: '2026',
+            liveLink: '',
+            githubLink: '',
             bullets: "Engineered a full-stack farming dashboard that integrates real-time environmental data with AI-assisted crop monitoring and actionable agricultural recommendations.\nImplemented machine learning-based image analysis to accurately identify crop diseases, enabling early intervention and yield optimization for farmers.\nOptimized front-end architecture for maximum speed and accessibility, achieving an overall Google Lighthouse score of 95+."
         },
         {
@@ -43,6 +40,8 @@ export default function ResumeBuilder({ user }) {
             title: 'Personal Portfolio Website',
             subtitle: 'Personal Project (React, Tailwind CSS)',
             date: '2025 - Present',
+            liveLink: '',
+            githubLink: '',
             bullets: "Architected and deployed a highly responsive, modern portfolio to showcase software engineering projects, technical certifications, and professional milestones.\nEngineered for peak performance, accessibility, and SEO, achieving a perfect 100 Google Lighthouse score on desktop and near-perfect metrics across mobile devices.\nDesigned a clean, intuitive UI/UX with seamless integration to external professional platforms (GitHub, LinkedIn)."
         },
         {
@@ -50,6 +49,8 @@ export default function ResumeBuilder({ user }) {
             title: 'LearnStack',
             subtitle: 'Collaborative Learning Platform (React, Node.js, Python)',
             date: '2026 - Present',
+            liveLink: '',
+            githubLink: '',
             bullets: "Currently developing a comprehensive full-stack educational platform designed to streamline collaborative learning and track student skill progression.\nArchitecting scalable backend logic and database structures to handle complex user interactions and dynamic content delivery.\nBuilding a responsive, state-driven frontend to ensure a seamless and intuitive experience for educators and learners."
         }
     ]);
@@ -61,9 +62,6 @@ export default function ResumeBuilder({ user }) {
         { id: 4, name: "Introduction to Software Engineering | IBM | Coursera", date: "November, 2025" }
     ]);
 
-    // Action Handlers
-    const handlePrint = () => window.print();
-
     const addProject = () => setProjects([...projects, { id: Date.now(), title: '', subtitle: '', date: '', bullets: '' }]);
     const removeProject = (id) => setProjects(projects.filter(p => p.id !== id));
 
@@ -73,44 +71,48 @@ export default function ResumeBuilder({ user }) {
     const addEducation = () => setEducation([...education, { id: Date.now(), degree: '', school: '', date: '' }]);
     const removeEducation = (id) => setEducation(education.filter(e => e.id !== id));
 
-    // Package props cleanly
     const formData = { personal, overview, education, skills, projects, certifications };
     const formSetters = { setPersonal, setOverview, setEducation, setSkills, setProjects, setCertifications };
     const formActions = { addProject, removeProject, addCert, removeCert, addEducation, removeEducation };
 
     return (
-        <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#050505] font-dm p-14 pt-24 lg:pt-32">
+        <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#050505] font-dm px-4 sm:px-8 lg:px-14 pt-24 lg:pt-32 pb-12">
 
             {/* Header */}
-            <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-5">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                        <LayoutTemplate className="w-8 h-8 text-theme-blue-500" /> ATS Resume Builder
+                    <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+                        <LayoutTemplate className="w-6 h-6 sm:w-8 sm:h-8 text-theme-blue-500" /> ATS Resume Builder
                     </h1>
-                    <p className="text-gray-500 text-sm mt-1">Live A4 preview. Optimized for Applicant Tracking Systems.</p>
+                    <p className="text-gray-500 text-xs sm:text-sm mt-1">Live A4 preview. Optimized for Applicant Tracking Systems.</p>
                 </div>
 
-                {/* Updated Download Button with Loading State */}
-                <button
-                    onClick={handleDownload}
-                    disabled={isDownloading}
-                    className="flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-bold hover:shadow-lg transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                {/* PDF Download Button */}
+                <PDFDownloadLink
+                    document={<ResumePDF data={formData} />}
+                    fileName={`${personal.name.replace(/\s+/g, '_')}_Resume.pdf`}
+                    className="w-full sm:w-auto flex justify-center items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 sm:py-2.5 rounded-xl font-bold hover:shadow-lg transition-all active:scale-95"
                 >
-                    {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                    {isDownloading ? 'Generating PDF...' : 'Download PDF'}
-                </button>
+                    {({ loading }) => (
+                        <>
+                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                            {loading ? 'Generating PDF...' : 'Download PDF'}
+                        </>
+                    )}
+                </PDFDownloadLink>
             </div>
 
+            {/* Grid Container */}
             <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
                 {/* Left Side: FORM */}
-                <div className="lg:col-span-5">
+                <div className="lg:col-span-5 w-full">
                     <ResumeForm data={formData} setters={formSetters} actions={formActions} />
                 </div>
 
-                {/* Right Side: PREVIEW (Notice the ref is passed here!) */}
-                <div className="lg:col-span-7">
-                    <ResumePreview ref={previewRef} data={formData} />
+                {/* Right Side: PREVIEW */}
+                <div className="lg:col-span-7 w-full overflow-hidden">
+                    <ResumePreview data={formData} />
                 </div>
 
             </div>

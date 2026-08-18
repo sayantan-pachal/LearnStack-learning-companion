@@ -1,220 +1,137 @@
-import React, { useState, useRef, useEffect } from "react";
-import { 
-    GraduationCap, BookOpen, ChevronDown, 
-    Github, Linkedin, Link as LinkIcon, Loader2, ArrowRight , ArrowUpRight
-} from "lucide-react";
-import CustomDropdown from "../Other/CustomDropdown";
+import React, { useState, useRef, useEffect } from 'react';
+import { Terminal as TerminalIcon, Maximize2, Minus, X } from 'lucide-react';
 
-export default function ProfileForm({ onSubmit, loading, initialData = {} }) {
-    // Academic State
-    const [college, setCollege] = useState(initialData.college || "");
-    const [year, setYear] = useState(initialData.year || "");
-    const [department, setDepartment] = useState(initialData.department || "");
-    
-    // Professional State
-    const [github, setGithub] = useState(initialData.github || "");
-    const [linkedin, setLinkedin] = useState(initialData.linkedin || "");
-    const [portfolio, setPortfolio] = useState(initialData.portfolio || "");
+export default function TerminalResume() {
+  const [input, setInput] = useState('');
+  const [history, setHistory] = useState([
+    { type: 'system', text: 'Welcome to Sayantan OS v1.0.0' },
+    { type: 'system', text: 'Type "help" to see available commands.' },
+  ]);
+  
+  const bottomRef = useRef(null);
+  const inputRef = useRef(null);
 
-    // Account Toggle State
-    const [noGithub, setNoGithub] = useState(false);
-    const [noLinkedin, setNoLinkedin] = useState(false);
+  // Auto-scroll to bottom when new commands are entered
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [history]);
 
-    const deptRef = useRef(null);
-    const [deptDropdownOpen, setDeptDropdownOpen] = useState(false);
+  // Keep focus on the invisible input when clicking anywhere in the terminal
+  const focusInput = () => {
+    inputRef.current?.focus();
+  };
 
-    const predefinedDepartments = [
-        "Computer Science & Engineering",
-        "Information Technology",
-        "Electronics & Communication",
-        "Mechanical Engineering",
-        "Electrical Engineering",
-        "Civil Engineering"
-    ];
+  const handleCommand = (e) => {
+    if (e.key === 'Enter') {
+      const cmd = input.trim().toLowerCase();
+      const newHistory = [...history, { type: 'user', text: `guest@sayantan-os:~$ ${input}` }];
+      
+      switch (cmd) {
+        case 'help':
+          newHistory.push({ type: 'output', text: 'Available commands:' });
+          newHistory.push({ type: 'output', text: '  whoami     - Display summary' });
+          newHistory.push({ type: 'output', text: '  skills     - List technical skills' });
+          newHistory.push({ type: 'output', text: '  projects   - Show recent work' });
+          newHistory.push({ type: 'output', text: '  contact    - Display contact info' });
+          newHistory.push({ type: 'output', text: '  clear      - Clear terminal screen' });
+          break;
+        case 'whoami':
+          newHistory.push({ type: 'output', text: 'Sayantan Pachal' });
+          newHistory.push({ type: 'output', text: 'Computer Science Engineering Student & Software Developer.' });
+          newHistory.push({ type: 'output', text: 'Passionate about problem-solving and building scalable web applications.' });
+          break;
+        case 'skills':
+          newHistory.push({ type: 'output', text: '[ Languages ] : Python, Java, JavaScript, C, C++, C#' });
+          newHistory.push({ type: 'output', text: '[ Frontend ]  : React, Tailwind CSS, HTML, CSS' });
+          newHistory.push({ type: 'output', text: '[ Core ]      : Data Structures and Algorithms (Java/C++)' });
+          break;
+        case 'projects':
+          newHistory.push({ type: 'output', text: '1. Automated Quiz Generator' });
+          newHistory.push({ type: 'output', text: '2. Personal Portfolio (sayantanpachal.vercel.app)' });
+          newHistory.push({ type: 'output', text: '3. JS Calculator & 25+5 Clock' });
+          break;
+        case 'contact':
+          newHistory.push({ type: 'output', text: 'GitHub   : github.com/sayantan-pachal' });
+          newHistory.push({ type: 'output', text: 'LinkedIn : linkedin.com/in/sayantan-pachal' });
+          newHistory.push({ type: 'output', text: 'Website  : sayantanpachal.vercel.app' });
+          break;
+        case 'clear':
+          setHistory([]);
+          setInput('');
+          return;
+        case '':
+          break; // Do nothing on empty enter
+        default:
+          newHistory.push({ type: 'error', text: `bash: ${cmd}: command not found. Type "help" for a list of commands.` });
+      }
 
-    const yearOptions = [
-        { label: "1st Year", value: "1" },
-        { label: "2nd Year", value: "2" },
-        { label: "3rd Year", value: "3" },
-        { label: "4th Year", value: "4" }
-    ];
+      setHistory(newHistory);
+      setInput('');
+    }
+  };
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (deptRef.current && !deptRef.current.contains(event.target)) {
-                setDeptDropdownOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+  return (
+    <div className="w-full max-w-3xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-gray-700 bg-[#1e1e1e] font-mono text-sm sm:text-base animate-in zoom-in-95 duration-500">
+      
+      {/* Mac-style Window Header */}
+      <div className="bg-[#2d2d2d] px-4 py-3 flex items-center justify-between border-b border-gray-900 select-none">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-red-500 flex items-center justify-center group cursor-pointer">
+            <X className="w-2 h-2 text-red-900 opacity-0 group-hover:opacity-100" />
+          </div>
+          <div className="w-3 h-3 rounded-full bg-yellow-500 flex items-center justify-center group cursor-pointer">
+            <Minus className="w-2 h-2 text-yellow-900 opacity-0 group-hover:opacity-100" />
+          </div>
+          <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center group cursor-pointer">
+            <Maximize2 className="w-2 h-2 text-green-900 opacity-0 group-hover:opacity-100" />
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold tracking-widest">
+          <TerminalIcon className="w-3 h-3" /> bash — sayantan-os
+        </div>
+        <div className="w-12"></div> {/* Spacer for center alignment */}
+      </div>
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit({ 
-            college, 
-            year, 
-            department, 
-            github: noGithub ? "" : github, 
-            linkedin: noLinkedin ? "" : linkedin, 
-            portfolio 
-        });
-    };
-
-    const inputBase = "w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/50 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-theme-blue-500 dark:focus:ring-theme-pink-500 focus:border-transparent outline-none transition-all text-sm font-medium placeholder:text-gray-400 dark:text-white";
-
-    return (
-        <form className="space-y-5 w-full" onSubmit={handleSubmit}>
-            
-            {/* --- ACADEMIC DETAILS --- */}
-            <div className="space-y-4">
-                <div>
-                    <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">
-                        College / University <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                        <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input type="text" required placeholder="e.g. IIT Madras..." value={college} onChange={(e) => setCollege(e.target.value)} className={inputBase} />
-                    </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                    <div className="flex flex-col justify-end">
-                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">
-                            Current Year <span className="text-red-500">*</span>
-                        </label>
-                        <CustomDropdown value={year} onChange={(e) => setYear(e.target.value)} options={yearOptions} />
-                    </div>
-
-                    <div className="flex flex-col justify-end" ref={deptRef}>
-                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">
-                            Department <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                            <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
-                            <input 
-                                type="text" required placeholder="e.g. CSE" 
-                                value={department} onChange={(e) => setDepartment(e.target.value)} 
-                                onFocus={() => setDeptDropdownOpen(true)}
-                                className={`${inputBase} pr-8`} 
-                            />
-                            <button 
-                                type="button" onClick={() => setDeptDropdownOpen(!deptDropdownOpen)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                            >
-                                <ChevronDown size={14} className={`transition-transform duration-300 ${deptDropdownOpen ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            {deptDropdownOpen && (
-                                <div className="absolute z-50 mt-1 w-full animate-in fade-in zoom-in-95 duration-200 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-1.5 shadow-xl max-h-48 overflow-y-auto scrollbar-hide">
-                                    {predefinedDepartments.map((dept, idx) => (
-                                        <button
-                                            key={idx} type="button"
-                                            onClick={() => { setDepartment(dept); setDeptDropdownOpen(false); }}
-                                            className={`flex w-full items-center justify-start rounded-xl px-3 py-2.5 text-xs transition-colors text-left ${
-                                                department === dept ? 'bg-theme-blue-50 text-theme-blue-600 dark:bg-theme-blue-500/10 dark:text-theme-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700/50'
-                                            }`}
-                                        >
-                                            {dept}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+      {/* Terminal Body */}
+      <div 
+        className="p-4 h-[400px] sm:h-[450px] overflow-y-auto scrollbar-thin cursor-text"
+        onClick={focusInput}
+      >
+        <div className="space-y-1.5 mb-2">
+          {history.map((line, i) => (
+            <div 
+              key={i} 
+              className={`
+                ${line.type === 'system' ? 'text-gray-400 italic' : ''}
+                ${line.type === 'user' ? 'text-white font-bold' : ''}
+                ${line.type === 'output' ? 'text-theme-blue-300 ml-4' : ''}
+                ${line.type === 'error' ? 'text-red-400' : ''}
+              `}
+            >
+              {line.text}
             </div>
+          ))}
+        </div>
 
-            {/* --- PROFESSIONAL LINKS --- */}
-            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-4">
-                
-                {/* GitHub */}
-                <div>
-                    <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                            GitHub {!noGithub && <span className="text-red-500">*</span>}
-                        </label>
-                        <label className="flex items-center gap-1.5 cursor-pointer group">
-                            <input 
-                                type="checkbox" 
-                                checked={noGithub}
-                                onChange={(e) => {
-                                    setNoGithub(e.target.checked);
-                                    if(e.target.checked) setGithub("");
-                                }}
-                                className="w-3 h-3 rounded border-gray-300 dark:border-gray-600 text-theme-blue-600 cursor-pointer focus:ring-theme-blue-500"
-                            />
-                            <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
-                                I don't have an account
-                            </span>
-                        </label>
-                    </div>
-                    {!noGithub ? (
-                        <div className="relative animate-in fade-in zoom-in-95 duration-200">
-                            <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input type="text" required placeholder="github.com/username" value={github} onChange={(e) => setGithub(e.target.value)} className={inputBase} />
-                        </div>
-                    ) : (
-                        <div className="w-full flex items-center justify-between pl-4 pr-3 py-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-gray-800 animate-in fade-in zoom-in-95 duration-200">
-                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Ready to start coding?</span>
-                            <a href="https://github.com/signup" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors shadow-sm flex items-center gap-1">
-                                Create GitHub Account <ArrowUpRight className="w-3 h-3" />
-                            </a>
-                        </div>
-                    )}
-                </div>
-                
-                {/* LinkedIn */}
-                <div>
-                    <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                            LinkedIn {!noLinkedin && <span className="text-red-500">*</span>}
-                        </label>
-                        <label className="flex items-center gap-1.5 cursor-pointer group">
-                            <input 
-                                type="checkbox" 
-                                checked={noLinkedin}
-                                onChange={(e) => {
-                                    setNoLinkedin(e.target.checked);
-                                    if(e.target.checked) setLinkedin("");
-                                }}
-                                className="w-3 h-3 rounded border-gray-300 dark:border-gray-600 text-theme-blue-600 cursor-pointer focus:ring-theme-blue-500"
-                            />
-                            <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
-                                I don't have an account
-                            </span>
-                        </label>
-                    </div>
-                    {!noLinkedin ? (
-                        <div className="relative animate-in fade-in zoom-in-95 duration-200">
-                            <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input type="text" required placeholder="linkedin.com/in/username" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className={inputBase} />
-                        </div>
-                    ) : (
-                        <div className="w-full flex items-center justify-between pl-4 pr-3 py-2.5 rounded-xl bg-theme-blue-50 dark:bg-theme-blue-500/10 border border-dashed border-theme-blue-200 dark:border-theme-blue-500/30 animate-in fade-in zoom-in-95 duration-200">
-                            <span className="text-xs font-medium text-theme-blue-700 dark:text-theme-blue-400">Build your network!</span>
-                            <a href="https://www.linkedin.com/signup" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-white bg-theme-blue-600 hover:bg-theme-blue-700 px-3 py-1.5 rounded-lg transition-colors shadow-sm flex items-center gap-1">
-                                Create LinkedIn Account <ArrowUpRight className="w-3 h-3" />
-                            </a>
-                        </div>
-                    )}
-                </div>
-
-                {/* Portfolio Row (Stays purely optional) */}
-                <div>
-                    <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">
-                        Portfolio / Website <span className="normal-case font-medium opacity-70">(Optional)</span>
-                    </label>
-                    <div className="relative">
-                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input type="url" placeholder="https://yourwebsite.com" value={portfolio} onChange={(e) => setPortfolio(e.target.value)} className={inputBase} />
-                    </div>
-                </div>
-            </div>
-
-            <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 mt-6 rounded-xl font-bold bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 text-white shadow-lg active:scale-95 transition-all disabled:opacity-70 text-sm hover:opacity-90">
-                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <>Complete Setup <ArrowRight size={16} /></>}
-            </button>
-        </form>
-    );
+        {/* Active Input Line */}
+        <div className="flex items-center text-white">
+          <span className="text-green-400 font-bold mr-2">guest@sayantan-os:~$</span>
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleCommand}
+            className="flex-1 bg-transparent outline-none border-none text-white caret-transparent focus:ring-0 p-0 m-0"
+            spellCheck="false"
+            autoComplete="off"
+            autoFocus
+          />
+          {/* Custom Blinking Cursor (follows text) */}
+          <span className="w-2 h-4 bg-gray-300 animate-pulse -ml-[100%] translate-x-[calc(100%+0.5ch)]" style={{ marginLeft: `-${input.length}ch` }}></span>
+        </div>
+        <div ref={bottomRef} />
+      </div>
+    </div>
+  );
 }

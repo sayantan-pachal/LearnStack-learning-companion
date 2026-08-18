@@ -149,7 +149,7 @@ export default function DailyQuote() {
   }, []);
 
   return (
-    <div className="relative overflow-hidden group rounded-[1.5rem] sm:rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-theme-blue-600/50 via-purple-600 to-theme-pink-600/50 text-white shadow-xl shadow-theme-blue-500/20 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-theme-pink-500/20">
+    <div className="relative overflow-hidden w-full group rounded-[1.5rem] sm:rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-theme-blue-600/50 via-purple-600 to-theme-pink-600/50 text-white shadow-xl shadow-theme-blue-500/20 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-theme-pink-500/20">
       
       {/* Background Decorative Glows */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700 pointer-events-none"></div>

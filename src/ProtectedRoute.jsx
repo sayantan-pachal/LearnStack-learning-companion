@@ -1,15 +1,25 @@
 import { Navigate } from "react-router-dom";
 
 function ProtectedRoute({ children }) {
-  // Grab the session data we saved during Login/Signup
-  const session = JSON.parse(localStorage.getItem("learnstack_user"));
+  const storedSession = localStorage.getItem("learnstack_user");
+  let session = null;
 
-  // If there is no session, or the session is missing an email, kick them to login
+  // Safely check if the data exists AND isn't the literal string "undefined"
+  if (storedSession && storedSession !== "undefined") {
+    try {
+      session = JSON.parse(storedSession);
+    } catch (error) {
+      console.error("Failed to parse session data. Clearing corrupted data.", error);
+      localStorage.removeItem("learnstack_user"); // Clean up the bad data
+    }
+  }
+
+  // If there is no valid session, or it's missing an email, kick them to auth
   if (!session || !session.email) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Otherwise, allow them to view the protected page (like Dashboard)
+  // Otherwise, allow them to view the protected page
   return children;
 }
 

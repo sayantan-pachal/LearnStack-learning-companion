@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from "react";
-import { Menu, X, BookOpen, Compass, Trophy, Users, Home, UserRound, Shapes } from 'lucide-react';
+import { Menu, X, BookOpen, Compass, Trophy, Users, Home, UserRound, Shapes, FileText } from 'lucide-react';
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import Logo1 from "../../../public/Logo1";
-import Logo2 from "../../../public/Logo2"; // Assuming this is a stacked/mobile logo
+import Logo2 from "../../../public/Logo2"; 
 import ThemeToggle from "../Other/ThemeToggle";
 import { useToast } from "../Other/ToastContext";
 import { account } from "../../appwrite/config";
@@ -13,15 +13,15 @@ export default function Header() {
     { to: "/dashboard", label: "Dashboard", icon: Home },
     { to: "/learningpaths", label: "Learning Paths", icon: Compass },
     { to: "/resources", label: "Resources", icon: BookOpen },
+    { to: "/courses", label: "Courses", icon: Shapes },
+    { to: "/resume-builder", label: "Resume", icon: FileText },
     { to: "/community", label: "Community", icon: Users },
-    { to: "/courses", label: "Courses", icon: Shapes}
   ];
   
   const userLinks = [
     { to: "/profile", label: "My Profile" },
     { to: "/mylearning", label: "My Learning" },
     { to: "/achievements", label: "My Achievements" },
-    { to: "/settings", label: "Account Settings" }, 
     { to: "/resetpassword", label: "Reset Password" },
   ];
 
@@ -70,7 +70,6 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await account.deleteSession('current');
-      // Clear local storage so ProtectedRoute knows they are logged out
       localStorage.removeItem("learnstack_user"); 
       
       setUser(null);
@@ -88,6 +87,7 @@ export default function Header() {
       <nav className="px-3 py-2 lg:px-6 lg:py-2.5">
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
           
+          {/* ✨ Reverted: Logo1 now properly sits behind the overlay when open */}
           <Link to="/" className="flex items-center">
             <Logo1 />
           </Link>
@@ -163,9 +163,10 @@ export default function Header() {
             )}
 
             {/* Mobile Hamburger Button */}
+            {/* The X button stays on top so the user can close the menu */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-1.5 ml-1 lg:hidden text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
+              className="inline-flex items-center justify-center p-1.5 ml-1 lg:hidden text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none relative z-[60]"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -216,7 +217,8 @@ export default function Header() {
                   </div>
                 )}
                 
-                <div className="mt-auto pt-8 scale-90 opacity-50">
+                {/* ✨ FIX: Removed opacity-50 so the logo looks fully bright and visible */}
+                <div className="mt-auto pt-8 scale-90">
                   <Logo2 />
                 </div>
               </div>
