@@ -90,9 +90,9 @@ const CertificateModal = ({ badge, user, onClose }) => {
     const qrPayload = `LEARNSTACK VERIFICATION\n\nCandidate: ${candidateName}\nCourse: ${courseName}\nStatus: Successfully Completed\nDate: ${formattedDate}\nIssuer: LearnStack Platform`;
 
     return (
-        <div className="fixed inset-0 z-[500] flex justify-center items-start sm:items-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto print:p-0 cert-modal-container">
+        <div className="fixed inset-0 z-[500] flex justify-center items-start sm:items-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto print:p-0 cert-modal-container scrollbar-hide">
 
-            <div className="flex flex-col items-center gap-6 w-full max-w-4xl my-auto py-8 print:py-0 print:block print:w-auto print:max-w-none relative scrollbar-hide">
+            <div className="flex flex-col items-center gap-6 w-full max-w-4xl my-auto py-8 print:py-0 print:block print:w-auto print:max-w-none relative">
 
                 <CertificateTemplate
                     candidateName={candidateName}

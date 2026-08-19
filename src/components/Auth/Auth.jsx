@@ -8,9 +8,23 @@ import Logo from "../../../public/Logo_badge";
 export default function Auth() {
     // Modes: 'login', 'signup', 'forgot'
     const [authMode, setAuthMode] = useState('login');
+    // Track signup steps: 'form', 'profile', 'otp'
+    const [signupStep, setSignupStep] = useState('form');
+
+    const handleSwitchMode = (mode) => {
+        setAuthMode(mode);
+        // Reset the signup step if they switch away and come back
+        if (mode === 'signup') {
+            setSignupStep('form');
+        }
+    };
 
     // Determine which side is active based on mode
     const isRightPanelActive = authMode === 'login' || authMode === 'forgot';
+
+    // Logic: Show auth.svg for Login, Forgot Password, OR specifically the OTP step of Signup.
+    // Otherwise (Signup Form, Signup Profile), show STUDENT.svg.
+    const showAuthSvg = authMode === 'login' || authMode === 'forgot' || (authMode === 'signup' && signupStep === 'otp');
 
     return (
         <div className="relative min-h-[100dvh] flex items-center justify-center p-4 sm:p-6 bg-auth-bg1 dark:bg-auth-bg2 bg-cover bg-center font-dm text-[#111] dark:text-gray-100">
@@ -27,8 +41,12 @@ export default function Auth() {
                 <div className={`hidden md:flex absolute top-0 left-0 w-1/2 h-full z-10 items-center justify-center p-8 transition-all duration-[800ms] ease-in-out ${
                     !isRightPanelActive ? 'opacity-100 brightness-100 scale-100 delay-100' : 'opacity-0 brightness-50 scale-95 pointer-events-none'
                 }`}>
-                    {/* Only render Signup when active to prevent hidden form tabbing */}
-                    {!isRightPanelActive && <Signup onSwitchMode={() => setAuthMode('login')} />}
+                    {!isRightPanelActive && (
+                        <Signup 
+                            onSwitchMode={() => handleSwitchMode('login')} 
+                            onStepChange={setSignupStep} 
+                        />
+                    )}
                 </div>
 
                 {/* RIGHT SIDE: LOGIN OR FORGOT PASSWORD */}
@@ -37,17 +55,16 @@ export default function Auth() {
                 }`}>
                     {authMode === 'login' && (
                         <Login 
-                            onSwitchMode={() => setAuthMode('signup')} 
-                            onForgotClick={() => setAuthMode('forgot')} 
+                            onSwitchMode={() => handleSwitchMode('signup')} 
+                            onForgotClick={() => handleSwitchMode('forgot')} 
                         />
                     )}
                     {authMode === 'forgot' && (
-                        <ForgotPassword onBackToLogin={() => setAuthMode('login')} />
+                        <ForgotPassword onBackToLogin={() => handleSwitchMode('login')} />
                     )}
                 </div>
 
                 {/* DESKTOP VIEW: SLIDING IMAGE PANEL */}
-                {/* ✨ OPTIMIZED: Added flex-col, proper background colors, and alignment */}
                 <div className={`hidden md:flex flex-col items-center justify-between absolute top-0 left-0 w-1/2 h-full z-30 transition-transform duration-[1800ms] cubic-bezier(0.4, 0, 0.2, 1) shadow-2xl bg-[#f5f5f5] dark:bg-[#111111] ${
                     isRightPanelActive ? 'translate-x-0' : 'translate-x-full'
                 }`}>
@@ -56,14 +73,21 @@ export default function Auth() {
                         <Logo />
                     </div>
 
-                    {/* Bottom Section: Student Illustration */}
+                    {/* Bottom Section: Dynamic Illustration */}
                     <div className="w-full flex-1 flex items-end justify-center pb-8 px-4">
-                        <img 
-                            src="/Svg/STUDENT.svg" 
-                            alt="LearnStack Cover"
-                            // Using object-contain ensures the SVG scales perfectly without stretching
-                            className="w-11/12 max-h-full object-contain"
-                        />
+                        {showAuthSvg ? (
+                            <img 
+                                src="/Svg/auth.svg" 
+                                alt="LearnStack Authentication"
+                                className="w-11/12 max-h-full object-contain animate-in fade-in duration-500"
+                            />
+                        ) : (
+                            <img 
+                                src="/Svg/STUDENT.svg" 
+                                alt="LearnStack Student"
+                                className="w-11/12 max-h-full object-contain animate-in fade-in duration-500"
+                            />
+                        )}
                     </div>
                 </div>
 
@@ -72,17 +96,17 @@ export default function Auth() {
                     <div className="w-full flex justify-center py-4">
                         {authMode === 'login' && (
                             <div className="w-full max-w-sm animate-in fade-in zoom-in-95 duration-500">
-                                <Login onSwitchMode={() => setAuthMode('signup')} onForgotClick={() => setAuthMode('forgot')} />
+                                <Login onSwitchMode={() => handleSwitchMode('signup')} onForgotClick={() => handleSwitchMode('forgot')} />
                             </div>
                         )}
                         {authMode === 'signup' && (
                             <div className="w-full max-w-sm animate-in fade-in zoom-in-95 duration-500">
-                                <Signup onSwitchMode={() => setAuthMode('login')} />
+                                <Signup onSwitchMode={() => handleSwitchMode('login')} onStepChange={setSignupStep} />
                             </div>
                         )}
                         {authMode === 'forgot' && (
                             <div className="w-full max-w-sm animate-in fade-in zoom-in-95 duration-500">
-                                <ForgotPassword onBackToLogin={() => setAuthMode('login')} />
+                                <ForgotPassword onBackToLogin={() => handleSwitchMode('login')} />
                             </div>
                         )}
                     </div>

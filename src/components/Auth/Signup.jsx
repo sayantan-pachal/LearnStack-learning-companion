@@ -1,114 +1,116 @@
-/* eslint-disable no-empty */
-import React, { useState, useEffect } from "react";
-import { createPortal } from "react-dom"; 
-import { useNavigate } from "react-router-dom";
-import { User, Mail, Lock, Phone, ArrowRight, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom"; 
+import { User, Mail, Lock, Phone, ArrowRight, Eye, EyeOff, Loader2, ShieldCheck, ArrowLeft } from "lucide-react";
 import { account } from "../../appwrite/config"; 
 import { useToast } from "../Other/ToastContext";
 import ProfileForm from "./ProfileForm";
 
-export default function Signup({ onSwitchMode }) {
+export default function Signup({ onSwitchMode, onStepChange }) {
     const navigate = useNavigate();
     const showToast = useToast();
 
-    // Step 1 State
+    // 1 = Basic Info, 2 = Profile Info, 3 = OTP Verification
+    const [step, setStep] = useState(1);
+    const [loading, setLoading] = useState(false);
+
+    // Basic Info State
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState(""); 
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     
-    // Step 2 State
-    const [isOtpStep, setIsOtpStep] = useState(false);
+    // Profile Info State (Saved temporarily until OTP is verified)
+    const [profileData, setProfileData] = useState(null);
+
+    // OTP & Legal Checkboxes State
     const [userOtp, setUserOtp] = useState("");
+    const [acceptedTerms, setAcceptedTerms] = useState(false); 
+    const [acceptedPrivacy, setAcceptedPrivacy] = useState(false); // ✨ Added specific state for Privacy
 
-    // Step 3 State
-    const [isProfileStep, setIsProfileStep] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
-
-    useEffect(() => {
-        const checkSession = async () => {
-            try {
-                await account.get();
-                navigate("/dashboard", { replace: true });
-            } catch {}
-        };
-        checkSession();
-    }, [navigate]);
-
-    const handleRequestSignup = async (e) => {
+    // ==========================================
+    // STEP 1: Handle Basic Info
+    // ==========================================
+    const handleBasicSubmit = (e) => {
         e.preventDefault();
         if (!name || !email || !phone || !password) return showToast("All fields are required ⚠️", "error");
         if (password.length < 8) return showToast("Password must be at least 8 characters long ⚠️", "error");
-        setLoading(true);
-        try {
-            await account.sendVerificationOTP(email, name, phone, password);
-            showToast("Verification code sent to your email! 📩", "success");
-            setIsOtpStep(true); 
-        } catch (error) {
-            showToast(error.message || "Failed to verify credentials. Please try again.", "error");
-        } finally {
-            setLoading(false);
-        }
+        
+        // Move to Profile Step
+        setStep(2);
+        onStepChange?.('profile'); 
     };
 
-    const handleVerifyOtp = async (e) => {
-        e.preventDefault();
-        if (!userOtp || userOtp.length !== 6) return showToast("Please enter a valid 6-digit code. ⚠️", "error");
-        setLoading(true);
-        try {
-            await account.verifyAndCreateAccount(email, userOtp);
-            await account.createEmailPasswordSession(email, password);
-            showToast(`Account verified! Let's set up your profile. 🎓`, "success");
-            setIsOtpStep(false);
-            setIsProfileStep(true);
-        } catch (error) {
-            showToast(error.message || "Incorrect verification code. Try again. ❌", "error");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // ✨ This now receives ALL the data from the ProfileForm component!
-    const handleCompleteProfile = async (formData) => {
+    // ==========================================
+    // STEP 2: Handle Profile Info & Send OTP
+    // ==========================================
+    const handleProfileSubmit = async (formData) => {
         if (!formData.college || !formData.year || !formData.department) {
             return showToast("Academic fields are required ⚠️", "error");
         }
         
+        // Save the profile data in state
+        setProfileData(formData);
+        setLoading(true);
+        
+        try {
+            await account.sendVerificationOTP(email, name, phone, password);
+            showToast("Verification code sent to your email! 📩", "success");
+            
+            setStep(3);
+            onStepChange?.('otp');
+            
+        } catch (error) {
+            showToast(error.message || "Failed to send verification code. Please try again.", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ==========================================
+    // STEP 3: Verify OTP & ACTUALLY Create Account
+    // ==========================================
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        
+        if (!userOtp || userOtp.length !== 6) return showToast("Please enter a valid 6-digit code. ⚠️", "error");
+        
+        // ✨ Validate BOTH checkboxes
+        if (!acceptedTerms || !acceptedPrivacy) {
+            return showToast("You must accept the Terms and Privacy Policy to proceed. ⚖️", "error");
+        }
+        
         setLoading(true);
         try {
-            // Note: Update your Appwrite config/function to accept these new params if needed!
+            await account.verifyAndCreateAccount(email, userOtp);
+            await account.createEmailPasswordSession(email, password);
             await account.updateProfile(
                 email, name, phone, 
-                formData.college, formData.year, formData.department,
-                formData.github, formData.linkedin, formData.portfolio
+                profileData.college, profileData.year, profileData.department,
+                profileData.github, profileData.linkedin, profileData.portfolio
             );
-            
-            setShowSuccessAnimation(true);
-            await new Promise(resolve => setTimeout(resolve, 3000));
             
             showToast(`Welcome to LearnStack, ${name}! 🚀`, "success");
             navigate("/dashboard", { replace: true });
+
         } catch (error) {
-            showToast(error.message || "Failed to update profile. Try again.", "error");
+            showToast(error.message || "Incorrect verification code. Try again. ❌", "error");
             setLoading(false); 
-        }
+        } 
     };
 
     const inputBase = "w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/50 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-theme-blue-500 dark:focus:ring-theme-pink-500 focus:border-transparent outline-none transition-all text-sm font-medium placeholder:text-gray-400 dark:text-white";
 
     return (
         <div className="w-full max-w-sm relative mx-auto">
-            {!showSuccessAnimation && (
-                <h1 className="font-fraunces font-black text-3xl text-center mb-1 tracking-tight">Join LearnStack</h1>
-            )}
+            <h1 className="font-fraunces font-black text-3xl text-center mb-1 tracking-tight">Join LearnStack</h1>
 
-            {!isOtpStep && !isProfileStep && !showSuccessAnimation && (
+            {/* --- STEP 1: BASIC INFO --- */}
+            {step === 1 && (
                 <div className="animate-in fade-in duration-300">
                     <p className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-5">Create your account to start your learning journey</p>
 
-                    <form className="space-y-4" onSubmit={handleRequestSignup}>
+                    <form className="space-y-4" onSubmit={handleBasicSubmit}>
                         <div>
                             <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">Full Name</label>
                             <div className="relative">
@@ -147,8 +149,8 @@ export default function Signup({ onSwitchMode }) {
                             </div>
                         </div>
 
-                        <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 mt-4 rounded-xl font-bold bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 text-white shadow-lg active:scale-95 transition-all disabled:opacity-70 text-sm hover:opacity-90">
-                            {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <>Get Code <ArrowRight size={16} /></>}
+                        <button type="submit" className="w-full flex items-center justify-center gap-2 py-3 mt-4 rounded-xl font-bold bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 text-white shadow-lg active:scale-95 transition-all text-sm hover:opacity-90">
+                            Continue to Profile <ArrowRight size={16} />
                         </button>
                     </form>
 
@@ -158,7 +160,25 @@ export default function Signup({ onSwitchMode }) {
                 </div>
             )}
 
-            {isOtpStep && !showSuccessAnimation && (
+            {/* --- STEP 2: PROFILE INFO --- */}
+            {step === 2 && (
+                <div className="animate-in slide-in-from-right-4 duration-300">
+                    <p className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-5">Just a few more details to personalize your experience.</p>
+                    
+                    <ProfileForm onSubmit={handleProfileSubmit} loading={loading} />
+
+                    <button 
+                        type="button" 
+                        onClick={() => { setStep(1); onStepChange?.('form'); }} 
+                        className="w-full flex justify-center items-center gap-1 mt-4 text-xs font-bold text-gray-500 hover:text-theme-blue-600 transition-colors"
+                    >
+                        <ArrowLeft size={12} /> Back to Basic Info
+                    </button>
+                </div>
+            )}
+
+            {/* --- STEP 3: OTP VERIFICATION --- */}
+            {step === 3 && (
                 <div className="animate-in slide-in-from-right-4 duration-300">
                     <div className="text-center mb-6">
                         <div className="w-12 h-12 bg-theme-blue-50 dark:bg-theme-blue-900/20 text-theme-blue-600 dark:text-theme-pink-400 rounded-full flex items-center justify-center mx-auto mb-3"><Mail size={24} /></div>
@@ -174,42 +194,52 @@ export default function Signup({ onSwitchMode }) {
                                 <input type="text" maxLength="6" required placeholder="123456" value={userOtp} onChange={(e) => setUserOtp(e.target.value.replace(/\D/g, ''))} className={`${inputBase} text-center font-bold tracking-widest text-base`} />
                             </div>
                         </div>
+
+                        {/* ✨ FIXED: Independent Checkboxes */}
+                        <div className="pt-2">
+                            {/* Terms Checkbox */}
+                            <div className="flex items-start gap-2 mb-2">
+                                <input 
+                                    type="checkbox" 
+                                    id="terms" 
+                                    checked={acceptedTerms}
+                                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                                    className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-700 text-theme-blue-600 focus:ring-theme-blue-500 dark:bg-[#111] cursor-pointer"
+                                />
+                                <label htmlFor="terms" className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-tight cursor-pointer flex-1">
+                                    I accept the application's{" "}
+                                    <Link to="/legal#terms&conditions" target="_blank" className="text-theme-blue-600 hover:text-theme-pink-500 dark:text-theme-blue-400 dark:hover:text-theme-pink-400 transition-colors underline decoration-dotted underline-offset-2">
+                                        Terms & Conditions
+                                    </Link>
+                                </label>
+                            </div>
+                            
+                            {/* Privacy Policy Checkbox */}
+                            <div className="flex items-start gap-2 pb-1">
+                                <input 
+                                    type="checkbox" 
+                                    id="privacy" 
+                                    checked={acceptedPrivacy}
+                                    onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                                    className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-700 text-theme-blue-600 focus:ring-theme-blue-500 dark:bg-[#111] cursor-pointer"
+                                />
+                                <label htmlFor="privacy" className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-tight cursor-pointer flex-1">
+                                    I read and agree to the {" "}
+                                    <Link to="/legal#privacy" target="_blank" className="text-theme-blue-600 hover:text-theme-pink-500 dark:text-theme-blue-400 dark:hover:text-theme-pink-400 transition-colors underline decoration-dotted underline-offset-2">
+                                        Privacy Policy
+                                    </Link>
+                                </label>
+                            </div>
+                        </div>
+
                         <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 mt-4 rounded-xl font-bold bg-gradient-to-r from-theme-blue-600 to-theme-pink-500 dark:from-theme-blue-700 dark:to-theme-pink-500 text-white shadow-lg active:scale-95 transition-all disabled:opacity-70 text-sm hover:opacity-90">
-                            {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <>Verify Account <ArrowRight size={16} /></>}
+                            {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <>Create Account <ArrowRight size={16} /></>}
                         </button>
                     </form>
                     <p className="mt-5 text-center text-xs font-bold text-gray-500 dark:text-gray-400">
-                        Wrong email? <button type="button" onClick={() => setIsOtpStep(false)} className="text-theme-blue-600 hover:text-theme-pink-500 dark:text-theme-blue-400 dark:hover:text-theme-pink-400 transition-colors">Go back</button>
+                        Wrong email? <button type="button" onClick={() => { setStep(1); onStepChange?.('form'); }} className="text-theme-blue-600 hover:text-theme-pink-500 dark:text-theme-blue-400 dark:hover:text-theme-pink-400 transition-colors">Go back</button>
                     </p>
                 </div>
-            )}
-
-            {isProfileStep && !showSuccessAnimation && (
-                <div className="animate-in slide-in-from-right-4 duration-300">
-                    <p className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-5">Just a few more details to personalize your experience.</p>
-
-                    {/* ✨ HERE IS YOUR NEW REUSABLE COMPONENT */}
-                    <ProfileForm onSubmit={handleCompleteProfile} loading={loading} />
-                    
-                </div>
-            )}
-
-            {/* ✨ TELEPORTED FULL-SCREEN ANIMATION */}
-            {showSuccessAnimation && createPortal(
-                <div className="fixed inset-0 z-[9999] bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md animate-in zoom-in-95 fade-in duration-1500 flex flex-col items-center justify-center p-4">
-                    <img 
-                        src="/Svg/Construction.svg" 
-                        alt="Building Workspace" 
-                        className="w-32 h-32 sm:w-80 sm:h-80 mx-auto mb-4 sm:mb-8 object-contain drop-shadow-xl"
-                    />
-                    <h2 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white mb-2 text-center">
-                        Setting up your workspace
-                    </h2>
-                    <p className="text-base sm:text-lg font-bold text-theme-blue-600 dark:text-theme-pink-400 animate-pulse text-center">
-                        Personalizing your dashboard...
-                    </p>
-                </div>,
-                document.body
             )}
         </div>
     );

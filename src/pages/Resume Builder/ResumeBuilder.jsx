@@ -7,20 +7,20 @@ import ResumePreview from './ResumePreview';
 import ResumePDF from './ResumePDF'; 
 
 export default function ResumeBuilder({ user }) {
-    // Pre-filled with your reference data
+    // Pre-filled with DEMO reference data
     const [personal, setPersonal] = useState({
-        name: "SAYANTAN PACHAL",
-        subtitle: "COMPUTER SCIENCE & ENGINEERING | FULL-STACK DEVELOPER - AI ENTHUSIAST",
-        location: "Howrah, West Bengal, India",
-        email: "pachalsayantan@gmail.com",
-        githubLinkedin: "sayantan-pachal",
-        website: "sayantanpachal.vercel.app"
+        name: "ALEXANDER WRIGHT",
+        subtitle: "SOFTWARE ENGINEERING STUDENT | FULL-STACK DEVELOPER - CLOUD ENTHUSIAST",
+        location: "Seattle, Washington, USA",
+        email: "alex.wright.dev@example.com",
+        githubLinkedin: "alex-wright-dev",
+        website: "alexwright.vercel.app"
     });
 
-    const [overview, setOverview] = useState("Computer Science Engineering student and Full-Stack Developer with proven expertise in building scalable, production-ready applications. Strong foundation in Data Structures and Algorithms, with hands-on proficiency in React, Node.js, Python, Java, and C++. Currently developing LearnStack, a collaborative learning platform, and previously engineered SmartKrishi, an agricultural web application integrating real-time data and machine learning insights. Focused on clean architecture, maintainable code, and solving real-world problems through thoughtful design.");
+    const [overview, setOverview] = useState("Software Engineering student and Full-Stack Developer with proven expertise in building scalable, production-ready applications. Strong foundation in Data Structures and Algorithms, with hands-on proficiency in React, Node.js, Python, Java, and C++. Currently developing EduCollab, a collaborative learning platform, and previously engineered EcoHarvest, an agricultural web application integrating real-time data and machine learning insights. Focused on clean architecture, maintainable code, and solving real-world problems through thoughtful design.");
 
     const [education, setEducation] = useState([
-        { id: 1, degree: "Bachelor of Technology", school: "B. P. Poddar Institute of Management and Technology, MAKAUT", date: "2025 - 29" }
+        { id: 1, degree: "Bachelor of Science in Computer Science", school: "University of Technology and Advanced Sciences", date: "2025 - 2029" }
     ]);
 
     const [skills, setSkills] = useState("Java, Python, C++, JavaScript, C#, C | React, Node.js, Express, Tailwind CSS, API Integration | Git, GitHub");
@@ -28,7 +28,7 @@ export default function ResumeBuilder({ user }) {
     const [projects, setProjects] = useState([
         {
             id: 1,
-            title: 'SmartKrishi',
+            title: 'EcoHarvest',
             subtitle: 'Smart Agriculture Dashboard (React, AI/ML Integration)',
             date: '2026',
             liveLink: '',
@@ -37,7 +37,7 @@ export default function ResumeBuilder({ user }) {
         },
         {
             id: 2,
-            title: 'Personal Portfolio Website',
+            title: 'Developer Portfolio Website',
             subtitle: 'Personal Project (React, Tailwind CSS)',
             date: '2025 - Present',
             liveLink: '',
@@ -46,7 +46,7 @@ export default function ResumeBuilder({ user }) {
         },
         {
             id: 3,
-            title: 'LearnStack',
+            title: 'EduCollab',
             subtitle: 'Collaborative Learning Platform (React, Node.js, Python)',
             date: '2026 - Present',
             liveLink: '',
@@ -56,10 +56,10 @@ export default function ResumeBuilder({ user }) {
     ]);
 
     const [certifications, setCertifications] = useState([
-        { id: 1, name: "Developing Back-End Apps with Node.js and Express | IBM | Coursera", date: "July, 2026" },
-        { id: 2, name: "Python for Data Science, AI & Development | IBM | Coursera", date: "May, 2026" },
-        { id: 3, name: "Developing Front-End Apps with React | IBM | Coursera", date: "January, 2026" },
-        { id: 4, name: "Introduction to Software Engineering | IBM | Coursera", date: "November, 2025" }
+        { id: 1, name: "Developing Back-End Apps with Node.js and Express | TechCorp | Coursera", date: "July, 2026" },
+        { id: 2, name: "Python for Data Science, AI & Development | TechCorp | Coursera", date: "May, 2026" },
+        { id: 3, name: "Developing Front-End Apps with React | TechCorp | Coursera", date: "January, 2026" },
+        { id: 4, name: "Introduction to Software Engineering | TechCorp | Coursera", date: "November, 2025" }
     ]);
 
     const addProject = () => setProjects([...projects, { id: Date.now(), title: '', subtitle: '', date: '', bullets: '' }]);

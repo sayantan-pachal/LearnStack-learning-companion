@@ -15,13 +15,13 @@ export default function Header() {
     { to: "/resources", label: "Resources", icon: BookOpen },
     { to: "/courses", label: "Courses", icon: Shapes },
     { to: "/resume-builder", label: "Resume", icon: FileText },
-    { to: "/community", label: "Community", icon: Users },
   ];
   
   const userLinks = [
     { to: "/profile", label: "My Profile" },
     { to: "/mylearning", label: "My Learning" },
     { to: "/achievements", label: "My Achievements" },
+    { to: "/community", label: "Community" },
     { to: "/resetpassword", label: "Reset Password" },
   ];
 

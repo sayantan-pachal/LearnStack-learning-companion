@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   BookOpen, Compass, Trophy, PlayCircle,
-  CheckCircle2, Video, FileText, CalendarDays, Sparkles, FileUser
+  CheckCircle2, Video, FileText, CalendarDays, Sparkles
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { account, databases, PROGRESS_COLLECTION_ID, COURSES_COLLECTION_ID, DATABASE_ID } from "../../appwrite/config";
@@ -14,6 +14,19 @@ import DailyChallenge from "./DailyChallenge";
 import FocusTimer from "./FocusTimer";
 import QuickScratchpad from "./QuickScratchpad";
 import GitHubHeatmap from "./GitHubHeatmap";
+
+// 🚀 OPTIMIZATION: Hoisted functions outside the component so they 
+// aren't needlessly recreated on every single render.
+const formatName = (name = "") =>
+  name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour >= 6 && hour < 12) return "Good morning";
+  if (hour >= 12 && hour < 17) return "Good afternoon";
+  if (hour >= 17 && hour <= 23) return "Good evening";
+  return "Up late";
+};
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -43,27 +56,35 @@ export default function Dashboard() {
           doc => String(doc.UserId) === String(currentUser.$id) || String(doc.userId) === String(currentUser.$id)
         );
 
-        const enrolledCoursesData = myProgress.map(prog => {
+        // 🚀 OPTIMIZATION: Create an O(1) Lookup Dictionary for courses
+        // This prevents the slow O(N^2) .find() loop over the courses array
+        const courseDict = allCourses.reduce((acc, course) => {
+          acc[String(course.ID || course.$id)] = course;
+          return acc;
+        }, {});
+
+        // 🚀 OPTIMIZATION: Single .reduce() pass instead of .map().filter() 
+        // to save memory allocation
+        const enrolledCoursesData = myProgress.reduce((acc, prog) => {
           const badgeValue = String(prog.Badge || "").toUpperCase();
-          if (prog.CompletionPercentage >= 100 || badgeValue === "Y" || badgeValue === "C") return null;
+          if (prog.CompletionPercentage >= 100 || badgeValue === "Y" || badgeValue === "C") return acc;
 
-          const courseDetails = allCourses.find(c =>
-            String(c.ID) === String(prog.CourseId) || String(c.$id) === String(prog.CourseId)
-          );
+          const courseDetails = courseDict[String(prog.CourseId)];
+          if (!courseDetails) return acc;
 
-          if (!courseDetails) return null;
-
-          return {
+          acc.push({
             id: prog.$id,
             courseId: courseDetails.$id || courseDetails.ID,
             title: courseDetails.Title,
             progress: prog.CompletionPercentage || 0,
             lastAccessed: new Date(prog.$updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-          };
-        }).filter(Boolean);
+          });
+          return acc;
+        }, []);
 
         setActiveCourses(enrolledCoursesData);
 
+        // Process Graph Data
         const monthCounts = new Array(12).fill(0);
         myProgress.forEach(prog => {
           const badgeValue = String(prog.Badge || "").toUpperCase();
@@ -81,6 +102,7 @@ export default function Dashboard() {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         setChartData(months.map((m, i) => ({ month: m, count: monthCounts[i] })));
 
+        // Process Recent Resources
         const sortedCourses = [...allCourses].sort((a, b) => new Date(b.$createdAt || 0) - new Date(a.$createdAt || 0));
         const newestResources = sortedCourses.slice(0, 3).map((res) => ({
           id: res.$id || Math.random(),
@@ -102,17 +124,6 @@ export default function Dashboard() {
 
     fetchDashboardData();
   }, [navigate]);
-
-  const formatName = (name = "") =>
-    name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour >= 6 && hour < 12) return "Good morning";
-    if (hour >= 12 && hour < 17) return "Good afternoon";
-    if (hour >= 17 && hour <= 23) return "Good evening";
-    return "Up late";
-  };
 
   if (loading) {
     return (
@@ -210,7 +221,7 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-            {/* ✨ PROPERLY PLACED: GitHub Heatmap sits beautifully under the Achievement Chart */}
+
             <GitHubHeatmap githubUrl={user?.Github || user?.github} />
 
             {/* MUSIC APP */}
@@ -248,87 +259,20 @@ export default function Dashboard() {
               </Link>
             </div>
 
+            {/* RESUME BUILDER */}
             <div>
-              <Link
-                to="/resume-builder"
-                className="
-      group flex w-full flex-col justify-between
-      rounded-[1.25rem] sm:rounded-2xl lg:rounded-3xl
-      border border-gray-200 dark:border-gray-800
-      bg-white dark:bg-[#0a0a0a]
-      p-4 sm:p-5 lg:p-6
-      transition-all duration-300
-      hover:-translate-y-1
-      hover:border-theme-blue-300
-      hover:shadow-xl hover:shadow-theme-blue-500/10
-      dark:hover:border-theme-blue-500/50
-    "
-              >
+              <Link to="/resume-builder" className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-[1.25rem] sm:rounded-3xl p-5 sm:p-6 hover:shadow-xl hover:border-theme-blue-300 dark:hover:border-theme-blue-500/50 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left h-full justify-between">
                 <div>
-                  {/* Icon */}
-                  <div
-                    className="
-          flex items-center justify-center
-          w-10 h-10
-          sm:w-11 sm:h-11
-          lg:w-12 lg:h-12
-          mb-3 sm:mb-4
-          rounded-xl lg:rounded-2xl
-          bg-theme-blue-50 dark:bg-theme-blue-500/10
-          transition-transform duration-300
-          group-hover:scale-110
-        "
-                  >
-                    <FileText
-                      className="
-            w-5 h-5
-            sm:w-[22px] sm:h-[22px]
-            lg:w-6 lg:h-6
-            text-theme-blue-600 dark:text-theme-blue-400
-          "
-                    />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-theme-blue-50 dark:bg-theme-blue-500/10 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                    <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-theme-blue-600 dark:text-theme-blue-400" />
                   </div>
-
-                  {/* Title */}
-                  <h3
-                    className="
-          text-sm sm:text-base lg:text-lg
-          font-black
-          text-gray-900 dark:text-white
-          mb-1
-        "
-                  >
-                    Resume Builder
-                  </h3>
-
-                  {/* Description */}
-                  <p
-                    className="
-          max-w-md
-          text-xs sm:text-sm
-          font-medium
-          leading-relaxed
-          text-gray-500 dark:text-gray-400
-        "
-                  >
+                  <h3 className="font-black text-gray-900 dark:text-white text-sm sm:text-base mb-1">Resume Builder</h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-medium leading-relaxed max-w-[250px] mx-auto sm:mx-0">
                     Create and download your ATS-optimized professional resume.
                   </p>
                 </div>
-
-                {/* CTA */}
-                <div
-                  className="
-        mt-4 sm:mt-5
-        flex items-center
-        text-xs sm:text-sm
-        font-bold
-        text-theme-blue-600 dark:text-theme-blue-400
-        transition-transform duration-300
-        group-hover:translate-x-1
-      "
-                >
-                  Get Started
-                  <span className="ml-1">→</span>
+                <div className="mt-4 sm:mt-5 flex items-center justify-center sm:justify-start text-xs sm:text-sm font-bold text-theme-blue-600 dark:text-theme-blue-400 transition-transform duration-300 group-hover:translate-x-1">
+                  Get Started <span className="ml-1">→</span>
                 </div>
               </Link>
             </div>
@@ -357,7 +301,6 @@ export default function Dashboard() {
             </section>
 
           </div>
-
         </div>
 
         {/* ================= FOOTER PUNCHLINE ================= */}

@@ -64,10 +64,10 @@ export default function ProfileForm({ onSubmit, loading, initialData = {} }) {
     const inputBase = "w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/50 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-theme-blue-500 dark:focus:ring-theme-pink-500 focus:border-transparent outline-none transition-all text-sm font-medium placeholder:text-gray-400 dark:text-white";
 
     return (
-        <form className="space-y-5 w-full" onSubmit={handleSubmit}>
+        <form className="space-y-4 w-full" onSubmit={handleSubmit}>
             
             {/* --- ACADEMIC DETAILS --- */}
-            <div className="space-y-4">
+            <div className="space-y-2">
                 <div>
                     <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">
                         College / University <span className="text-red-500">*</span>
@@ -126,7 +126,7 @@ export default function ProfileForm({ onSubmit, loading, initialData = {} }) {
             </div>
 
             {/* --- PROFESSIONAL LINKS --- */}
-            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-4">
+            <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
                 
                 {/* GitHub */}
                 <div>

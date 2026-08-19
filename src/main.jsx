@@ -19,6 +19,8 @@ import ResumeBuilder from './pages/Resume Builder/ResumeBuilder.jsx'
 import Exam from './pages/Exam/Exam.jsx'
 import Loader from './components/Other/Loader.jsx'
 import Edgecase from './components/Other/Edgecase.jsx'
+import Legal from './pages/Legal/Legal.jsx'
+import HelpDeskTerminal from './components/Auth/test.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import { ToastProvider } from "./components/Other/ToastContext.jsx";
 
@@ -31,6 +33,8 @@ const router = createBrowserRouter(
       <Route path='auth' element={<Auth />} />
       <Route path='loader' element={<Loader />} />
       <Route path='test' element={<Test />} />
+      <Route path='helpdesk' element={<HelpDeskTerminal />} />
+      <Route path='legal' element={<Legal />} />
       <Route path="resetpassword" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
       {/* Protected Routes: Wrapped INSIDE the Layout (Header + Outlet + Footer) */}
       <Route element={<Layout />}>
